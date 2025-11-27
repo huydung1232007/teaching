@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Ma Trận Số</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            background: #000; color: #00f3ff;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex; justify-content: center; align-items: center;
+        }
+        
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .back-btn {
+            position: absolute; top: 20px; left: 20px;
+            padding: 10px 25px; border: 1px solid #00f3ff;
+            text-decoration: none; border-radius: 5px; font-weight: bold; color: #00f3ff;
+            z-index: 100; background: rgba(0,0,0,0.5);
+        }
+
+        /* Giao diện chính giữa */
+        .interface {
+            position: relative; z-index: 10;
+            width: 600px; padding: 40px;
+            background: rgba(0, 20, 20, 0.85);
+            border: 2px solid #00f3ff;
+            box-shadow: 0 0 20px #00f3ff, inset 0 0 20px rgba(0, 243, 255, 0.2);
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Hiệu ứng quét */
+        .interface::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: #00f3ff; box-shadow: 0 0 10px #00f3ff;
+            animation: scan 2s linear infinite; opacity: 0.5;
+        }
+        @keyframes scan { 0% {top:0} 100% {top:100%} }
+
+        h1 { margin: 0 0 20px 0; font-size: 32px; text-transform: uppercase; text-shadow: 0 0 10px #00f3ff; }
+
+        .decoder-box {
+            font-size: 40px; height: 60px; margin: 30px 0;
+            color: #fff; text-shadow: 0 0 5px #fff;
+            letter-spacing: 5px;
+        }
+
+        .btn-hack {
+            background: #00f3ff; color: #000; border: none;
+            padding: 15px 50px; font-size: 20px; font-family: 'Share Tech Mono', monospace;
+            cursor: pointer; box-shadow: 0 0 15px #00f3ff; font-weight: bold;
+            transition: 0.2s; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+        .btn-hack:hover { transform: scale(1.05); background: #fff; box-shadow: 0 0 30px #fff; }
+        .btn-hack:disabled { background: #333; color: #555; box-shadow: none; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">system.exit()</a>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="interface">
+        <h1>SYSTEM TARGETING...</h1>
+        <div class="decoder-box" id="result">Waiting...</div>
+        <button class="btn-hack" onclick="startHack()">INITIATE HACK</button>
+    </div>
+
+    <script>
+        // MATRIX RAIN EFFECT
+        const cvs = document.getElementById('matrixCanvas');
+        const ctx = cvs.getContext('2d');
+        cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+        
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
+        const fontSize = 16;
+        const columns = cvs.width / fontSize;
+        const drops = [];
+        for(let x=0; x<columns; x++) drops[x] = 1;
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)"; // Tạo vệt mờ
+            ctx.fillRect(0, 0, cvs.width, cvs.height);
+            
+            ctx.fillStyle = "#00f3ff"; // Màu chữ
+            ctx.font = fontSize + "px monospace";
+
+            for(let i=0; i<drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random()*chars.length));
+                ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+                if(drops[i]*fontSize > cvs.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+
+        // DATA LOGIC
+        let fullList=[], remaining=[];
+        function initData(){
+            const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
+            const r=localStorage.getItem('remainingStudents');if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+        }
+        initData();
+
+        function getUnique(){
+            initData(); 
+            if(remaining.length===0){
+                if(fullList.length===0) return alert("NO DATA FOUND!"); 
+                if(confirm("SYSTEM EMPTY. REBOOT?")){remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}else return null;
+            }
+            const idx=Math.floor(Math.random()*remaining.length); 
+            const w=remaining[idx];
+            remaining.splice(idx,1); 
+            localStorage.setItem('remainingStudents',JSON.stringify(remaining));
+            return w;
+        }
+
+        // DECODING EFFECT
+        function startHack() {
+            const winner = getUnique(); if(!winner) return;
+            
+            const btn = document.querySelector('.btn-hack');
+            const display = document.getElementById('result');
+            btn.disabled = true;
+            btn.innerText = "DECRYPTING...";
+
+            let iteration = 0;
+            const maxIterations = 20; // Số lần đổi chữ trước khi chốt
+            
+            // Hiệu ứng chạy chữ loạn xạ
+            const interval = setInterval(() => {
+                display.innerText = winner
+                    .split("")
+                    .map((letter, index) => {
+                        // Nếu đã chạy đủ số lần cho ký tự này -> Hiển thị ký tự thật
+                        if(index < iteration) return winner[index];
+                        // Nếu chưa -> Hiển thị ký tự random
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    })
+                    .join("");
+                
+                if(iteration >= winner.length) { 
+                    clearInterval(interval);
+                    btn.disabled = false;
+                    btn.innerText = "ACCESS GRANTED";
+                    display.style.color = "#00ff00"; // Chuyển xanh lá khi xong
+                    display.style.textShadow = "0 0 20px #00ff00";
+                    setTimeout(() => { 
+                        btn.innerText = "INITIATE HACK"; 
+                        display.style.color = "#fff"; 
+                        display.style.textShadow = "0 0 5px #fff";
+                    }, 3000);
+                }
+                
+                // Tốc độ giải mã: Cứ 3 frame thì giải được 1 ký tự
+                iteration += 1/10; 
+            }, 30);
+        }
+    </script>
+</body>
+</html>
