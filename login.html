@@ -3,42 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập - Class Manager</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Đăng Nhập - TEKTOOL PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body {
+            margin: 0; height: 100vh;
             font-family: 'Inter', sans-serif;
             background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
-            height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center;
-            color: white;
+            display: flex; align-items: center; justify-content: center;
+            color: white; overflow: hidden;
         }
+
+        /* Hiệu ứng nền */
+        .glow {
+            position: absolute; width: 600px; height: 600px;
+            background: #3b82f6; filter: blur(150px); opacity: 0.15;
+            border-radius: 50%; z-index: -1;
+        }
+
         .login-card {
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
-            border: 1px solid #334155; padding: 50px; border-radius: 24px;
-            text-align: center; width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 400px; padding: 50px 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: floatUp 0.8s ease-out;
         }
+
+        @keyframes floatUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+        .logo { font-size: 48px; margin-bottom: 20px; }
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 40px; line-height: 1.6; }
+
         .btn-google {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 14px; background: white; color: #1e293b;
-            border: none; border-radius: 12px; font-weight: 600; font-size: 16px;
-            cursor: pointer; transition: transform 0.2s; margin-top: 30px;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 14px;
+            background: white; color: #0f172a;
+            border: none; border-radius: 12px;
+            font-weight: 700; font-size: 16px;
+            cursor: pointer; transition: all 0.2s;
         }
-        .btn-google:hover { transform: translateY(-2px); }
-        .loading { display: none; color: #94a3b8; margin-top: 15px; font-size: 14px; }
+        .btn-google:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
+        .btn-google:active { transform: scale(0.98); }
+
+        .footer { margin-top: 30px; font-size: 12px; color: #475569; }
     </style>
 </head>
 <body>
 
+    <div class="glow"></div>
+
     <div class="login-card">
-        <div style="font-size: 50px; margin-bottom: 20px;">🎓</div>
-        <h1 style="font-size: 24px; margin-bottom: 10px;">Chào Mừng Trở Lại</h1>
-        <p style="color: #94a3b8; font-size: 14px;">Đăng nhập để đồng bộ dữ liệu lớp học của bạn.</p>
+        <div class="logo">⚡</div>
+        <h1>TEKTOOL PRO</h1>
+        <p>Hệ thống quản lý lớp học & trò chơi ngẫu nhiên.<br>Đăng nhập để đồng bộ dữ liệu đám mây.</p>
         
-        <button class="btn-google" onclick="loginGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+        <button class="btn-google" id="btnLogin">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G">
             Tiếp tục với Google
         </button>
-        <div class="loading" id="loadingMsg">Đang xử lý đăng nhập...</div>
+
+        <div class="footer">© 2024 TekTool Class Manager</div>
     </div>
 
     <script type="module">
@@ -54,29 +81,33 @@
   messagingSenderId: "1062124587042",
   appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
   measurementId: "G-Q76M508V96"
-};
+       };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        let app, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+        } catch(e) {
+            console.error("Chưa config Firebase");
+            alert("Lỗi: Chưa cấu hình Firebase trong code!");
+        }
 
-        // Kiểm tra nếu đã đăng nhập rồi thì chuyển ngay sang trang chủ
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = "index.html";
-            }
-        });
+        // Nếu đã đăng nhập -> Chuyển ngay sang trang chủ
+        if(auth) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    window.location.href = "index.html";
+                }
+            });
+        }
 
-        window.loginGoogle = () => {
-            document.getElementById('loadingMsg').style.display = 'block';
+        document.getElementById('btnLogin').onclick = () => {
             const provider = new GoogleAuthProvider();
             signInWithPopup(auth, provider)
                 .then(() => {
                     window.location.href = "index.html";
                 })
-                .catch((error) => {
-                    alert("Lỗi: " + error.message);
-                    document.getElementById('loadingMsg').style.display = 'none';
-                });
+                .catch((error) => alert(error.message));
         };
     </script>
 </body>
