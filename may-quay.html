@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Slot Machine Business</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e293b; /* Navy */
+            --accent: #f1c40f;  /* Gold */
+            --bg: #f8fafc;      /* White Background */
+            --reel-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            margin: 0; height: 100vh; overflow: hidden;
+            background-color: var(--bg);
+            /* Họa tiết nền sang trọng */
+            background-image: 
+                linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            font-family: 'Inter', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            user-select: none;
+        }
+
+        .back-btn {
+            position: absolute; top: 20px; left: 20px; padding: 10px 25px;
+            background: white; border: 1px solid var(--border);
+            text-decoration: none; border-radius: 30px; font-weight: 600; color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: 0.2s; z-index: 1000;
+        }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+
+        /* --- BẢNG LỊCH SỬ (Góc phải) --- */
+        .history-box {
+            position: absolute; top: 20px; right: 20px; width: 240px; max-height: 400px;
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px;
+            z-index: 90; display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.1);
+        }
+        .history-title { 
+            font-weight: 800; text-transform: uppercase; margin-bottom: 15px; 
+            border-bottom: 2px solid var(--primary); padding-bottom: 8px; 
+            text-align: center; color: var(--primary); font-size: 12px; letter-spacing: 1px;
+        }
+        .history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        .history-item { 
+            font-size: 13px; padding: 10px 0; border-bottom: 1px dashed #e2e8f0; 
+            color: #475569; font-weight: 600; display: flex; align-items: center; gap: 8px;
+        }
+        .history-item::before { content: "★"; color: var(--accent); }
+
+        /* --- MÁY SLOT --- */
+        .slot-machine-container {
+            position: relative;
+            background: #fff;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.15),
+                inset 0 0 0 10px #f1f5f9;
+            border: 1px solid #cbd5e1;
+            text-align: center;
+        }
+
+        /* Khung chứa 3 cuộn */
+        .reels-wrapper {
+            display: flex; gap: 15px;
+            padding: 20px;
+            background: #1e293b; /* Nền tối cho khu vực cuộn để nổi bật chữ trắng/vàng */
+            border-radius: 15px;
+            box-shadow: inset 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            border: 4px solid var(--accent);
+        }
+
+        .reel {
+            width: 180px; height: 200px;
+            background: white;
+            overflow: hidden;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+        /* Bóng mờ tạo hiệu ứng cong 3D */
+        .reel::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 30px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+            z-index: 5; pointer-events: none;
+        }
+        .reel::after {
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 30px;
+            background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+            z-index: 5; pointer-events: none;
+        }
+
+        .strip {
+            display: flex; flex-direction: column;
+            transform: translateY(0);
+            /* Transition sẽ được thêm bằng JS */
+        }
+
+        .item {
+            height: 200px; /* Bằng chiều cao reel */
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px; font-weight: 700;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            background: white;
+            text-align: center; padding: 0 10px;
+            word-wrap: break-word;
+        }
+        
+        .item.winner-item {
+            color: #d35400; /* Màu đỏ cam cho người thắng */
+            background: #fffbeb;
+        }
+
+        /* Nút quay */
+        .spin-btn {
+            background: var(--primary); color: white;
+            border: none; padding: 15px 60px;
+            font-size: 18px; font-weight: 800; letter-spacing: 2px;
+            border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(30, 41, 59, 0.3);
+            transition: 0.3s; text-transform: uppercase;
+        }
+        .spin-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(30, 41, 59, 0.4); background: #334155; }
+        .spin-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Đường kẻ thắng cuộc */
+        .payline {
+            position: absolute; top: 50%; left: -20px; right: -20px;
+            height: 4px; background: rgba(241, 196, 15, 0.7);
+            z-index: 10; pointer-events: none;
+            box-shadow: 0 0 10px var(--accent);
+            display: none; /* Hiện khi quay xong */
+        }
+
+        /* --- POPUP --- */
+        .fixed-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.8); z-index: 50000; display: none; backdrop-filter: blur(5px); animation: fadeIn 0.3s; }
+        .fixed-overlay.active { display: block; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        
+        .winner-popup-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); width: 400px; z-index: 50001; transition: 0.4s; pointer-events: none; opacity: 0; }
+        .winner-popup-container.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+        
+        .popup-card { 
+            width: 100%; padding: 40px 30px; border-radius: 16px; 
+            background: white; border: 1px solid var(--border); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        .popup-icon { font-size: 60px; margin-bottom: 20px; }
+        .popup-name { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--primary); margin-bottom: 30px; text-align: center; line-height: 1.2; font-weight: 700;}
+        .popup-close-btn { background: var(--primary); color: white; border: none; padding: 12px 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition:0.3s;}
+        
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+    <canvas id="confettiCanvas"></canvas>
+
+    <div class="history-box">
+        <div class="history-title">Lịch Sử Trúng Thưởng</div>
+        <ul class="history-list" id="historyList"></ul>
+    </div>
+
+    <!-- POPUP -->
+    <div class="fixed-overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="winner-popup-container" id="popup">
+        <div class="popup-card">
+            <div class="popup-icon">🎰</div>
+            <div style="font-size:12px; color:#94a3b8; letter-spacing:2px; font-weight:bold; margin-bottom:10px;">JACKPOT</div>
+            <div class="popup-name" id="popupName">Nguyen Van A</div>
+            <button class="popup-close-btn" onclick="closePopup()">Xác Nhận</button>
+        </div>
+    </div>
+
+    <h1 style="color:var(--primary); font-family:'Playfair Display'; margin-bottom: 30px; font-size: 36px;">JACKPOT MACHINE</h1>
+
+    <div class="slot-machine-container">
+        <div class="reels-wrapper">
+            <div class="payline" id="payline"></div>
+            <!-- 3 Màn hình (Reels) -->
+            <div class="reel"><div class="strip" id="strip1"><div class="item">?</div></div></div>
+            <div class="reel"><div class="strip" id="strip2"><div class="item">?</div></div></div>
+            <div class="reel"><div class="strip" id="strip3"><div class="item">?</div></div></div>
+        </div>
+        <button class="spin-btn" id="spinBtn" onclick="spin()">QUAY SỐ</button>
+    </div>
+
+    <script>
+        let fullList=[], remaining=[];
+        
+        function initData(){
+            const f=localStorage.getItem('classStudents'); fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
+            const r=localStorage.getItem('remainingStudents'); if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const l = document.getElementById('historyList'); l.innerHTML = '';
+            if (fullList.length > 0) {
+                const remSet = new Set(remaining);
+                const winners = fullList.filter(x => !remSet.has(x));
+                winners.forEach(n => {
+                    const li = document.createElement('li'); li.className = 'history-item'; li.innerText = n;
+                    l.appendChild(li);
+                });
+                l.scrollTop = l.scrollHeight;
+            }
+        }
+
+        function getUnique(){
+            initData(); if(remaining.length===0){if(fullList.length===0) return alert("Chưa có danh sách!"); if(confirm("Hết danh sách! Reset?")){remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));renderHistory();}else return null;}
+            const idx=Math.floor(Math.random()*remaining.length); const w=remaining[idx];
+            remaining.splice(idx,1); localStorage.setItem('remainingStudents',JSON.stringify(remaining));
+            return w;
+        }
+
+        // --- SLOT MACHINE LOGIC ---
+        function spin() {
+            const winner = getUnique(); if(!winner) return;
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
+            document.getElementById('payline').style.display = 'none';
+
+            // Cấu hình độ dài cuộn (Số lượng tên ảo trước khi dừng)
+            // Reel 1: 20 tên, Reel 2: 30 tên, Reel 3: 40 tên -> Tạo hiệu ứng dừng lệch nhau
+            spinReel(1, winner, 20, 3000); // 3s
+            spinReel(2, winner, 30, 3500); // 3.5s
+            spinReel(3, winner, 40, 4000); // 4s
+
+            // Kết thúc
+            setTimeout(() => {
+                document.getElementById('payline').style.display = 'block'; // Hiện vạch thắng
+                showPopup(winner);
+                renderHistory();
+                btn.disabled = false;
+            }, 4200);
+        }
+
+        function spinReel(reelId, winnerName, itemsCount, duration) {
+            const strip = document.getElementById(`strip${reelId}`);
+            let html = '';
+            
+            // Tạo danh sách tên ảo ngẫu nhiên
+            for(let i=0; i<itemsCount; i++) {
+                let randomName = fullList.length > 0 ? fullList[Math.floor(Math.random()*fullList.length)] : "Waiting...";
+                html += `<div class="item">${randomName}</div>`;
+            }
+            // Tên người thắng nằm cuối cùng
+            html += `<div class="item winner-item">${winnerName}</div>`;
+            
+            strip.innerHTML = html;
+            
+            // Reset vị trí
+            strip.style.transition = 'none';
+            strip.style.transform = 'translateY(0)';
+            strip.offsetHeight; // Force Reflow
+
+            // Bắt đầu quay
+            // Chiều cao item = 200px
+            const totalHeight = itemsCount * 200;
+            
+            setTimeout(() => {
+                strip.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
+                strip.style.transform = `translateY(-${totalHeight}px)`;
+            }, 50);
+        }
+
+        // Popup & Confetti
+        function showPopup(n){ document.getElementById('popupName').innerText=n; document.getElementById('overlay').classList.add('active'); document.getElementById('popup').classList.add('active'); fireConfetti(); }
+        function closePopup(){ document.getElementById('overlay').classList.remove('active'); document.getElementById('popup').classList.remove('active'); }
+        
+        const canvas=document.getElementById('confettiCanvas'), cx=canvas.getContext('2d'); let p=[];
+        function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;} window.addEventListener('resize',resizeCanvas); resizeCanvas();
+        function fireConfetti(){ p=[]; for(let i=0;i<150;i++) p.push({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-0.5)*15,vy:(Math.random()-0.5)*15-5,c:'#f1c40f',s:Math.random()*10+5}); animate(); }
+        function animate(){ if(p.length===0)return; cx.clearRect(0,0,canvas.width,canvas.height); p.forEach((pt,i)=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.2;pt.vx*=0.96;pt.vy*=0.96;cx.fillStyle=pt.c;cx.fillRect(pt.x,pt.y,pt.s,pt.s);if(pt.y>canvas.height)p.splice(i,1)}); requestAnimationFrame(animate); }
+
+        initData();
+    </script>
+</body>
+</html>
