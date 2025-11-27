@@ -206,4 +206,118 @@
         window.renderSavedLists = () => {
             const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
             const container = document.getElementById('savedListContainer');
-            const current = localStorag
+            const current = localStorage.getItem('currentClassName');
+            const keys = Object.keys(data);
+            document.getElementById('totalClasses').innerText = keys.length;
+            container.innerHTML = '';
+            if (keys.length === 0) { container.innerHTML = '<div style="text-align:center;color:#475569;font-size:13px;margin-top:20px;">Trống</div>'; return; }
+            for (const [name, list] of Object.entries(data)) {
+                const div = document.createElement('div');
+                div.className = `class-item ${name === current ? 'active' : ''}`;
+                div.onclick = (e) => { if(!e.target.classList.contains('act-btn')) selectClass(name); };
+                div.innerHTML = `<span class="c-name">${name}</span><div class="c-actions"><span class="act-btn" onclick="editClass('${name}')">✎</span><span class="act-btn" onclick="deleteClass('${name}')" style="color:#ef4444">✕</span></div>`;
+                container.appendChild(div);
+            }
+        };
+
+        window.saveNewList = () => {
+            const name = document.getElementById('inputClassName').value.trim();
+            const list = document.getElementById('inputStudentList').value.trim();
+            if (!name || !list) return alert("Thiếu thông tin!");
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            if (data[name] && !confirm("Ghi đè lớp này?")) return;
+            data[name] = list;
+            localStorage.setItem('savedClasses', JSON.stringify(data));
+            pushDataToCloud();
+            document.getElementById('inputClassName').value = '';
+            document.getElementById('inputStudentList').value = '';
+            renderSavedLists(); selectClass(name); window.toggleForm();
+        };
+
+        window.selectClass = (name) => {
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            if (data[name]) {
+                localStorage.setItem('classStudents', data[name]);
+                localStorage.setItem('currentClassName', name);
+                const arr = data[name].split('\n').filter(n=>n.trim());
+                localStorage.setItem('remainingStudents', JSON.stringify(arr));
+                loadActiveStatus(); renderSavedLists();
+            }
+        };
+
+        window.deleteClass = (name) => {
+            if(!confirm(`Xóa lớp ${name}?`)) return;
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            delete data[name];
+            localStorage.setItem('savedClasses', JSON.stringify(data));
+            pushDataToCloud();
+            if(localStorage.getItem('currentClassName')===name) {
+                localStorage.removeItem('currentClassName'); localStorage.removeItem('classStudents'); localStorage.removeItem('remainingStudents'); loadActiveStatus();
+            }
+            renderSavedLists();
+        };
+
+        window.editClass = (name) => {
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            if(data[name]) {
+                document.getElementById('inputClassName').value = name;
+                document.getElementById('inputStudentList').value = data[name];
+                window.toggleForm(true);
+            }
+        };
+
+        window.loadActiveStatus = () => {
+            const name = localStorage.getItem('currentClassName');
+            const list = localStorage.getItem('classStudents');
+            if (name && list) {
+                document.getElementById('currentClassName').innerText = name;
+                document.getElementById('studentCount').innerText = `${list.split('\n').filter(n=>n.trim()).length} học sinh`;
+            } else {
+                document.getElementById('currentClassName').innerText = "Chưa chọn";
+                document.getElementById('studentCount').innerText = "--";
+            }
+        };
+
+        window.resetCurrentProgress = () => {
+            const list = localStorage.getItem('classStudents');
+            if (!list) return alert("Chưa chọn lớp!");
+            if(confirm("Khôi phục danh sách gọi tên?")) {
+                const arr = list.split('\n').filter(n=>n.trim());
+                localStorage.setItem('remainingStudents', JSON.stringify(arr));
+                alert("Đã reset!");
+            }
+        };
+
+        window.toggleForm = (forceOpen = false) => {
+            const body = document.getElementById('formContent');
+            if (forceOpen) body.classList.add('open'); else body.classList.toggle('open');
+        };
+
+        window.importExcel = (input) => {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                    if (jsonData.length === 0) return alert("File rỗng!");
+                    const keywords = ['họ và tên', 'họ tên', 'tên', 'name'];
+                    let colIdx = -1;
+                    const header = jsonData[0];
+                    for (let i = 0; i < header.length; i++) {
+                        if (header[i] && keywords.includes(header[i].toString().toLowerCase().trim())) { colIdx = i; break; }
+                    }
+                    if (colIdx === -1) colIdx = (jsonData[0].length > 1) ? 1 : 0;
+                    let list = [];
+                    for (let i = 1; i < jsonData.length; i++) if (jsonData[i][colIdx]) list.push(jsonData[i][colIdx].toString().trim());
+                    if(list.length>0) { document.getElementById('inputStudentList').value = list.join('\n'); window.toggleForm(true); } 
+                    else alert("Không tìm thấy tên!");
+                } catch(e) { alert("Lỗi đọc file Excel"); }
+                input.value = "";
+            };
+            reader.readAsArrayBuffer(file);
+        };
+    </script>
+</body>
+</html>
