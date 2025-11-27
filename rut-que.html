@@ -2,146 +2,337 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Xin Xăm</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <title>Xin Xăm Business</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --gold: #f1c40f;
+            --dark-metal: #1e293b;
+        }
+
         body {
             font-family: 'Nunito', sans-serif;
-            background: radial-gradient(circle, #2c3e50 0%, #000000 100%);
-            height: 100vh; margin: 0; color: white; overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b 0%, #000000 100%);
+            height: 100vh; margin: 0;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden; color: white;
         }
+
         .back-btn {
-            position: absolute; top: 20px; left: 20px; padding: 10px 25px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            text-decoration: none; border-radius: 30px; font-weight: bold; color: #f1c40f;
+            position: absolute; top: 20px; left: 20px;
+            padding: 10px 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none; border-radius: 30px; font-weight: bold; color: var(--gold);
+            backdrop-filter: blur(5px); z-index: 100; transition: 0.3s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.1); }
+
+        /* --- CONTAINER ỐNG XĂM --- */
+        .shaker-container {
+            position: relative;
+            width: 220px; height: 400px; /* Tăng chiều cao vùng chứa */
+            display: flex; justify-content: center; align-items: flex-end;
+            cursor: pointer;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));
         }
 
-        .container {
-            position: relative; width: 250px; height: 350px;
-            display: flex; justify-content: center; align-items: flex-end; cursor: pointer;
+        /* 1. CÁC CÂY QUẺ NỀN (Hiển thị sẵn) */
+        .stick-group {
+            position: absolute; 
+            bottom: 70px; /* Đẩy lên cao hơn đáy ống để ló đầu ra */
+            width: 140px; height: 250px;
+            z-index: 1; /* Nằm sau ống */
+            display: flex; justify-content: center;
         }
-
-        /* Ống xăm tối màu */
-        .bamboo-tube {
-            width: 140px; height: 200px;
-            background: linear-gradient(90deg, #1a1a1a, #4a4a4a 30%, #1a1a1a 100%);
-            border-radius: 0 0 40px 40px; position: relative; z-index: 10;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            border-top: 5px solid #000; border-bottom: 5px solid #f1c40f;
-        }
-        .bamboo-tube::after {
-            content: "LỘC"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-            font-size: 40px; font-weight: bold; color: #f1c40f; opacity: 0.2; font-family: 'Playfair Display', serif;
-        }
-
-        .stick { width: 10px; height: 100%; background: #d4ac0d; position: absolute; bottom: 0; border-radius: 5px 5px 0 0; border: 1px solid #7d6608; }
-        .stick-group { position: absolute; bottom: 20px; width: 100px; height: 180px; z-index: 5; left: 50%; transform: translateX(-50%); }
-        .stick:nth-child(1) { left: 10px; height: 90%; transform: rotate(-5deg); }
-        .stick:nth-child(2) { left: 30px; height: 95%; transform: rotate(5deg); background: #f1c40f; }
-        .stick:nth-child(3) { left: 50px; height: 85%; transform: rotate(-2deg); }
-        .stick:nth-child(4) { left: 70px; height: 92%; transform: rotate(8deg); }
-
-        .winning-stick {
-            width: 14px; height: 220px; background: linear-gradient(to right, #f1c40f, #fff, #f1c40f);
-            position: absolute; bottom: 20px; left: 50%; z-index: 6;
-            border-radius: 5px 5px 0 0; display: none; transition: bottom 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
-        }
-        .winning-stick::before { content:""; position:absolute; top:0; left:0; width:100%; height:40px; background: #c0392b; }
-
-        .shaking { animation: shake 0.5s infinite; }
-        @keyframes shake { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
-
-        /* Scroll Overlay */
-        .scroll-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
-        .scroll-overlay.active { display: flex; }
         
-        .scroll-paper {
-            height: 200px; width: 0; background: #fff;
-            overflow: hidden; transition: width 1s ease-in-out;
-            display: flex; align-items: center; justify-content: center;
-            border-top: 4px solid #f1c40f; border-bottom: 4px solid #f1c40f;
+        .stick {
+            position: absolute; bottom: 0;
+            width: 12px; height: 240px; /* Tăng chiều cao que */
+            background: linear-gradient(90deg, #d4ac0d, #f1c40f, #b7950b);
+            border-radius: 4px 4px 0 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            border: 1px solid #b7950b;
         }
-        .scroll-content { white-space: nowrap; opacity: 0; transition: opacity 0.5s 0.8s; text-align: center; }
+        /* Sắp xếp lộn xộn */
+        .stick:nth-child(1) { left: 20px; height: 230px; transform: rotate(-8deg); z-index: 1; }
+        .stick:nth-child(2) { left: 40px; height: 245px; transform: rotate(-3deg); z-index: 3; background: #e5c54f; }
+        .stick:nth-child(3) { left: 60px; height: 220px; transform: rotate(2deg); z-index: 2; }
+        .stick:nth-child(4) { left: 80px; height: 240px; transform: rotate(6deg); z-index: 4; }
+        .stick:nth-child(5) { left: 100px; height: 225px; transform: rotate(10deg); z-index: 1; background: #e5c54f;}
+        .stick:nth-child(6) { left: 50px; height: 210px; transform: rotate(0deg); z-index: 0; }
+
+        /* 2. CÂY QUẺ TRÚNG THƯỞNG (Ẩn, sẽ trồi lên) */
+        .winning-stick {
+            position: absolute; 
+            bottom: 20px; /* Mặc định nằm thấp để ẩn sau ống */
+            width: 16px; height: 260px;
+            background: linear-gradient(90deg, #ff5e62, #ff9966); 
+            border: 1px solid #c0392b;
+            border-radius: 6px 6px 0 0;
+            z-index: 2; /* Nằm giữa */
+            display: none; 
+            box-shadow: 0 0 15px rgba(255, 94, 98, 0.5);
+            transition: bottom 1s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .winning-stick::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 50px;
+            background: linear-gradient(180deg, #c0392b 0%, transparent 100%);
+            border-radius: 6px 6px 0 0;
+        }
+
+        /* 3. ỐNG XĂM (MẶT TRƯỚC - Che phần dưới của que) */
+        .tube-body {
+            position: relative; z-index: 10; /* Cao nhất để che chân que */
+            width: 160px; height: 260px;
+            background: linear-gradient(90deg, #2c3e50, #000000 40%, #434343 100%);
+            border-radius: 0 0 50px 50px;
+            border-top: 8px solid #f1c40f; 
+            border-bottom: 2px solid #f1c40f;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .tube-body::before {
+            content: ""; position: absolute; top: 0; left: 10px;
+            width: 20px; height: 100%;
+            background: rgba(255,255,255,0.05);
+            filter: blur(5px);
+        }
+
+        .tube-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 60px; font-weight: bold;
+            background: linear-gradient(to bottom, #f1c40f, #b7950b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.8;
+            border: 2px solid rgba(241, 196, 15, 0.3);
+            border-radius: 50%; width: 100px; height: 100px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Animation Rung */
+        .shaking { animation: shake 0.1s infinite; }
+        @keyframes shake { 
+            0% { transform: translate(0, 0) rotate(0deg); } 
+            25% { transform: translate(-3px, 3px) rotate(-2deg); } 
+            50% { transform: translate(0, -2px) rotate(0deg); }
+            75% { transform: translate(3px, -3px) rotate(2deg); } 
+        }
+
+        /* --- TỜ SỚ (POPUP NGANG) --- */
+        .scroll-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 999;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .scroll-overlay.active { display: flex; }
+
+        .scroll-container { display: flex; align-items: center; filter: drop-shadow(0 0 30px rgba(241, 196, 15, 0.3)); }
+        
+        .scroll-roller {
+            width: 25px; height: 320px;
+            background: linear-gradient(90deg, #5d4037, #8d6e63, #3e2723);
+            border-radius: 10px; z-index: 20; position: relative; border: 1px solid #3e2723;
+        }
+        .scroll-roller::before, .scroll-roller::after {
+            content: ""; position: absolute; left: 50%; transform: translateX(-50%);
+            width: 35px; height: 15px; background: #f1c40f; border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .scroll-roller::before { top: -10px; }
+        .scroll-roller::after { bottom: -10px; }
+
+        .scroll-paper {
+            height: 280px; width: 0; 
+            background: #fffbf0; 
+            border-top: 4px solid #d4ac0d; border-bottom: 4px solid #d4ac0d;
+            overflow: hidden; transition: width 1s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .scroll-paper::before {
+            content: "VIP"; position: absolute; 
+            font-size: 150px; font-family: 'Playfair Display'; 
+            color: rgba(0,0,0,0.03); z-index: 0;
+        }
+
+        .scroll-content { 
+            white-space: nowrap; opacity: 0; transition: opacity 0.5s 0.8s; z-index: 1; text-align: center;
+        }
         .scroll-content.show { opacity: 1; }
-        .scroll-name { font-family: 'Playfair Display', serif; color: #1e293b; font-size: 40px; font-weight: bold; }
-        .scroll-roller { width: 15px; height: 240px; background: #f1c40f; border-radius: 10px; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); }
+
+        .winner-title { font-size: 14px; text-transform: uppercase; color: #888; letter-spacing: 3px; margin-bottom: 10px; }
+        .winner-name { 
+            font-family: 'Playfair Display', serif; font-size: 45px; 
+            color: #c0392b; font-weight: 900; text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        .close-hint {
+            position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+            color: #94a3b8; font-size: 14px; cursor: pointer;
+            border: 1px solid #334155; padding: 8px 20px; border-radius: 30px; transition: 0.3s;
+        }
+        .close-hint:hover { border-color: var(--gold); color: var(--gold); }
+
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
 
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
 
+    <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- TỜ SỚ -->
     <div class="scroll-overlay" id="scrollOverlay" onclick="resetGame()">
-        <div style="display:flex; align-items:center;">
+        <div class="scroll-container">
             <div class="scroll-roller"></div>
             <div class="scroll-paper" id="scrollPaper">
                 <div class="scroll-content" id="scrollContent">
-                    <div style="color:#888; font-size:14px; text-transform:uppercase; letter-spacing:2px;">Người được chọn</div>
-                    <div class="scroll-name" id="winnerName">Tên</div>
+                    <div class="winner-title">Người được chọn</div>
+                    <div class="winner-name" id="winnerName">...</div>
                 </div>
             </div>
             <div class="scroll-roller"></div>
+            <div class="close-hint">Bấm để đóng</div>
         </div>
-        <div style="position:absolute; bottom:100px; color:#aaa; font-size:12px;">Bấm để đóng</div>
     </div>
 
-    <div class="container" id="shaker" onclick="shake()">
-        <div class="stick-group"><div class="stick"></div><div class="stick"></div><div class="stick"></div><div class="stick"></div></div>
-        <div class="winning-stick" id="winner"></div>
-        <div class="bamboo-tube"></div>
+    <!-- ỐNG XĂM -->
+    <div class="shaker-container" id="shaker" onclick="shake()">
+        <!-- NHÓM QUE NỀN (Đã chỉnh vị trí) -->
+        <div class="stick-group">
+            <div class="stick"></div>
+            <div class="stick"></div>
+            <div class="stick"></div>
+            <div class="stick"></div>
+            <div class="stick"></div>
+            <div class="stick"></div>
+        </div>
+
+        <!-- Cây quẻ trúng thưởng (Riêng) -->
+        <div class="winning-stick" id="winnerStick"></div>
+
+        <!-- Ống (Mặt trước) -->
+        <div class="tube-body">
+            <div class="tube-label">LỘC</div>
+        </div>
     </div>
-    <p style="margin-top:20px; color:#aaa; font-style:italic;">Click để xin xăm</p>
+
+    <p style="margin-top: 30px; color: #94a3b8; font-style: italic; font-size: 14px;">Chạm vào ống để xin xăm</p>
 
     <script>
-        let fullList=[], remaining=[];
-        function initData(){
-            const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
-            const r=localStorage.getItem('remainingStudents');if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
-        }
-        function getUnique(){
-            initData(); if(remaining.length===0){ if(fullList.length===0) return alert("Chưa có danh sách!"); if(confirm("Hết danh sách! Reset?")){remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));} else return null; }
-            const i=Math.floor(Math.random()*remaining.length); const w=remaining[i];
-            remaining.splice(i,1); localStorage.setItem('remainingStudents',JSON.stringify(remaining)); return w;
-        }
+        let fullList = [];
+        let remaining = [];
 
-        let isShaking=false;
-        function shake(){
-            if(isShaking) return;
-            const w=getUnique(); if(!w) return;
-            
-            isShaking=true;
-            const shaker=document.getElementById('shaker'), stick=document.getElementById('winner');
-            stick.style.display='none'; stick.style.bottom='20px';
-            stick.style.left = (Math.random()*60 + 45) + 'px';
-            
-            shaker.classList.add('shaking');
-            setTimeout(()=>{
-                shaker.classList.remove('shaking');
-                stick.style.display='block';
-                setTimeout(()=>{
-                    stick.style.bottom='180px';
-                    setTimeout(()=>{ showScroll(w); },800);
-                },50);
-            },1000);
-        }
-        function showScroll(n){
-            document.getElementById('winnerName').innerText=n;
-            document.getElementById('scrollOverlay').classList.add('active');
-            setTimeout(()=>{ 
-                document.getElementById('scrollPaper').style.width='400px';
-                setTimeout(()=>{document.getElementById('scrollContent').classList.add('show')},500);
-            },100);
-        }
-        function resetGame(){
-            document.getElementById('scrollOverlay').classList.remove('active');
-            document.getElementById('scrollPaper').style.width='0';
-            document.getElementById('scrollContent').classList.remove('show');
-            document.getElementById('winner').style.bottom='20px';
-            isShaking=false;
+        function initData() {
+            const f = localStorage.getItem('classStudents');
+            fullList = f ? f.split('\n').filter(n => n.trim() !== '') : [];
+            const r = localStorage.getItem('remainingStudents');
+            if (r) {
+                remaining = JSON.parse(r);
+            } else {
+                remaining = [...fullList];
+                if(fullList.length > 0) localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+            }
         }
         initData();
+
+        function getUnique() {
+            initData();
+            if (remaining.length === 0) {
+                if (fullList.length === 0) { alert("Chưa có danh sách!"); return null; }
+                if (confirm("Đã gọi hết! Reset lại?")) {
+                    remaining = [...fullList];
+                    localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+                } else return null;
+            }
+            const idx = Math.floor(Math.random() * remaining.length);
+            const winner = remaining[idx];
+            remaining.splice(idx, 1);
+            localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+            return winner;
+        }
+
+        let isShaking = false;
+
+        function shake() {
+            if (fullList.length === 0) { alert("Vui lòng nhập danh sách!"); return; }
+            if (isShaking) return;
+
+            const winnerName = getUnique();
+            if (!winnerName) return;
+
+            isShaking = true;
+            const shaker = document.getElementById('shaker');
+            const stick = document.getElementById('winnerStick');
+
+            stick.style.display = 'none';
+            stick.style.bottom = '20px';
+            
+            // Random vị trí que trúng (60px đến 140px)
+            const randomLeft = Math.floor(Math.random() * 80) + 60; 
+            const randomRotate = Math.floor(Math.random() * 20) - 10;
+            
+            stick.style.left = randomLeft + 'px';
+            stick.style.transform = `rotate(${randomRotate}deg)`;
+
+            shaker.classList.add('shaking');
+
+            setTimeout(() => {
+                shaker.classList.remove('shaking');
+                stick.style.display = 'block';
+
+                setTimeout(() => {
+                    stick.style.bottom = '280px'; // Nhô cao lên
+                    setTimeout(() => {
+                        showScroll(winnerName);
+                        fireConfetti();
+                    }, 800);
+                }, 50);
+            }, 1000);
+        }
+
+        function showScroll(name) {
+            document.getElementById('winnerName').innerText = name;
+            document.getElementById('scrollOverlay').classList.add('active');
+            
+            setTimeout(() => {
+                document.getElementById('scrollPaper').style.width = '450px';
+                setTimeout(() => {
+                    document.getElementById('scrollContent').classList.add('show');
+                }, 500);
+            }, 100);
+        }
+
+        function resetGame() {
+            document.getElementById('scrollOverlay').classList.remove('active');
+            document.getElementById('scrollPaper').style.width = '0';
+            document.getElementById('scrollContent').classList.remove('show');
+            document.getElementById('winnerStick').style.bottom = '20px';
+            isShaking = false;
+        }
+
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        function fireConfetti() {
+            particles = [];
+            for(let i=0; i<100; i++) particles.push({x: canvas.width/2, y: canvas.height/2, vx:(Math.random()-0.5)*15, vy:(Math.random()-0.5)*15-5, c:'#f1c40f', s:Math.random()*8+4});
+            loop();
+        }
+        function loop() {
+            if(particles.length===0) return;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p,i) => {
+                p.x+=p.vx; p.y+=p.vy; p.vy+=0.2; p.vx*=0.96; p.vy*=0.96;
+                ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.size,p.size);
+                if(p.y>canvas.height) particles.splice(i,1);
+            });
+            requestAnimationFrame(loop);
+        }
     </script>
 </body>
 </html>
