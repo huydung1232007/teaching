@@ -2,84 +2,160 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Vòng Quay May Mắn</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Vòng Quay Doanh Nhân</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #1e293b; /* Navy */
+            --accent: #f1c40f;  /* Gold */
+            --bg: #f8fafc;      /* White/Grey */
+            --text: #334155;
+        }
+
         body {
-            font-family: 'Nunito', sans-serif;
-            background: radial-gradient(circle, #232526 0%, #414345 100%);
-            height: 100vh; margin: 0; color: white; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            /* Họa tiết nền nhẹ nhàng */
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            height: 100vh; margin: 0; color: var(--text);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden; user-select: none;
         }
+
         .back-btn {
-            position: absolute; top: 20px; left: 20px; padding: 10px 25px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            text-decoration: none; border-radius: 30px; font-weight: bold; color: white;
+            position: absolute; top: 20px; left: 20px;
+            padding: 10px 25px; background: white; border: 1px solid #cbd5e1;
+            text-decoration: none; border-radius: 30px; font-weight: 600; color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: 0.2s; z-index: 100;
         }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 
-        /* Bảng lịch sử */
+        /* --- BẢNG LỊCH SỬ --- */
         .history-box {
-            position: absolute; top: 20px; right: 20px; width: 220px; max-height: 400px;
-            background: rgba(0, 0, 0, 0.6); border: 1px solid #ffd700;
-            backdrop-filter: blur(10px); border-radius: 15px; padding: 15px;
-            z-index: 90; display: flex; flex-direction: column; color: #ffd700;
+            position: absolute; top: 20px; right: 20px; width: 240px; max-height: 400px;
+            background: white; border: 1px solid #e2e8f0;
+            border-radius: 12px; padding: 20px;
+            z-index: 90; display: flex; flex-direction: column;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
         }
-        .history-title { font-weight: 900; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #ffd700; padding-bottom: 5px; text-align: center; }
+        .history-title { 
+            font-weight: 800; text-transform: uppercase; margin-bottom: 15px; 
+            border-bottom: 2px solid var(--primary); padding-bottom: 8px; 
+            text-align: center; color: var(--primary); font-size: 12px; letter-spacing: 1px;
+        }
         .history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
-        .history-item { font-size: 14px; padding: 8px 0; border-bottom: 1px dashed rgba(255, 215, 0, 0.3); color: white; }
+        .history-item { 
+            font-size: 14px; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; 
+            color: #475569; font-weight: 500; display: flex; align-items: center; gap: 8px;
+        }
+        .history-item::before { content: "✓"; color: var(--accent); font-weight: bold;}
 
-        /* Vòng quay */
-        .wheel-wrapper {
+        /* --- VÒNG QUAY --- */
+        .wheel-container {
             position: relative; padding: 15px;
-            background: rgba(255,255,255,0.05); border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: white; border-radius: 50%;
+            box-shadow: 0 20px 60px rgba(30, 41, 59, 0.2);
+            border: 4px solid white;
         }
+        
         canvas { border-radius: 50%; transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        
+        /* Mũi tên chỉ định */
         .marker {
-            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; 
-            border-left: 20px solid transparent; border-right: 20px solid transparent;
-            border-top: 40px solid #f1c40f; z-index: 10;
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 50px; 
+            background: var(--primary);
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
         }
+
+        /* Nút quay ở giữa */
         .spin-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 70px; height: 70px; border-radius: 50%;
-            background: #f1c40f; border: 4px solid #1e293b;
-            color: #1e293b; font-weight: 900; font-size: 16px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4); z-index: 20;
+            background: white; border: 4px solid var(--primary);
+            color: var(--primary); font-weight: 900; font-size: 14px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1); z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
         }
-        .spin-btn:hover { transform: translate(-50%, -50%) scale(1.1); }
+        .spin-btn:hover { background: var(--primary); color: var(--accent); border-color: var(--accent); transform: translate(-50%, -50%) scale(1.1); }
 
-        .result-display {
-            margin-top: 30px; font-size: 32px; font-weight: 900;
-            color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
-            min-height: 50px;
+        /* --- POPUP CHÚC MỪNG (BUSINESS STYLE) --- */
+        .fixed-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.8); z-index: 50000; display: none; backdrop-filter: blur(5px); animation: fadeIn 0.3s; }
+        .fixed-overlay.active { display: block; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        
+        .winner-popup-container { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); 
+            width: 380px; z-index: 50001; 
+            transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            pointer-events: none; opacity: 0;
         }
+        .winner-popup-container.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+        
+        .popup-card { 
+            width: 100%; padding: 40px 30px; border-radius: 20px; 
+            background: white;
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            position: relative;
+        }
+        
+        .popup-icon { font-size: 60px; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .popup-label { font-size: 11px; letter-spacing: 3px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+        
+        .popup-name { 
+            font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700;
+            color: var(--primary); margin-bottom: 30px; line-height: 1.2; text-align: center;
+        }
+
+        .popup-close-btn { 
+            background: var(--primary); color: white; border: none; padding: 12px 40px; 
+            border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
+            transition: 0.2s;
+        }
+        .popup-close-btn:hover { background: #334155; transform: translateY(-2px); }
+        
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+    <canvas id="confettiCanvas"></canvas>
     
     <div class="history-box">
-        <div class="history-title">Lịch Sử Quay</div>
+        <div class="history-title">Danh sách đã chọn</div>
         <ul class="history-list" id="historyList"></ul>
     </div>
 
-    <div class="wheel-wrapper">
+    <!-- POPUP -->
+    <div class="fixed-overlay" id="fixedOverlay" onclick="closePopup()"></div>
+    <div class="winner-popup-container" id="winnerPopup">
+        <div class="popup-card">
+            <div class="popup-icon">🏆</div>
+            <div class="popup-label">The Winner Is</div>
+            <div class="popup-name" id="popupName">Nguyen Van A</div>
+            <button class="popup-close-btn" onclick="closePopup()">Xác Nhận</button>
+        </div>
+    </div>
+
+    <!-- VÒNG QUAY -->
+    <div class="wheel-container">
         <div class="marker"></div>
         <canvas id="wheel" width="450" height="450"></canvas>
         <button class="spin-btn" onclick="spin()">SPIN</button>
     </div>
-    <div class="result-display" id="result"></div>
 
     <script>
         let fullList=[], remaining=[];
         
         function initData(){
             const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
-            const r=localStorage.getItem('remainingStudents'); if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+            const r=localStorage.getItem('remainingStudents');
+            if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
             renderHistory();
         }
 
@@ -87,33 +163,34 @@
             const l = document.getElementById('historyList'); l.innerHTML = '';
             if (fullList.length > 0) {
                 const remSet = new Set(remaining);
-                const winners = fullList.filter(x => !remSet.has(x));
+                const winners = fullList.filter(x => !remSet.has(x)); // Lấy những người KHÔNG còn trong danh sách remaining
                 winners.forEach(n => {
-                    const li = document.createElement('li');
-                    li.className = 'history-item'; li.innerText = "✦ " + n;
+                    const li = document.createElement('li'); li.className = 'history-item'; li.innerText = n;
                     l.appendChild(li);
                 });
                 l.scrollTop = l.scrollHeight;
             }
         }
 
-        // Logic vẽ vòng quay
+        // Logic Vòng Quay
         let startAngle=0, ctx, spinTimeout=null, spinAngleStart=10, spinTime=0, spinTimeTotal=0;
-        // Dùng danh sách remaining để quay (quay ai xóa người đó)
-        // Nếu muốn quay vui (không xóa) thì đổi remaining -> fullList ở dòng dưới
-        let listToSpin = []; 
+        let isSpinning = false;
 
         function draw() {
-            listToSpin = remaining.length > 0 ? remaining : fullList; // Nếu hết người thì hiện full để quay cho đẹp (nhưng khi quay sẽ báo reset)
-            const arc = Math.PI * 2 / listToSpin.length;
             const canvas = document.getElementById("wheel");
-            if (!canvas.getContext || listToSpin.length === 0) return;
+            if (!canvas.getContext) return;
             ctx = canvas.getContext("2d"); ctx.clearRect(0,0,450,450);
             
-            // Palette màu Business (Xanh, Xám, Trắng, Vàng)
-            const colors = ["#3b82f6", "#64748b", "#cbd5e1", "#f1c40f", "#1e293b", "#06b6d4"];
+            // Xử lý khi hết danh sách hoặc danh sách rỗng
+            let listToDraw = remaining;
+            if(listToDraw.length === 0) listToDraw = ["Hết Danh Sách"];
+
+            const arc = Math.PI * 2 / listToDraw.length;
             
-            for(let i=0; i<listToSpin.length; i++) {
+            // Palette màu Business: Navy, Gold, Light Gray, Blue
+            const colors = ["#1e293b", "#f1c40f", "#e2e8f0", "#3b82f6", "#94a3b8"];
+            
+            for(let i=0; i<listToDraw.length; i++) {
                 const angle = startAngle + i * arc;
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.beginPath();
@@ -121,29 +198,36 @@
                 ctx.arc(225, 225, 0, angle + arc, angle, true);
                 ctx.fill();
                 ctx.save();
-                ctx.fillStyle = (i % colors.length === 3 || i % colors.length === 2) ? "#1e293b" : "white"; // Chữ đen trên nền sáng
+                
+                // Màu chữ tương phản với màu nền
+                ctx.fillStyle = (i % colors.length === 1 || i % colors.length === 2) ? "#1e293b" : "white";
+                
                 ctx.translate(225 + Math.cos(angle + arc / 2) * 140, 225 + Math.sin(angle + arc / 2) * 140);
                 ctx.rotate(angle + arc / 2 + Math.PI / 2);
-                ctx.font = 'bold 14px Nunito';
-                const text = listToSpin[i];
-                ctx.fillText(text.length > 15 ? text.substring(0,12)+".." : text, -ctx.measureText(text.length > 15 ? text.substring(0,12)+".." : text).width / 2, 0);
+                ctx.font = 'bold 14px Inter';
+                const text = listToDraw[i];
+                ctx.fillText(text.length > 18 ? text.substring(0,15)+"..." : text, -ctx.measureText(text.length > 18 ? text.substring(0,15)+"..." : text).width / 2, 0);
                 ctx.restore();
             }
         }
 
         function spin() {
+            if(isSpinning) return;
             initData();
+            
             if(remaining.length === 0) {
-                if(fullList.length === 0) return alert("Chưa có danh sách!");
-                if(confirm("Đã gọi hết! Reset lại?")) {
+                if(fullList.length === 0) return alert("Chưa có danh sách! Vui lòng nhập ở trang chủ.");
+                if(confirm("Đã quay hết danh sách! Bạn có muốn Reset để quay lại từ đầu?")) {
                     remaining = [...fullList]; localStorage.setItem('remainingStudents', JSON.stringify(remaining));
                     renderHistory(); draw();
-                } else return;
+                }
+                return;
             }
-            listToSpin = remaining; // Quay trên danh sách còn lại
+
+            isSpinning = true;
             spinAngleStart = Math.random() * 10 + 10;
             spinTime = 0;
-            spinTimeTotal = Math.random() * 3000 + 4000;
+            spinTimeTotal = Math.random() * 3000 + 4000; // Quay từ 4-7 giây
             rotate();
         }
 
@@ -158,23 +242,43 @@
 
         function stopRotate() {
             clearTimeout(spinTimeout);
-            const arc = Math.PI * 2 / listToSpin.length;
+            isSpinning = false;
+            
+            const arc = Math.PI * 2 / remaining.length;
             const degrees = startAngle * 180 / Math.PI + 90;
             const index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
-            const winner = listToSpin[index];
+            const winner = remaining[index];
             
-            document.getElementById('result').innerText = winner;
+            // Hiện Popup
+            showPopup(winner);
+
+            // Xóa người này khỏi danh sách
+            remaining.splice(index, 1);
+            localStorage.setItem('remainingStudents', JSON.stringify(remaining));
             
-            // Xóa người trúng khỏi danh sách
-            const idxReal = remaining.indexOf(winner);
-            if (idxReal > -1) {
-                remaining.splice(idxReal, 1);
-                localStorage.setItem('remainingStudents', JSON.stringify(remaining));
-                renderHistory();
-            }
-            // Vẽ lại sau 2s để người dùng thấy tên bị mất
-            setTimeout(draw, 2000);
+            // Cập nhật lại lịch sử và vẽ lại vòng quay (để mất tên người đó)
+            renderHistory();
+            draw(); 
         }
+
+        // --- POPUP LOGIC ---
+        function showPopup(n){ 
+            document.getElementById('popupName').innerText=n; 
+            document.getElementById('fixedOverlay').classList.add('active'); 
+            document.getElementById('winnerPopup').classList.add('active'); 
+            fireConfetti(); 
+        }
+
+        function closePopup(){ 
+            document.getElementById('fixedOverlay').classList.remove('active'); 
+            document.getElementById('winnerPopup').classList.remove('active'); 
+        }
+
+        // --- CONFETTI ---
+        const canvas=document.getElementById('confettiCanvas'), cx=canvas.getContext('2d'); let p=[];
+        function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;} window.addEventListener('resize',resizeCanvas); resizeCanvas();
+        function fireConfetti(){ p=[]; for(let i=0;i<150;i++) p.push({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-0.5)*15,vy:(Math.random()-0.5)*15-5,c:'#f1c40f',s:Math.random()*10+5}); animate(); }
+        function animate(){ if(p.length===0)return; cx.clearRect(0,0,canvas.width,canvas.height); p.forEach((pt,i)=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.2;pt.vx*=0.96;pt.vy*=0.96;cx.fillStyle=pt.c;cx.fillRect(pt.x,pt.y,pt.s,pt.s);if(pt.y>canvas.height)p.splice(i,1)}); requestAnimationFrame(animate); }
 
         initData();
         draw();
