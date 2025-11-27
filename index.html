@@ -3,120 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trung Tâm Điều Khiển</title>
+    <title>Quản Lý Lớp Học - Business</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     
     <style>
-        :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #3b82f6; --text-primary: #f8fafc; --text-secondary: #94a3b8; --border: #334155; --sidebar-width: 320px; }
+        :root {
+            /* Light Business Palette */
+            --bg-body: #f8fafc;       /* Trắng xám nhẹ */
+            --bg-sidebar: #ffffff;    /* Trắng tinh */
+            --primary: #0f172a;       /* Xanh than đậm (Navy) */
+            --accent: #2563eb;        /* Xanh dương Business */
+            --accent-hover: #1d4ed8;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --sidebar-width: 320px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; }
-        
-        /* Loading Screen */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* --- LOADING SCREEN --- */
         #page-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 99999;
+            background: #ffffff; z-index: 99999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: var(--accent); font-weight: bold; font-size: 18px;
+            color: var(--primary); font-weight: 600;
         }
-        .spinner { width: 40px; height: 40px; border: 4px solid rgba(59,130,246,0.3); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e2e8f0;
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 15px;
+        }
         @keyframes spin { to {transform: rotate(360deg);} }
 
-        /* Sidebar & Content styles (Giữ nguyên Business Style) */
-        .sidebar { width: var(--sidebar-width); background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-        .brand { padding: 25px; font-size: 18px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid var(--border); color: white; display: flex; align-items: center; gap: 10px; }
-        .user-info-bar { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #475569; object-fit: cover; }
+        /* --- SIDEBAR (Trắng) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+        }
+
+        .brand {
+            padding: 25px; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
+            border-bottom: 1px solid var(--border); color: var(--primary);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .brand span { color: var(--accent); }
+
+        .user-info-bar { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); background: #f8fafc; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #cbd5e1; object-fit: cover; }
         .user-details { flex: 1; overflow: hidden; }
-        .u-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .btn-logout:hover { border-color: #ef4444; color: #ef4444; }
+        .u-name { font-size: 14px; font-weight: 600; color: var(--primary); }
+        .btn-logout { background: white; border: 1px solid var(--border); color: var(--text-light); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { border-color: #ef4444; color: #ef4444; background: #fff1f2; }
+
         .sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px; }
-        .status-card { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; padding: 20px; color: white; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3); margin-bottom: 30px; }
-        .st-label { font-size: 11px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
-        .st-name { font-size: 20px; font-weight: 700; margin: 5px 0; }
+
+        /* Status Card */
+        .status-card {
+            background: var(--primary); color: white;
+            border-radius: 12px; padding: 20px;
+            box-shadow: var(--shadow); margin-bottom: 25px;
+            position: relative; overflow: hidden;
+        }
+        .status-card::after { /* Họa tiết trang trí */
+            content: ""; position: absolute; right: -20px; top: -20px;
+            width: 100px; height: 100px; background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .st-label { font-size: 11px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; font-weight: 600; }
+        .st-name { font-size: 18px; font-weight: 700; margin: 5px 0; }
         .st-count { font-size: 13px; opacity: 0.9; display: flex; justify-content: space-between; align-items: center; }
-        .btn-reset-mini { background: rgba(0,0,0,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-        .list-header { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 15px; display: flex; justify-content: space-between; }
-        .class-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .class-item:hover { background: rgba(255,255,255,0.06); border-color: var(--border); }
-        .class-item.active { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
-        .c-name { font-size: 14px; font-weight: 500; }
-        .c-actions { display: flex; gap: 8px; opacity: 0.5; transition: 0.2s; }
-        .class-item:hover .c-actions { opacity: 1; }
-        .act-btn { cursor: pointer; font-size: 14px; padding: 2px; }
-        .act-btn:hover { color: white; transform: scale(1.2); }
+        .btn-reset-mini { background: rgba(255,255,255,0.15); border: none; color: white; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.2s; }
+        .btn-reset-mini:hover { background: rgba(255,255,255,0.3); }
+
+        /* Class List */
+        .list-header { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; display: flex; justify-content: space-between; }
+        .class-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; margin-bottom: 8px;
+            background: white; border: 1px solid var(--border);
+            border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .class-item:hover { border-color: var(--accent); transform: translateX(2px); }
+        .class-item.active { border-color: var(--accent); background: #eff6ff; box-shadow: inset 3px 0 0 var(--accent); }
+        .c-name { font-size: 14px; font-weight: 500; color: var(--primary); }
+        .act-btn { cursor: pointer; font-size: 14px; padding: 4px; color: var(--text-light); }
+        .act-btn:hover { color: var(--primary); }
+
+        /* Add Form */
         .add-section { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
-        .form-toggle { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
-        .form-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: #0f172a; border-radius: 0 0 8px 8px; }
-        .form-body.open { max-height: 500px; padding: 15px; border: 1px solid var(--border); border-top: none; }
-        input, textarea { width: 100%; background: #1e293b; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; font-family: inherit; margin-bottom: 10px; font-size: 13px; }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        .form-toggle {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: #f1f5f9; border-radius: 8px;
+            cursor: pointer; border: 1px solid transparent; font-weight: 500; font-size: 13px;
+        }
+        .form-toggle:hover { background: #e2e8f0; }
+        .form-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .form-body.open { max-height: 500px; padding: 15px 0; }
+
+        input, textarea {
+            width: 100%; background: white; border: 1px solid var(--border);
+            color: var(--primary); padding: 10px; border-radius: 8px;
+            font-family: inherit; margin-bottom: 10px; font-size: 13px;
+            transition: 0.2s;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         textarea { height: 80px; resize: none; }
-        .btn-save { width: 100%; background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .excel-trigger { font-size: 12px; color: #10b981; cursor: pointer; float: right; margin-bottom: 5px; }
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 24px 24px; }
-        .hero-text h1 { font-size: 28px; margin-bottom: 5px; }
-        .hero-text p { color: var(--text-secondary); margin-bottom: 30px; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .game-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px 20px; text-align: center; text-decoration: none; color: white; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .g-icon { font-size: 40px; margin-bottom: 15px; }
-        .g-title { font-weight: 600; font-size: 16px; margin-bottom: 5px; }
-        .g-desc { font-size: 12px; color: var(--text-secondary); }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .btn-save { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-save:hover { background: #334155; }
+        .excel-trigger { font-size: 12px; color: var(--accent); cursor: pointer; float: right; margin-bottom: 5px; font-weight: 600; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1; padding: 40px; overflow-y: auto;
+            /* Nền caro mờ */
+            background-image: 
+                linear-gradient(#e2e8f0 1px, transparent 1px),
+                linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-color: var(--bg-body);
+        }
+
+        .hero-text { margin-bottom: 40px; }
+        .hero-text h1 { font-size: 28px; margin-bottom: 5px; color: var(--primary); font-weight: 800; letter-spacing: -0.5px; }
+        .hero-text p { color: var(--text-light); }
+
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+        
+        .game-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 16px; padding: 30px; text-align: center;
+            text-decoration: none; color: var(--primary);
+            transition: all 0.3s ease;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: var(--shadow);
+        }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        .g-icon { 
+            font-size: 45px; margin-bottom: 20px; 
+            background: #f1f5f9; width: 80px; height: 80px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .game-card:hover .g-icon { background: #eff6ff; transform: scale(1.1); }
+        
+        .g-title { font-weight: 700; font-size: 18px; margin-bottom: 5px; }
+        .g-desc { font-size: 13px; color: var(--text-light); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+
         @media (max-width: 900px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); } }
     </style>
 </head>
 <body>
 
-    <!-- Màn hình chờ (Loading) -->
     <div id="page-loader">
         <div class="spinner"></div>
-        <div>ĐANG TẢI DỮ LIỆU...</div>
+        <div>Loading System...</div>
     </div>
 
-    <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="brand"><span>⚡</span> TEKTOOL PRO</div>
+        <div class="brand"><span>⚡</span> TEKTOOL <span style="font-weight:400; color:var(--text-light)">Business</span></div>
         <div class="user-info-bar" id="userInfo"></div>
+        
         <div class="sidebar-scroll">
             <div class="status-card">
-                <div class="st-label">LỚP ĐANG HOẠT ĐỘNG</div>
-                <div class="st-name" id="currentClassName">Chưa chọn</div>
+                <div class="st-label">Lớp đang chọn</div>
+                <div class="st-name" id="currentClassName">--</div>
                 <div class="st-count">
                     <span id="studentCount">0 học sinh</span>
                     <button class="btn-reset-mini" onclick="resetCurrentProgress()">↺ Reset</button>
                 </div>
             </div>
-            <div class="list-header"><span>Danh sách lớp</span><span style="font-size: 10px; background:#334155; padding:2px 6px; border-radius:4px" id="totalClasses">0</span></div>
+
+            <div class="list-header"><span>Danh mục lớp</span><span style="background:#e2e8f0; padding:2px 8px; border-radius:10px; color:var(--primary)" id="totalClasses">0</span></div>
             <div id="savedListContainer"></div>
+
             <div class="add-section">
                 <div class="form-toggle" onclick="toggleForm()">
-                    <span style="font-size:13px; font-weight:600;">+ Thêm lớp mới</span><span>▼</span>
+                    <span>+ Thêm lớp mới</span><span>▼</span>
                 </div>
                 <div class="form-body" id="formContent">
                     <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
-                    <div><label for="excelInput" class="excel-trigger">📂 Nhập từ Excel</label><input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)"></div>
-                    <textarea id="inputStudentList" placeholder="Dán danh sách học sinh vào đây..."></textarea>
-                    <button class="btn-save" onclick="saveNewList()">Lưu & Đồng Bộ</button>
+                    <div>
+                        <label for="excelInput" class="excel-trigger">📂 Nhập Excel</label>
+                        <input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)">
+                    </div>
+                    <textarea id="inputStudentList" placeholder="Dán danh sách..."></textarea>
+                    <button class="btn-save" onclick="saveNewList()">Lưu Lớp Học</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
         <div class="hero-text">
             <h1>Trung Tâm Điều Khiển</h1>
-            <p>Chọn một trò chơi để bắt đầu phiên khảo bài ngẫu nhiên.</p>
+            <p>Bộ công cụ hỗ trợ giảng dạy chuyên nghiệp & hiệu quả.</p>
         </div>
+
         <div class="game-grid">
-            <a href="lat-bai.html" class="game-card"><div class="g-icon">🃏</div><div class="g-title">Lật Bài</div><div class="g-desc">Tìm người may mắn bí ẩn</div></a>
-            <a href="cao-ve.html" class="game-card"><div class="g-icon">🎫</div><div class="g-title">Vé Cào VIP</div><div class="g-desc">Phong cách xổ số Vietlott</div></a>
-            <a href="rut-que.html" class="game-card"><div class="g-icon">⛩️</div><div class="g-title">Xin Xăm</div><div class="g-desc">Rút quẻ ngẫu nhiên cổ điển</div></a>
-            <a href="vong-quay.html" class="game-card"><div class="g-icon">🎡</div><div class="g-title">Vòng Quay</div><div class="g-desc">Quay số trúng thưởng</div></a>
-            <a href="bong-bong.html" class="game-card"><div class="g-icon">🎈</div><div class="g-title">Bong Bóng</div><div class="g-desc">Hiệu ứng nổ bóng vui nhộn</div></a>
+            <a href="lat-bai.html" class="game-card">
+                <div class="g-icon">🃏</div>
+                <div class="g-title">Lật Bài</div>
+                <div class="g-desc">Tìm người may mắn bí ẩn</div>
+            </a>
+            <a href="roi-den.html" class="game-card">
+                <div class="g-icon">🔦</div>
+                <div class="g-title">Rọi Đèn</div>
+                <div class="g-desc">Sân khấu ánh sáng tìm kiếm</div>
+            </a>
+            <a href="cao-ve.html" class="game-card">
+                <div class="g-icon">🎫</div>
+                <div class="g-title">Vé Cào VIP</div>
+                <div class="g-desc">Trải nghiệm xổ số cao cấp</div>
+            </a>
+            <a href="rut-que.html" class="game-card">
+                <div class="g-icon">⛩️</div>
+                <div class="g-title">Xin Xăm</div>
+                <div class="g-desc">Phong cách truyền thống</div>
+            </a>
+            <a href="vong-quay.html" class="game-card">
+                <div class="g-icon">🎡</div>
+                <div class="g-title">Vòng Quay</div>
+                <div class="g-desc">Quay số trúng thưởng</div>
+            </a>
+            <a href="bong-bong.html" class="game-card">
+                <div class="g-icon">🎈</div>
+                <div class="g-title">Bong Bóng</div>
+                <div class="g-desc">Hiệu ứng nổ bóng vui nhộn</div>
+            </a>
         </div>
     </div>
 
@@ -125,9 +259,9 @@
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ============================================================
-        // ⚠️ DÁN CONFIG FIREBASE CỦA BẠN VÀO ĐÂY ⚠️
-        // ============================================================
+        // ==========================================
+        // ⚠️ DÁN CONFIG FIREBASE VÀO ĐÂY ⚠️
+        // ==========================================
         const firebaseConfig = {
   apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
   authDomain: "random-3faa8.firebaseapp.com",
@@ -137,6 +271,14 @@
   appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
   measurementId: "G-Q76M508V96"
 };
+        // --- CƠ CHẾ CHỐNG TREO ---
+        const loaderTimeout = setTimeout(() => {
+            const loader = document.getElementById('page-loader');
+            if (loader && loader.style.display !== 'none') {
+                console.warn("Chuyển chế độ Offline.");
+                loader.style.display = 'none';
+            }
+        }, 3000);
 
         let app, auth, db, user = null;
         try {
@@ -144,65 +286,56 @@
             auth = getAuth(app);
             db = getFirestore(app);
         } catch(e) { 
-            console.log("Chưa config Firebase");
-            // SỬA LỖI: Nếu chưa config, tắt loading ngay để dùng offline
+            console.log("Offline Mode");
+            clearTimeout(loaderTimeout);
             document.getElementById('page-loader').style.display = 'none';
         }
 
-        // KIỂM TRA ĐĂNG NHẬP
         if(auth) {
             onAuthStateChanged(auth, async (currentUser) => {
+                clearTimeout(loaderTimeout);
                 if (currentUser) {
                     user = currentUser;
                     updateUserInfo(user);
                     await syncDataFromCloud();
-                    document.getElementById('page-loader').style.display = 'none'; // Đã tải xong
+                    document.getElementById('page-loader').style.display = 'none';
                 } else {
-                    // Chưa đăng nhập -> Chuyển về login
                     window.location.href = "login.html";
                 }
             });
         } else {
-            // Fallback (Offline)
             document.getElementById('page-loader').style.display = 'none';
             renderSavedLists();
             loadActiveStatus();
         }
 
-        window.logoutGoogle = () => {
-            signOut(auth).then(() => window.location.href = "login.html");
-        };
+        window.logoutGoogle = () => { if(auth) signOut(auth).then(() => window.location.href = "login.html"); else window.location.href = "login.html"; };
 
         function updateUserInfo(u) {
             document.getElementById('userInfo').innerHTML = `
                 <img src="${u.photoURL}" class="avatar">
                 <div class="user-details">
                     <div class="u-name">${u.displayName}</div>
-                    <div style="font-size:11px; color:#94a3b8">${u.email}</div>
+                    <div style="font-size:11px; color:var(--text-light)">${u.email}</div>
                 </div>
                 <button class="btn-logout" onclick="logoutGoogle()">Exit</button>
             `;
         }
 
+        // --- SYNC ---
         async function syncDataFromCloud() {
             try {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    localStorage.setItem('savedClasses', JSON.stringify(docSnap.data().savedClasses));
-                }
-                renderSavedLists();
-                loadActiveStatus();
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists()) localStorage.setItem('savedClasses', JSON.stringify(docSnap.data().savedClasses));
+                renderSavedLists(); loadActiveStatus();
             } catch(e) { console.error(e); }
         }
-
         async function pushDataToCloud() {
             if (!user) return;
-            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-            await setDoc(doc(db, "users", user.uid), { savedClasses: data }, { merge: true });
+            await setDoc(doc(db, "users", user.uid), { savedClasses: JSON.parse(localStorage.getItem('savedClasses') || '{}') }, { merge: true });
         }
 
-        // ... CÁC HÀM XỬ LÝ KHÁC (GIỮ NGUYÊN) ...
+        // --- APP LOGIC ---
         window.renderSavedLists = () => {
             const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
             const container = document.getElementById('savedListContainer');
@@ -210,7 +343,7 @@
             const keys = Object.keys(data);
             document.getElementById('totalClasses').innerText = keys.length;
             container.innerHTML = '';
-            if (keys.length === 0) { container.innerHTML = '<div style="text-align:center;color:#475569;font-size:13px;margin-top:20px;">Trống</div>'; return; }
+            if (keys.length === 0) { container.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;margin-top:20px;">Trống</div>'; return; }
             for (const [name, list] of Object.entries(data)) {
                 const div = document.createElement('div');
                 div.className = `class-item ${name === current ? 'active' : ''}`;
@@ -229,8 +362,7 @@
             data[name] = list;
             localStorage.setItem('savedClasses', JSON.stringify(data));
             pushDataToCloud();
-            document.getElementById('inputClassName').value = '';
-            document.getElementById('inputStudentList').value = '';
+            document.getElementById('inputClassName').value = ''; document.getElementById('inputStudentList').value = '';
             renderSavedLists(); selectClass(name); window.toggleForm();
         };
 
@@ -246,24 +378,18 @@
         };
 
         window.deleteClass = (name) => {
-            if(!confirm(`Xóa lớp ${name}?`)) return;
+            if(!confirm("Xóa lớp này?")) return;
             const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
             delete data[name];
             localStorage.setItem('savedClasses', JSON.stringify(data));
             pushDataToCloud();
-            if(localStorage.getItem('currentClassName')===name) {
-                localStorage.removeItem('currentClassName'); localStorage.removeItem('classStudents'); localStorage.removeItem('remainingStudents'); loadActiveStatus();
-            }
+            if(localStorage.getItem('currentClassName')===name) { localStorage.removeItem('currentClassName'); localStorage.removeItem('classStudents'); localStorage.removeItem('remainingStudents'); loadActiveStatus(); }
             renderSavedLists();
         };
 
         window.editClass = (name) => {
             const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-            if(data[name]) {
-                document.getElementById('inputClassName').value = name;
-                document.getElementById('inputStudentList').value = data[name];
-                window.toggleForm(true);
-            }
+            if(data[name]) { document.getElementById('inputClassName').value=name; document.getElementById('inputStudentList').value=data[name]; window.toggleForm(true); }
         };
 
         window.loadActiveStatus = () => {
@@ -288,9 +414,9 @@
             }
         };
 
-        window.toggleForm = (forceOpen = false) => {
-            const body = document.getElementById('formContent');
-            if (forceOpen) body.classList.add('open'); else body.classList.toggle('open');
+        window.toggleForm = (forceOpen=false) => {
+            const el = document.getElementById('formContent');
+            if(forceOpen) el.classList.add('open'); else el.classList.toggle('open');
         };
 
         window.importExcel = (input) => {
@@ -302,15 +428,10 @@
                     const workbook = XLSX.read(data, {type: 'array'});
                     const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
                     if (jsonData.length === 0) return alert("File rỗng!");
-                    const keywords = ['họ và tên', 'họ tên', 'tên', 'name'];
-                    let colIdx = -1;
-                    const header = jsonData[0];
-                    for (let i = 0; i < header.length; i++) {
-                        if (header[i] && keywords.includes(header[i].toString().toLowerCase().trim())) { colIdx = i; break; }
-                    }
+                    const keywords = ['họ và tên', 'họ tên', 'tên', 'name']; let colIdx = -1; const header = jsonData[0];
+                    for (let i=0; i<header.length; i++) { if (header[i] && keywords.includes(header[i].toString().toLowerCase().trim())) { colIdx = i; break; } }
                     if (colIdx === -1) colIdx = (jsonData[0].length > 1) ? 1 : 0;
-                    let list = [];
-                    for (let i = 1; i < jsonData.length; i++) if (jsonData[i][colIdx]) list.push(jsonData[i][colIdx].toString().trim());
+                    let list = []; for (let i=1; i<jsonData.length; i++) if (jsonData[i][colIdx]) list.push(jsonData[i][colIdx].toString().trim());
                     if(list.length>0) { document.getElementById('inputStudentList').value = list.join('\n'); window.toggleForm(true); } 
                     else alert("Không tìm thấy tên!");
                 } catch(e) { alert("Lỗi đọc file Excel"); }
