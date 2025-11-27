@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bong Bóng Kim Loại</title>
+    <title>Bong Bóng Galaxy</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #f1c40f; }
@@ -35,7 +35,6 @@
         .balloon {
             position: absolute; bottom: -120px; width: 70px; height: 85px;
             border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; cursor: pointer;
-            /* Hiệu ứng bóng kim loại */
             box-shadow: inset -10px -10px 20px rgba(0,0,0,0.5), inset 10px 10px 20px rgba(255,255,255,0.4), 0 10px 20px rgba(0,0,0,0.3);
             display: flex; justify-content: center; align-items: center; color: rgba(255,255,255,0.8); font-weight: bold; font-size: 24px; z-index: 10; transition: transform 0.1s;
         }
@@ -55,10 +54,13 @@
         .popup-name { font-family: 'Playfair Display', serif; font-size: 40px; color: #1e293b; margin: 20px 0; }
         .close-btn { background: #1e293b; color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+        
+        #stars div { position: absolute; background: white; border-radius: 50%; opacity: 0.8; }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+    <div id="stars"></div>
     <div class="history-box"><div class="history-title">Đã Chọn</div><ul class="history-list" id="historyList"></ul></div>
     <canvas id="confettiCanvas"></canvas>
 
@@ -75,29 +77,92 @@
     </div>
 
     <script>
+        // Tạo sao nền
+        const stars = document.getElementById('stars');
+        for(let i=0; i<100; i++){
+            let s = document.createElement('div');
+            s.style.top=Math.random()*100+'%'; s.style.left=Math.random()*100+'%';
+            s.style.width=Math.random()*3+'px'; s.style.height=s.style.width; 
+            stars.appendChild(s);
+        }
+
+        // --- QUẢN LÝ DỮ LIỆU ---
         let fullList=[], remaining=[];
+        
         function initData(){
-            const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
-            const r=localStorage.getItem('remainingStudents');if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+            const f=localStorage.getItem('classStudents');
+            fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
+            
+            const r=localStorage.getItem('remainingStudents');
+            if(r){
+                remaining=JSON.parse(r);
+            } else {
+                remaining=[...fullList];
+                if(fullList.length>0) localStorage.setItem('remainingStudents',JSON.stringify(remaining));
+            }
             renderHistory();
         }
+
         function renderHistory(){
             const l=document.getElementById('historyList'); l.innerHTML='';
             if(fullList.length>0){
-                const remSet=new Set(remaining); const w=fullList.filter(x=>!remSet.has(x));
-                w.forEach(n=>{const li=document.createElement('li'); li.className='history-item'; li.innerText="• "+n; l.appendChild(li);});
+                const remSet=new Set(remaining); 
+                const winners=fullList.filter(x=>!remSet.has(x));
+                winners.forEach(n=>{
+                    const li=document.createElement('li'); 
+                    li.className='history-item'; li.innerText="• "+n; 
+                    l.appendChild(li);
+                });
                 l.scrollTop=l.scrollHeight;
             }
         }
-        function start(){
-            initData(); if(remaining.length===0){if(fullList.length===0)return alert("Chưa có danh sách!"); if(confirm("Hết danh sách! Reset?")){remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));renderHistory();}else return;}
-            document.getElementById('startArea').style.display='none';
-            let list=[...remaining]; if(list.length>30) list=list.sort(()=>0.5-Math.random()).slice(0,30);
-            list.forEach(n=>createBalloon(n));
+
+        // Hàm bốc thăm ngẫu nhiên từ danh sách còn lại
+        function pickRandomWinner() {
+            initData(); // Luôn lấy data mới nhất
+            if(remaining.length === 0) {
+                if(fullList.length === 0) { alert("Chưa có danh sách!"); return null; }
+                
+                if(confirm("Đã gọi hết danh sách! Bạn có muốn Reset để gọi lại từ đầu không?")) {
+                    remaining = [...fullList];
+                    localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+                    renderHistory(); // Xóa lịch sử hiển thị
+                    return pickRandomWinner(); // Gọi lại đệ quy để lấy tên mới
+                } else {
+                    return null; // Không reset thì thôi
+                }
+            }
+
+            const randIndex = Math.floor(Math.random() * remaining.length);
+            const winnerName = remaining[randIndex];
+            
+            // Xóa người này khỏi danh sách
+            remaining.splice(randIndex, 1);
+            localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+            renderHistory();
+            
+            return winnerName;
         }
-        function createBalloon(n){
+
+        // --- GAME LOGIC ---
+        function start(){
+            initData(); 
+            if(remaining.length===0 && fullList.length===0) return alert("Vui lòng nhập danh sách lớp!");
+            
+            document.getElementById('startArea').style.display='none';
+            // Thả bóng liên tục
+            // Số lượng bóng hiển thị tượng trưng (tối đa 25 quả để mượt)
+            const balloonCount = Math.min(30, remaining.length > 0 ? remaining.length + 5 : 20);
+            
+            for(let i=0; i<balloonCount; i++) {
+                setTimeout(createBalloon, i * 300); // Thả từ từ
+            }
+        }
+
+        function createBalloon(){
             let b=document.createElement('div'); b.className='balloon'; b.innerText="?";
-            // Màu kim loại ngẫu nhiên (Gold, Silver, Bronze, Blue Steel)
+            
+            // Màu kim loại ngẫu nhiên
             const metals = [
                 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', // Blue
                 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', // Pink
@@ -105,14 +170,52 @@
                 'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)'  // Silver
             ];
             b.style.background = metals[Math.floor(Math.random()*metals.length)];
-            b.style.left=Math.random()*90+2+'%'; let d=Math.random()*10+15; b.style.transition=`bottom ${d}s linear, transform 0.2s, opacity 0.2s`;
-            b.onclick=function(){this.classList.add('popped'); removeStudent(n); showPopup(n); renderHistory();};
+            b.style.left = Math.random()*90 + 2 + '%'; 
+            
+            let d = Math.random()*10 + 15; 
+            b.style.transition = `bottom ${d}s linear, transform 0.2s, opacity 0.2s`;
+
+            // CLICK VÀO BÓNG -> MỚI BẮT ĐẦU CHỌN TÊN
+            b.onclick = function(){
+                // Nếu bóng đã nổ thì bỏ qua
+                if(this.classList.contains('popped')) return;
+                
+                const winner = pickRandomWinner();
+                if(winner) {
+                    this.classList.add('popped'); 
+                    showPopup(winner);
+                }
+            };
+
             document.body.appendChild(b);
-            setTimeout(()=>{b.style.bottom="120vh"},100); setTimeout(()=>{if(b.parentNode)b.parentNode.removeChild(b)},d*1000);
+            
+            // Bay lên
+            setTimeout(()=>{b.style.bottom="120vh"}, 100);
+            
+            // Xóa khi bay xong và tạo bóng mới để duy trì số lượng (nếu muốn)
+            setTimeout(()=>{
+                if(b.parentNode) b.parentNode.removeChild(b);
+            }, d*1000);
         }
-        function removeStudent(n){let r=JSON.parse(localStorage.getItem('remainingStudents')||'[]'); const i=r.indexOf(n); if(i>-1){r.splice(i,1);localStorage.setItem('remainingStudents',JSON.stringify(r));remaining=r;}}
-        function showPopup(n){document.getElementById('winnerName').innerText=n; document.getElementById('overlay').classList.add('active'); document.getElementById('popup').classList.add('active'); fireConfetti();}
-        function closePopup(){document.getElementById('overlay').classList.remove('active'); document.getElementById('popup').classList.remove('active'); if(document.querySelectorAll('.balloon:not(.popped)').length===0){document.getElementById('startArea').style.display='block'; document.querySelector('.start-btn').innerText="Tiếp Tục";}}
+
+        function showPopup(n){
+            document.getElementById('winnerName').innerText=n; 
+            document.getElementById('overlay').classList.add('active'); 
+            document.getElementById('popup').classList.add('active'); 
+            fireConfetti();
+        }
+        
+        function closePopup(){
+            document.getElementById('overlay').classList.remove('active'); 
+            document.getElementById('popup').classList.remove('active'); 
+            
+            // Kiểm tra xem còn bóng nào trên màn hình không, nếu hết thì hiện nút Start
+            const balloons = document.querySelectorAll('.balloon:not(.popped)');
+            if(balloons.length < 3) { // Nếu còn ít bóng quá thì hiện nút
+                 document.getElementById('startArea').style.display='block'; 
+                 document.querySelector('.start-btn').innerText="Tiếp Tục";
+            }
+        }
         
         const canvas=document.getElementById('confettiCanvas'), ctx=canvas.getContext('2d'); let p=[];
         function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;} window.addEventListener('resize',resizeCanvas); resizeCanvas();
