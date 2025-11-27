@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Vòng Quay May Mắn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: radial-gradient(circle, #232526 0%, #414345 100%);
+            height: 100vh; margin: 0; color: white; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .back-btn {
+            position: absolute; top: 20px; left: 20px; padding: 10px 25px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            text-decoration: none; border-radius: 30px; font-weight: bold; color: white;
+        }
+
+        /* Bảng lịch sử */
+        .history-box {
+            position: absolute; top: 20px; right: 20px; width: 220px; max-height: 400px;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid #ffd700;
+            backdrop-filter: blur(10px); border-radius: 15px; padding: 15px;
+            z-index: 90; display: flex; flex-direction: column; color: #ffd700;
+        }
+        .history-title { font-weight: 900; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #ffd700; padding-bottom: 5px; text-align: center; }
+        .history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        .history-item { font-size: 14px; padding: 8px 0; border-bottom: 1px dashed rgba(255, 215, 0, 0.3); color: white; }
+
+        /* Vòng quay */
+        .wheel-wrapper {
+            position: relative; padding: 15px;
+            background: rgba(255,255,255,0.05); border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        canvas { border-radius: 50%; transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        .marker {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; 
+            border-left: 20px solid transparent; border-right: 20px solid transparent;
+            border-top: 40px solid #f1c40f; z-index: 10;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));
+        }
+        .spin-btn {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 70px; height: 70px; border-radius: 50%;
+            background: #f1c40f; border: 4px solid #1e293b;
+            color: #1e293b; font-weight: 900; font-size: 16px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4); z-index: 20;
+        }
+        .spin-btn:hover { transform: translate(-50%, -50%) scale(1.1); }
+
+        .result-display {
+            margin-top: 30px; font-size: 32px; font-weight: 900;
+            color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+    
+    <div class="history-box">
+        <div class="history-title">Lịch Sử Quay</div>
+        <ul class="history-list" id="historyList"></ul>
+    </div>
+
+    <div class="wheel-wrapper">
+        <div class="marker"></div>
+        <canvas id="wheel" width="450" height="450"></canvas>
+        <button class="spin-btn" onclick="spin()">SPIN</button>
+    </div>
+    <div class="result-display" id="result"></div>
+
+    <script>
+        let fullList=[], remaining=[];
+        
+        function initData(){
+            const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
+            const r=localStorage.getItem('remainingStudents'); if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const l = document.getElementById('historyList'); l.innerHTML = '';
+            if (fullList.length > 0) {
+                const remSet = new Set(remaining);
+                const winners = fullList.filter(x => !remSet.has(x));
+                winners.forEach(n => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item'; li.innerText = "✦ " + n;
+                    l.appendChild(li);
+                });
+                l.scrollTop = l.scrollHeight;
+            }
+        }
+
+        // Logic vẽ vòng quay
+        let startAngle=0, ctx, spinTimeout=null, spinAngleStart=10, spinTime=0, spinTimeTotal=0;
+        // Dùng danh sách remaining để quay (quay ai xóa người đó)
+        // Nếu muốn quay vui (không xóa) thì đổi remaining -> fullList ở dòng dưới
+        let listToSpin = []; 
+
+        function draw() {
+            listToSpin = remaining.length > 0 ? remaining : fullList; // Nếu hết người thì hiện full để quay cho đẹp (nhưng khi quay sẽ báo reset)
+            const arc = Math.PI * 2 / listToSpin.length;
+            const canvas = document.getElementById("wheel");
+            if (!canvas.getContext || listToSpin.length === 0) return;
+            ctx = canvas.getContext("2d"); ctx.clearRect(0,0,450,450);
+            
+            // Palette màu Business (Xanh, Xám, Trắng, Vàng)
+            const colors = ["#3b82f6", "#64748b", "#cbd5e1", "#f1c40f", "#1e293b", "#06b6d4"];
+            
+            for(let i=0; i<listToSpin.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.beginPath();
+                ctx.arc(225, 225, 215, angle, angle + arc, false);
+                ctx.arc(225, 225, 0, angle + arc, angle, true);
+                ctx.fill();
+                ctx.save();
+                ctx.fillStyle = (i % colors.length === 3 || i % colors.length === 2) ? "#1e293b" : "white"; // Chữ đen trên nền sáng
+                ctx.translate(225 + Math.cos(angle + arc / 2) * 140, 225 + Math.sin(angle + arc / 2) * 140);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                ctx.font = 'bold 14px Nunito';
+                const text = listToSpin[i];
+                ctx.fillText(text.length > 15 ? text.substring(0,12)+".." : text, -ctx.measureText(text.length > 15 ? text.substring(0,12)+".." : text).width / 2, 0);
+                ctx.restore();
+            }
+        }
+
+        function spin() {
+            initData();
+            if(remaining.length === 0) {
+                if(fullList.length === 0) return alert("Chưa có danh sách!");
+                if(confirm("Đã gọi hết! Reset lại?")) {
+                    remaining = [...fullList]; localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+                    renderHistory(); draw();
+                } else return;
+            }
+            listToSpin = remaining; // Quay trên danh sách còn lại
+            spinAngleStart = Math.random() * 10 + 10;
+            spinTime = 0;
+            spinTimeTotal = Math.random() * 3000 + 4000;
+            rotate();
+        }
+
+        function rotate() {
+            spinTime += 30;
+            if(spinTime >= spinTimeTotal) { stopRotate(); return; }
+            const spinAngle = spinAngleStart - (spinAngleStart * (spinTime / spinTimeTotal));
+            startAngle += (spinAngle * Math.PI / 180);
+            draw();
+            spinTimeout = setTimeout(rotate, 30);
+        }
+
+        function stopRotate() {
+            clearTimeout(spinTimeout);
+            const arc = Math.PI * 2 / listToSpin.length;
+            const degrees = startAngle * 180 / Math.PI + 90;
+            const index = Math.floor((360 - degrees % 360) / (arc * 180 / Math.PI));
+            const winner = listToSpin[index];
+            
+            document.getElementById('result').innerText = winner;
+            
+            // Xóa người trúng khỏi danh sách
+            const idxReal = remaining.indexOf(winner);
+            if (idxReal > -1) {
+                remaining.splice(idxReal, 1);
+                localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+                renderHistory();
+            }
+            // Vẽ lại sau 2s để người dùng thấy tên bị mất
+            setTimeout(draw, 2000);
+        }
+
+        initData();
+        draw();
+    </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bong Bóng Kim Loại</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f1c40f; }
+        body { margin: 0; overflow: hidden; height: 100vh; font-family: 'Nunito', sans-serif; user-select: none;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+        .back-btn {
+            position: absolute; top: 20px; left: 20px; padding: 10px 25px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            text-decoration: none; border-radius: 30px; font-weight: bold; color: white;
+            z-index: 100;
+        }
+
+        /* Lịch sử */
+        .history-box {
+            position: absolute; top: 20px; right: 20px; width: 220px; max-height: 400px;
+            background: rgba(0, 0, 0, 0.5); border: 1px solid #f1c40f;
+            backdrop-filter: blur(5px); border-radius: 15px; padding: 15px;
+            z-index: 90; display: flex; flex-direction: column; color: #f1c40f;
+        }
+        .history-title { font-weight: 900; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #f1c40f; padding-bottom: 5px; text-align: center; }
+        .history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        .history-item { font-size: 14px; padding: 5px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); color: #cbd5e1; }
+
+        .start-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50; text-align: center; }
+        .start-btn { padding: 20px 60px; font-size: 20px; font-weight: 900; cursor: pointer; background: #f1c40f; color: #1e293b; border: none; border-radius: 50px; box-shadow: 0 0 30px rgba(241, 196, 15, 0.4); transition: 0.2s; }
+        .start-btn:hover { transform: scale(1.1); box-shadow: 0 0 50px rgba(241, 196, 15, 0.6); }
+
+        /* Bong bóng kim loại */
+        .balloon {
+            position: absolute; bottom: -120px; width: 70px; height: 85px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; cursor: pointer;
+            /* Hiệu ứng bóng kim loại */
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.5), inset 10px 10px 20px rgba(255,255,255,0.4), 0 10px 20px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center; color: rgba(255,255,255,0.8); font-weight: bold; font-size: 24px; z-index: 10; transition: transform 0.1s;
+        }
+        .balloon::before { content: ""; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); width: 2px; height: 30px; background: rgba(255, 255, 255, 0.3); }
+        .balloon.popped { opacity: 0; transform: scale(2); transition: 0.2s; }
+
+        /* Popup */
+        .fixed-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 9000; display: none; backdrop-filter: blur(5px); }
+        .fixed-overlay.active { display: block; }
+        .winner-popup { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
+            width: 350px; background: linear-gradient(135deg, #fff, #f1f5f9);
+            border-radius: 20px; padding: 40px; text-align: center; z-index: 9001; 
+            border: 4px solid #f1c40f; box-shadow: 0 0 60px rgba(241, 196, 15, 0.5); transition: 0.4s; 
+        }
+        .winner-popup.active { transform: translate(-50%, -50%) scale(1); }
+        .popup-name { font-family: 'Playfair Display', serif; font-size: 40px; color: #1e293b; margin: 20px 0; }
+        .close-btn { background: #1e293b; color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+    <div class="history-box"><div class="history-title">Đã Chọn</div><ul class="history-list" id="historyList"></ul></div>
+    <canvas id="confettiCanvas"></canvas>
+
+    <div class="start-container" id="startArea">
+        <h1 style="color:white; font-family:'Playfair Display'; font-size:50px; margin-bottom:20px;">ROYAL BALLOONS</h1>
+        <button class="start-btn" onclick="start()">BẮT ĐẦU</button>
+    </div>
+
+    <div class="fixed-overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="winner-popup" id="popup">
+        <div style="font-size:60px;">🎈</div>
+        <div class="popup-name" id="winnerName">...</div>
+        <button class="close-btn" onclick="closePopup()">Đóng</button>
+    </div>
+
+    <script>
+        let fullList=[], remaining=[];
+        function initData(){
+            const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
+            const r=localStorage.getItem('remainingStudents');if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+            renderHistory();
+        }
+        function renderHistory(){
+            const l=document.getElementById('historyList'); l.innerHTML='';
+            if(fullList.length>0){
+                const remSet=new Set(remaining); const w=fullList.filter(x=>!remSet.has(x));
+                w.forEach(n=>{const li=document.createElement('li'); li.className='history-item'; li.innerText="• "+n; l.appendChild(li);});
+                l.scrollTop=l.scrollHeight;
+            }
+        }
+        function start(){
+            initData(); if(remaining.length===0){if(fullList.length===0)return alert("Chưa có danh sách!"); if(confirm("Hết danh sách! Reset?")){remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));renderHistory();}else return;}
+            document.getElementById('startArea').style.display='none';
+            let list=[...remaining]; if(list.length>30) list=list.sort(()=>0.5-Math.random()).slice(0,30);
+            list.forEach(n=>createBalloon(n));
+        }
+        function createBalloon(n){
+            let b=document.createElement('div'); b.className='balloon'; b.innerText="?";
+            // Màu kim loại ngẫu nhiên (Gold, Silver, Bronze, Blue Steel)
+            const metals = [
+                'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', // Blue
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', // Pink
+                'linear-gradient(135deg, #f6d365 0%, #fda085 100%)', // Gold
+                'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)'  // Silver
+            ];
+            b.style.background = metals[Math.floor(Math.random()*metals.length)];
+            b.style.left=Math.random()*90+2+'%'; let d=Math.random()*10+15; b.style.transition=`bottom ${d}s linear, transform 0.2s, opacity 0.2s`;
+            b.onclick=function(){this.classList.add('popped'); removeStudent(n); showPopup(n); renderHistory();};
+            document.body.appendChild(b);
+            setTimeout(()=>{b.style.bottom="120vh"},100); setTimeout(()=>{if(b.parentNode)b.parentNode.removeChild(b)},d*1000);
+        }
+        function removeStudent(n){let r=JSON.parse(localStorage.getItem('remainingStudents')||'[]'); const i=r.indexOf(n); if(i>-1){r.splice(i,1);localStorage.setItem('remainingStudents',JSON.stringify(r));remaining=r;}}
+        function showPopup(n){document.getElementById('winnerName').innerText=n; document.getElementById('overlay').classList.add('active'); document.getElementById('popup').classList.add('active'); fireConfetti();}
+        function closePopup(){document.getElementById('overlay').classList.remove('active'); document.getElementById('popup').classList.remove('active'); if(document.querySelectorAll('.balloon:not(.popped)').length===0){document.getElementById('startArea').style.display='block'; document.querySelector('.start-btn').innerText="Tiếp Tục";}}
+        
+        const canvas=document.getElementById('confettiCanvas'), ctx=canvas.getContext('2d'); let p=[];
+        function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;} window.addEventListener('resize',resizeCanvas); resizeCanvas();
+        function fireConfetti(){ p=[]; for(let i=0;i<150;i++) p.push({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-0.5)*15,vy:(Math.random()-0.5)*15-5,c:'#f1c40f',s:Math.random()*10+5}); animate(); }
+        function animate(){ if(p.length===0)return; ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach((pt,i)=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.2;pt.vx*=0.96;pt.vy*=0.96;ctx.fillStyle=pt.c;ctx.fillRect(pt.x,pt.y,pt.s,pt.s);if(pt.y>canvas.height)p.splice(i,1)}); requestAnimationFrame(animate); }
+    </script>
+</body>
+</html>

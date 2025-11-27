@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Manager - Business Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SheetJS để đọc Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        :root {
+            /* Business Color Palette */
+            --bg-dark: #0f172a;       /* Nền chính */
+            --bg-panel: #1e293b;      /* Nền khung/sidebar */
+            --accent: #3b82f6;        /* Màu chủ đạo (Xanh Business) */
+            --accent-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 320px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- 1. LOGIN SECTION (Màn hình đăng nhập) --- */
+        #login-section {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 50px;
+            border-radius: 24px;
+            text-align: center;
+            width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-title { font-size: 28px; font-weight: 700; margin-bottom: 10px; color: white; }
+        .login-subtitle { color: var(--text-secondary); margin-bottom: 40px; font-size: 14px; line-height: 1.5; }
+        
+        .btn-google {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 14px;
+            background: white; color: #1e293b;
+            border: none; border-radius: 12px;
+            font-weight: 600; font-size: 16px;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .btn-google:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .google-icon { width: 20px; height: 20px; }
+
+        /* --- 2. DASHBOARD SECTION (Giao diện chính) --- */
+        #dashboard-section {
+            display: none; /* Ẩn mặc định */
+            height: 100vh;
+            display: flex; /* Sẽ được set lại bằng JS */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            padding: 25px; font-size: 18px; font-weight: 700; letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            color: white; display: flex; align-items: center; gap: 10px;
+        }
+        .brand span { color: var(--accent); }
+
+        .user-info-bar {
+            padding: 20px; display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #475569; object-fit: cover; }
+        .user-details { flex: 1; overflow: hidden; }
+        .u-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+
+        /* Active Class Card */
+        .status-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 12px; padding: 20px; color: white;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+            margin-bottom: 30px;
+        }
+        .st-label { font-size: 11px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+        .st-name { font-size: 20px; font-weight: 700; margin: 5px 0; }
+        .st-count { font-size: 13px; opacity: 0.9; display: flex; justify-content: space-between; align-items: center; }
+        .btn-reset-mini { background: rgba(0,0,0,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-reset-mini:hover { background: rgba(0,0,0,0.4); }
+
+        /* Class List */
+        .list-header { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .class-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.03); border: 1px solid transparent;
+            border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .class-item:hover { background: rgba(255,255,255,0.06); border-color: var(--border); }
+        .class-item.active { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+        .c-name { font-size: 14px; font-weight: 500; }
+        .c-actions { display: flex; gap: 8px; opacity: 0.5; transition: 0.2s; }
+        .class-item:hover .c-actions { opacity: 1; }
+        .act-btn { cursor: pointer; font-size: 14px; padding: 2px; }
+        .act-btn:hover { color: white; transform: scale(1.2); }
+
+        /* Add Form */
+        .add-section { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
+        .form-toggle {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px;
+            cursor: pointer; border: 1px solid var(--border); transition: 0.2s;
+        }
+        .form-toggle:hover { background: rgba(255,255,255,0.05); }
+        
+        .form-body { 
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease; 
+            background: #0f172a; border-radius: 0 0 8px 8px; 
+        }
+        .form-body.open { max-height: 500px; padding: 15px; border: 1px solid var(--border); border-top: none; }
+
+        input, textarea {
+            width: 100%; background: #1e293b; border: 1px solid var(--border);
+            color: white; padding: 10px; border-radius: 6px; font-family: inherit;
+            margin-bottom: 10px; font-size: 13px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        textarea { height: 80px; resize: none; }
+        .btn-save { width: 100%; background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-save:hover { background: var(--accent-hover); }
+        
+        .excel-trigger { font-size: 12px; color: var(--success); cursor: pointer; float: right; margin-bottom: 5px; }
+
+        /* Main Content */
+        .main-content {
+            flex: 1; padding: 40px; overflow-y: auto;
+            background-image: radial-gradient(#334155 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .hero-text h1 { font-size: 28px; margin-bottom: 5px; }
+        .hero-text p { color: var(--text-secondary); margin-bottom: 30px; }
+
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .game-card {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 16px; padding: 30px 20px; text-align: center;
+            text-decoration: none; color: white; transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .g-icon { font-size: 40px; margin-bottom: 15px; }
+        .g-title { font-weight: 600; font-size: 16px; margin-bottom: 5px; }
+        .g-desc { font-size: 12px; color: var(--text-secondary); }
+
+        /* Utility */
+        .hidden { display: none !important; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOGIN SECTION -->
+    <div id="login-section">
+        <div class="login-card">
+            <!-- Icon Vương miện hoặc Logo -->
+            <div style="font-size: 40px; margin-bottom: 15px;">🎓</div>
+            <div class="login-title">Class Manager</div>
+            <div class="login-subtitle">
+                Đăng nhập để đồng bộ dữ liệu lớp học<br>và sử dụng các công cụ khảo bài.
+            </div>
+            <button class="btn-google" onclick="loginGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon" alt="G">
+                Tiếp tục với Google
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD SECTION -->
+    <div id="dashboard-section" class="main-layout hidden">
+        
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="brand">
+                <span>⚡</span> TEKTOOL PRO
+            </div>
+            
+            <div class="user-info-bar" id="userInfo">
+                <!-- JS sẽ điền info vào đây -->
+            </div>
+
+            <div class="sidebar-scroll">
+                <!-- Status Box -->
+                <div class="status-card">
+                    <div class="st-label">LỚP ĐANG HOẠT ĐỘNG</div>
+                    <div class="st-name" id="currentClassName">Chưa chọn</div>
+                    <div class="st-count">
+                        <span id="studentCount">0 học sinh</span>
+                        <button class="btn-reset-mini" onclick="resetCurrentProgress()" title="Gọi lại từ đầu">↺ Reset</button>
+                    </div>
+                </div>
+
+                <!-- Class List -->
+                <div class="list-header">
+                    <span>Danh sách lớp</span>
+                    <span style="font-size: 10px; background:#334155; padding:2px 6px; border-radius:4px" id="totalClasses">0</span>
+                </div>
+                <div id="savedListContainer">
+                    <div style="text-align:center; color:#475569; font-size:13px; margin-top:20px;">Trống</div>
+                </div>
+
+                <!-- Add Form -->
+                <div class="add-section">
+                    <div class="form-toggle" onclick="toggleForm()">
+                        <span style="font-size:13px; font-weight:600;">+ Thêm lớp mới</span>
+                        <span style="font-size:10px;">▼</span>
+                    </div>
+                    <div class="form-body" id="formContent">
+                        <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
+                        
+                        <div>
+                            <label for="excelInput" class="excel-trigger">📂 Nhập từ Excel</label>
+                            <input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)">
+                        </div>
+                        
+                        <textarea id="inputStudentList" placeholder="Dán danh sách học sinh vào đây..."></textarea>
+                        <button class="btn-save" onclick="saveNewList()">Lưu & Đồng Bộ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="hero-text">
+                <h1>Trung Tâm Điều Khiển</h1>
+                <p>Chọn một trò chơi để bắt đầu phiên khảo bài ngẫu nhiên.</p>
+            </div>
+
+            <div class="game-grid">
+                <a href="lat-bai.html" class="game-card">
+                    <div class="g-icon">🃏</div>
+                    <div class="g-title">Lật Bài</div>
+                    <div class="g-desc">Tìm người may mắn bí ẩn</div>
+                </a>
+                <a href="cao-ve.html" class="game-card">
+                    <div class="g-icon">🎫</div>
+                    <div class="g-title">Vé Cào VIP</div>
+                    <div class="g-desc">Phong cách xổ số Vietlott</div>
+                </a>
+                <a href="rut-que.html" class="game-card">
+                    <div class="g-icon">⛩️</div>
+                    <div class="g-title">Xin Xăm</div>
+                    <div class="g-desc">Rút quẻ ngẫu nhiên cổ điển</div>
+                </a>
+                <a href="vong-quay.html" class="game-card">
+                    <div class="g-icon">🎡</div>
+                    <div class="g-title">Vòng Quay</div>
+                    <div class="g-desc">Quay số trúng thưởng</div>
+                </a>
+                <a href="bong-bong.html" class="game-card">
+                    <div class="g-icon">🎈</div>
+                    <div class="g-title">Bong Bóng</div>
+                    <div class="g-desc">Hiệu ứng nổ bóng vui nhộn</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ============================================================
+        // ⚠️ DÁN CONFIG FIREBASE CỦA BẠN VÀO ĐÂY ⚠️
+        // ============================================================
+        const firebaseConfig = {
+  apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
+  authDomain: "random-3faa8.firebaseapp.com",
+  projectId: "random-3faa8",
+  storageBucket: "random-3faa8.firebasestorage.app",
+  messagingSenderId: "1062124587042",
+  appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
+  measurementId: "G-Q76M508V96"
+};
+
+        // Khởi tạo
+        let app, auth, db, user = null;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch(e) { console.log("Chưa config Firebase"); }
+
+        // --- AUTH LOGIC ---
+        const loginSection = document.getElementById('login-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+
+        // Hàm chuyển đổi giao diện
+        function toggleScreens(isLoggedIn) {
+            if (isLoggedIn) {
+                loginSection.style.opacity = '0';
+                setTimeout(() => {
+                    loginSection.classList.add('hidden');
+                    dashboardSection.classList.remove('hidden');
+                }, 500);
+            } else {
+                dashboardSection.classList.add('hidden');
+                loginSection.classList.remove('hidden');
+                loginSection.style.opacity = '1';
+            }
+        }
+
+        if(auth) {
+            onAuthStateChanged(auth, async (currentUser) => {
+                user = currentUser;
+                if (user) {
+                    // Đã đăng nhập
+                    updateUserInfo(user);
+                    await syncDataFromCloud();
+                    toggleScreens(true);
+                } else {
+                    // Chưa đăng nhập
+                    toggleScreens(false);
+                }
+            });
+        } else {
+            // Fallback nếu không có Firebase: Vào thẳng dashboard (chế độ offline)
+            toggleScreens(true);
+            renderSavedLists();
+            loadActiveStatus();
+        }
+
+        window.loginGoogle = () => {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch((error) => alert(error.message));
+        };
+
+        window.logoutGoogle = () => {
+            signOut(auth).then(() => location.reload());
+        };
+
+        function updateUserInfo(u) {
+            document.getElementById('userInfo').innerHTML = `
+                <img src="${u.photoURL}" class="avatar">
+                <div class="user-details">
+                    <div class="u-name">${u.displayName}</div>
+                    <div style="font-size:11px; color:#94a3b8">${u.email}</div>
+                </div>
+                <button class="btn-logout" onclick="logoutGoogle()">Exit</button>
+            `;
+        }
+
+        // --- DATA SYNC ---
+        async function syncDataFromCloud() {
+            try {
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    localStorage.setItem('savedClasses', JSON.stringify(docSnap.data().savedClasses));
+                }
+                renderSavedLists();
+                loadActiveStatus();
+            } catch(e) { console.error(e); }
+        }
+
+        async function pushDataToCloud() {
+            if (!user) return;
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            await setDoc(doc(db, "users", user.uid), { savedClasses: data }, { merge: true });
+        }
+
+        // --- APP LOGIC ---
+        window.renderSavedLists = () => {
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            const container = document.getElementById('savedListContainer');
+            const current = localStorage.getItem('currentClassName');
+            const keys = Object.keys(data);
+            
+            document.getElementById('totalClasses').innerText = keys.length;
+            container.innerHTML = '';
+
+            if (keys.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#475569;font-size:13px;padding:20px;">Chưa có lớp nào</div>';
+                return;
+            }
+
+            for (const [name, list] of Object.entries(data)) {
+                const div = document.createElement('div');
+                div.className = `class-item ${name === current ? 'active' : ''}`;
+                div.onclick = (e) => { if(!e.target.classList.contains('act-btn')) selectClass(name); };
+                div.innerHTML = `
+                    <span class="c-name">${name}</span>
+                    <div class="c-actions">
+                        <span class="act-btn" onclick="editClass('${name}')">✎</span>
+                        <span class="act-btn" onclick="deleteClass('${name}')" style="color:#ef4444">✕</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        };
+
+        window.toggleForm = (forceOpen = false) => {
+            const body = document.getElementById('formContent');
+            if (forceOpen) body.classList.add('open'); else body.classList.toggle('open');
+        };
+
+        window.saveNewList = () => {
+            const name = document.getElementById('inputClassName').value.trim();
+            const list = document.getElementById('inputStudentList').value.trim();
+            if (!name || !list) return alert("Thiếu thông tin!");
+
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            if (data[name] && !confirm("Lớp đã tồn tại. Ghi đè?")) return;
+
+            data[name] = list;
+            localStorage.setItem('savedClasses', JSON.stringify(data));
+            pushDataToCloud();
+
+            document.getElementById('inputClassName').value = '';
+            document.getElementById('inputStudentList').value = '';
+            
+            renderSavedLists();
+            selectClass(name);
+            toggleForm();
+        };
+
+        window.selectClass = (name) => {
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            if (data[name]) {
+                localStorage.setItem('classStudents', data[name]);
+                localStorage.setItem('currentClassName', name);
+                const arr = data[name].split('\n').filter(n=>n.trim());
+                localStorage.setItem('remainingStudents', JSON.stringify(arr));
+                loadActiveStatus();
+                renderSavedLists();
+            }
+        };
+
+        window.deleteClass = (name) => {
+            if(!confirm(`Xóa lớp ${name}?`)) return;
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            delete data[name];
+            localStorage.setItem('savedClasses', JSON.stringify(data));
+            pushDataToCloud();
+            if(localStorage.getItem('currentClassName')===name) {
+                localStorage.removeItem('currentClassName');
+                localStorage.removeItem('classStudents');
+                loadActiveStatus();
+            }
+            renderSavedLists();
+        };
+
+        window.editClass = (name) => {
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            if(data[name]) {
+                document.getElementById('inputClassName').value = name;
+                document.getElementById('inputStudentList').value = data[name];
+                toggleForm(true);
+            }
+        };
+
+        window.loadActiveStatus = () => {
+            const name = localStorage.getItem('currentClassName');
+            const list = localStorage.getItem('classStudents');
+            if (name && list) {
+                document.getElementById('currentClassName').innerText = name;
+                document.getElementById('studentCount').innerText = `${list.split('\n').filter(n=>n.trim()).length} học sinh`;
+            } else {
+                document.getElementById('currentClassName').innerText = "Chưa chọn";
+                document.getElementById('studentCount').innerText = "--";
+            }
+        };
+
+        window.resetCurrentProgress = () => {
+            const list = localStorage.getItem('classStudents');
+            if (!list) return alert("Chưa chọn lớp!");
+            if(confirm("Khôi phục danh sách gọi tên?")) {
+                const arr = list.split('\n').filter(n=>n.trim());
+                localStorage.setItem('remainingStudents', JSON.stringify(arr));
+                alert("Đã reset!");
+            }
+        };
+
+        window.importExcel = (input) => {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                    if (jsonData.length === 0) return alert("File rỗng!");
+                    
+                    const keywords = ['họ và tên', 'họ tên', 'tên', 'name', 'student'];
+                    let colIdx = -1;
+                    const header = jsonData[0];
+                    for (let i = 0; i < header.length; i++) {
+                        if (header[i] && keywords.includes(header[i].toString().toLowerCase().trim())) { colIdx = i; break; }
+                    }
+                    if (colIdx === -1) colIdx = (jsonData[0].length > 1) ? 1 : 0;
+
+                    let list = [];
+                    for (let i = 1; i < jsonData.length; i++) {
+                        if (jsonData[i][colIdx]) list.push(jsonData[i][colIdx].toString().trim());
+                    }
+                    if(list.length>0) {
+                        document.getElementById('inputStudentList').value = list.join('\n');
+                        toggleForm(true);
+                        alert(`Đã nhập ${list.length} học sinh.`);
+                    } else alert("Không tìm thấy dữ liệu tên!");
+                } catch(e) { alert("Lỗi đọc file Excel"); }
+                input.value = "";
+            };
+            reader.readAsArrayBuffer(file);
+        };
+    </script>
+</body>
+</html>

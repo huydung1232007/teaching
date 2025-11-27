@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xin Xăm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: radial-gradient(circle, #2c3e50 0%, #000000 100%);
+            height: 100vh; margin: 0; color: white; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .back-btn {
+            position: absolute; top: 20px; left: 20px; padding: 10px 25px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            text-decoration: none; border-radius: 30px; font-weight: bold; color: #f1c40f;
+        }
+
+        .container {
+            position: relative; width: 250px; height: 350px;
+            display: flex; justify-content: center; align-items: flex-end; cursor: pointer;
+        }
+
+        /* Ống xăm tối màu */
+        .bamboo-tube {
+            width: 140px; height: 200px;
+            background: linear-gradient(90deg, #1a1a1a, #4a4a4a 30%, #1a1a1a 100%);
+            border-radius: 0 0 40px 40px; position: relative; z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border-top: 5px solid #000; border-bottom: 5px solid #f1c40f;
+        }
+        .bamboo-tube::after {
+            content: "LỘC"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            font-size: 40px; font-weight: bold; color: #f1c40f; opacity: 0.2; font-family: 'Playfair Display', serif;
+        }
+
+        .stick { width: 10px; height: 100%; background: #d4ac0d; position: absolute; bottom: 0; border-radius: 5px 5px 0 0; border: 1px solid #7d6608; }
+        .stick-group { position: absolute; bottom: 20px; width: 100px; height: 180px; z-index: 5; left: 50%; transform: translateX(-50%); }
+        .stick:nth-child(1) { left: 10px; height: 90%; transform: rotate(-5deg); }
+        .stick:nth-child(2) { left: 30px; height: 95%; transform: rotate(5deg); background: #f1c40f; }
+        .stick:nth-child(3) { left: 50px; height: 85%; transform: rotate(-2deg); }
+        .stick:nth-child(4) { left: 70px; height: 92%; transform: rotate(8deg); }
+
+        .winning-stick {
+            width: 14px; height: 220px; background: linear-gradient(to right, #f1c40f, #fff, #f1c40f);
+            position: absolute; bottom: 20px; left: 50%; z-index: 6;
+            border-radius: 5px 5px 0 0; display: none; transition: bottom 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+        }
+        .winning-stick::before { content:""; position:absolute; top:0; left:0; width:100%; height:40px; background: #c0392b; }
+
+        .shaking { animation: shake 0.5s infinite; }
+        @keyframes shake { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
+
+        /* Scroll Overlay */
+        .scroll-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+        .scroll-overlay.active { display: flex; }
+        
+        .scroll-paper {
+            height: 200px; width: 0; background: #fff;
+            overflow: hidden; transition: width 1s ease-in-out;
+            display: flex; align-items: center; justify-content: center;
+            border-top: 4px solid #f1c40f; border-bottom: 4px solid #f1c40f;
+        }
+        .scroll-content { white-space: nowrap; opacity: 0; transition: opacity 0.5s 0.8s; text-align: center; }
+        .scroll-content.show { opacity: 1; }
+        .scroll-name { font-family: 'Playfair Display', serif; color: #1e293b; font-size: 40px; font-weight: bold; }
+        .scroll-roller { width: 15px; height: 240px; background: #f1c40f; border-radius: 10px; box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); }
+
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
+
+    <div class="scroll-overlay" id="scrollOverlay" onclick="resetGame()">
+        <div style="display:flex; align-items:center;">
+            <div class="scroll-roller"></div>
+            <div class="scroll-paper" id="scrollPaper">
+                <div class="scroll-content" id="scrollContent">
+                    <div style="color:#888; font-size:14px; text-transform:uppercase; letter-spacing:2px;">Người được chọn</div>
+                    <div class="scroll-name" id="winnerName">Tên</div>
+                </div>
+            </div>
+            <div class="scroll-roller"></div>
+        </div>
+        <div style="position:absolute; bottom:100px; color:#aaa; font-size:12px;">Bấm để đóng</div>
+    </div>
+
+    <div class="container" id="shaker" onclick="shake()">
+        <div class="stick-group"><div class="stick"></div><div class="stick"></div><div class="stick"></div><div class="stick"></div></div>
+        <div class="winning-stick" id="winner"></div>
+        <div class="bamboo-tube"></div>
+    </div>
+    <p style="margin-top:20px; color:#aaa; font-style:italic;">Click để xin xăm</p>
+
+    <script>
+        let fullList=[], remaining=[];
+        function initData(){
+            const f=localStorage.getItem('classStudents');fullList=f?f.split('\n').filter(n=>n.trim()!==''):[];
+            const r=localStorage.getItem('remainingStudents');if(r){remaining=JSON.parse(r)}else{remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));}
+        }
+        function getUnique(){
+            initData(); if(remaining.length===0){ if(fullList.length===0) return alert("Chưa có danh sách!"); if(confirm("Hết danh sách! Reset?")){remaining=[...fullList];localStorage.setItem('remainingStudents',JSON.stringify(remaining));} else return null; }
+            const i=Math.floor(Math.random()*remaining.length); const w=remaining[i];
+            remaining.splice(i,1); localStorage.setItem('remainingStudents',JSON.stringify(remaining)); return w;
+        }
+
+        let isShaking=false;
+        function shake(){
+            if(isShaking) return;
+            const w=getUnique(); if(!w) return;
+            
+            isShaking=true;
+            const shaker=document.getElementById('shaker'), stick=document.getElementById('winner');
+            stick.style.display='none'; stick.style.bottom='20px';
+            stick.style.left = (Math.random()*60 + 45) + 'px';
+            
+            shaker.classList.add('shaking');
+            setTimeout(()=>{
+                shaker.classList.remove('shaking');
+                stick.style.display='block';
+                setTimeout(()=>{
+                    stick.style.bottom='180px';
+                    setTimeout(()=>{ showScroll(w); },800);
+                },50);
+            },1000);
+        }
+        function showScroll(n){
+            document.getElementById('winnerName').innerText=n;
+            document.getElementById('scrollOverlay').classList.add('active');
+            setTimeout(()=>{ 
+                document.getElementById('scrollPaper').style.width='400px';
+                setTimeout(()=>{document.getElementById('scrollContent').classList.add('show')},500);
+            },100);
+        }
+        function resetGame(){
+            document.getElementById('scrollOverlay').classList.remove('active');
+            document.getElementById('scrollPaper').style.width='0';
+            document.getElementById('scrollContent').classList.remove('show');
+            document.getElementById('winner').style.bottom='20px';
+            isShaking=false;
+        }
+        initData();
+    </script>
+</body>
+</html>
