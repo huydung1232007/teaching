@@ -8,23 +8,23 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     
     <style>
-        /* GIỮ NGUYÊN CSS GIAO DIỆN BUSINESS CŨ */
-        :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #3b82f6; --accent-hover: #2563eb; --text-primary: #f8fafc; --text-secondary: #94a3b8; --border: #334155; --sidebar-width: 320px; }
+        :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #3b82f6; --text-primary: #f8fafc; --text-secondary: #94a3b8; --border: #334155; --sidebar-width: 320px; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; }
         
-        /* Loading Screen (Che nội dung khi đang check login) */
+        /* Loading Screen */
         #page-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-dark); z-index: 99999;
-            display: flex; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--accent); font-weight: bold; font-size: 18px;
         }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(59,130,246,0.3); border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
+        @keyframes spin { to {transform: rotate(360deg);} }
 
-        /* --- COPY LẠI CSS CỦA BẢN TRƯỚC --- */
+        /* Sidebar & Content styles (Giữ nguyên Business Style) */
         .sidebar { width: var(--sidebar-width); background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
         .brand { padding: 25px; font-size: 18px; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid var(--border); color: white; display: flex; align-items: center; gap: 10px; }
-        .brand span { color: var(--accent); }
         .user-info-bar { padding: 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
         .avatar { width: 36px; height: 36px; border-radius: 50%; background: #475569; object-fit: cover; }
         .user-details { flex: 1; overflow: hidden; }
@@ -70,17 +70,16 @@
 </head>
 <body>
 
-    <!-- Màn hình chờ khi đang check login -->
+    <!-- Màn hình chờ (Loading) -->
     <div id="page-loader">
-        <div class="brand"><span>⚡</span> TEKTOOL IS LOADING...</div>
+        <div class="spinner"></div>
+        <div>ĐANG TẢI DỮ LIỆU...</div>
     </div>
 
     <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="brand"><span>⚡</span> TEKTOOL PRO</div>
-        <div class="user-info-bar" id="userInfo">
-            <div style="font-size: 12px;">Đang tải thông tin...</div>
-        </div>
+        <div class="user-info-bar" id="userInfo"></div>
         <div class="sidebar-scroll">
             <div class="status-card">
                 <div class="st-label">LỚP ĐANG HOẠT ĐỘNG</div>
@@ -99,7 +98,7 @@
                 <div class="form-body" id="formContent">
                     <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
                     <div><label for="excelInput" class="excel-trigger">📂 Nhập từ Excel</label><input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)"></div>
-                    <textarea id="inputStudentList" placeholder="Dán danh sách..."></textarea>
+                    <textarea id="inputStudentList" placeholder="Dán danh sách học sinh vào đây..."></textarea>
                     <button class="btn-save" onclick="saveNewList()">Lưu & Đồng Bộ</button>
                 </div>
             </div>
@@ -126,30 +125,49 @@
         import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // ============================================================
         // ⚠️ DÁN CONFIG FIREBASE CỦA BẠN VÀO ĐÂY ⚠️
+        // ============================================================
         const firebaseConfig = {
-            // apiKey: "...",
-            // authDomain: "...",
-            // ...
-        };
+  apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
+  authDomain: "random-3faa8.firebaseapp.com",
+  projectId: "random-3faa8",
+  storageBucket: "random-3faa8.firebasestorage.app",
+  messagingSenderId: "1062124587042",
+  appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
+  measurementId: "G-Q76M508V96"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        let user = null;
+        let app, auth, db, user = null;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch(e) { 
+            console.log("Chưa config Firebase");
+            // SỬA LỖI: Nếu chưa config, tắt loading ngay để dùng offline
+            document.getElementById('page-loader').style.display = 'none';
+        }
 
         // KIỂM TRA ĐĂNG NHẬP
-        onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                user = currentUser;
-                document.getElementById('page-loader').style.display = 'none'; // Tắt màn hình chờ
-                updateUserInfo(user);
-                await syncDataFromCloud(); // Tải dữ liệu về
-            } else {
-                // Chưa đăng nhập -> Đá về trang login
-                window.location.href = "login.html";
-            }
-        });
+        if(auth) {
+            onAuthStateChanged(auth, async (currentUser) => {
+                if (currentUser) {
+                    user = currentUser;
+                    updateUserInfo(user);
+                    await syncDataFromCloud();
+                    document.getElementById('page-loader').style.display = 'none'; // Đã tải xong
+                } else {
+                    // Chưa đăng nhập -> Chuyển về login
+                    window.location.href = "login.html";
+                }
+            });
+        } else {
+            // Fallback (Offline)
+            document.getElementById('page-loader').style.display = 'none';
+            renderSavedLists();
+            loadActiveStatus();
+        }
 
         window.logoutGoogle = () => {
             signOut(auth).then(() => window.location.href = "login.html");
@@ -166,7 +184,6 @@
             `;
         }
 
-        // --- CÁC HÀM XỬ LÝ DỮ LIỆU & GIAO DIỆN (Giữ nguyên như cũ) ---
         async function syncDataFromCloud() {
             try {
                 const docRef = doc(db, "users", user.uid);
@@ -185,146 +202,8 @@
             await setDoc(doc(db, "users", user.uid), { savedClasses: data }, { merge: true });
         }
 
+        // ... CÁC HÀM XỬ LÝ KHÁC (GIỮ NGUYÊN) ...
         window.renderSavedLists = () => {
             const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
             const container = document.getElementById('savedListContainer');
-            const current = localStorage.getItem('currentClassName');
-            const keys = Object.keys(data);
-            
-            document.getElementById('totalClasses').innerText = keys.length;
-            container.innerHTML = '';
-
-            if (keys.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#475569;font-size:13px;margin-top:20px;">Trống</div>';
-                return;
-            }
-
-            for (const [name, list] of Object.entries(data)) {
-                const div = document.createElement('div');
-                div.className = `class-item ${name === current ? 'active' : ''}`;
-                
-                div.onclick = (e) => { 
-                    if (!e.target.classList.contains('act-btn')) selectClass(name); 
-                };
-
-                div.innerHTML = `
-                    <span class="c-name">${name}</span>
-                    <div class="c-actions">
-                        <span class="act-btn" onclick="editClass('${name}')">✎</span>
-                        <span class="act-btn" onclick="deleteClass('${name}')" style="color:#ef4444">✕</span>
-                    </div>
-                `;
-                container.appendChild(div);
-            }
-        };
-
-        window.saveNewList = () => {
-            const name = document.getElementById('inputClassName').value.trim();
-            const list = document.getElementById('inputStudentList').value.trim();
-            if (!name || !list) return alert("Thiếu thông tin!");
-
-            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-            if (data[name] && !confirm("Ghi đè lớp này?")) return;
-
-            data[name] = list;
-            localStorage.setItem('savedClasses', JSON.stringify(data));
-            pushDataToCloud();
-
-            document.getElementById('inputClassName').value = '';
-            document.getElementById('inputStudentList').value = '';
-            
-            renderSavedLists();
-            selectClass(name);
-            toggleForm();
-        };
-
-        window.selectClass = (name) => {
-            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-            if (data[name]) {
-                localStorage.setItem('classStudents', data[name]);
-                localStorage.setItem('currentClassName', name);
-                const arr = data[name].split('\n').filter(n=>n.trim());
-                localStorage.setItem('remainingStudents', JSON.stringify(arr));
-                loadActiveStatus();
-                renderSavedLists();
-            }
-        };
-
-        window.deleteClass = (name) => {
-            if(!confirm(`Xóa lớp ${name}?`)) return;
-            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-            delete data[name];
-            localStorage.setItem('savedClasses', JSON.stringify(data));
-            pushDataToCloud();
-            if(localStorage.getItem('currentClassName')===name) {
-                localStorage.removeItem('currentClassName');
-                localStorage.removeItem('classStudents');
-                loadActiveStatus();
-            }
-            renderSavedLists();
-        };
-
-        window.editClass = (name) => {
-            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-            if(data[name]) {
-                document.getElementById('inputClassName').value = name;
-                document.getElementById('inputStudentList').value = data[name];
-                toggleForm(true);
-            }
-        };
-
-        window.loadActiveStatus = () => {
-            const name = localStorage.getItem('currentClassName');
-            const list = localStorage.getItem('classStudents');
-            if (name && list) {
-                document.getElementById('currentClassName').innerText = name;
-                document.getElementById('studentCount').innerText = `${list.split('\n').filter(n=>n.trim()).length} học sinh`;
-            } else {
-                document.getElementById('currentClassName').innerText = "Chưa chọn";
-                document.getElementById('studentCount').innerText = "--";
-            }
-        };
-
-        window.resetCurrentProgress = () => {
-            const list = localStorage.getItem('classStudents');
-            if (!list) return alert("Chưa chọn lớp!");
-            if(confirm("Khôi phục danh sách gọi tên?")) {
-                const arr = list.split('\n').filter(n=>n.trim());
-                localStorage.setItem('remainingStudents', JSON.stringify(arr));
-                alert("Đã reset!");
-            }
-        };
-
-        window.toggleForm = (forceOpen=false) => {
-            const el = document.getElementById('formContent');
-            if(forceOpen) el.classList.add('open'); else el.classList.toggle('open');
-        }
-
-        window.importExcel = (input) => {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
-                    if (jsonData.length === 0) return alert("File rỗng!");
-                    const keywords = ['họ và tên', 'họ tên', 'tên', 'name'];
-                    let colIdx = -1;
-                    const header = jsonData[0];
-                    for (let i = 0; i < header.length; i++) {
-                        if (header[i] && keywords.includes(header[i].toString().toLowerCase().trim())) { colIdx = i; break; }
-                    }
-                    if (colIdx === -1) colIdx = (jsonData[0].length > 1) ? 1 : 0;
-                    let list = [];
-                    for (let i = 1; i < jsonData.length; i++) if (jsonData[i][colIdx]) list.push(jsonData[i][colIdx].toString().trim());
-                    if(list.length>0) { document.getElementById('inputStudentList').value = list.join('\n'); toggleForm(true); } 
-                    else alert("Không tìm thấy tên!");
-                } catch(e) { alert("Lỗi file Excel"); }
-                input.value = "";
-            };
-            reader.readAsArrayBuffer(file);
-        };
-    </script>
-</body>
-</html>
+            const current = localStorag
