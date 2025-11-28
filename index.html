@@ -341,9 +341,27 @@
             } catch(e) { console.error(e); }
         }
         async function pushDataToCloud() {
-            if (!user) return;
-            await setDoc(doc(db, "users", user.uid), { savedClasses: JSON.parse(localStorage.getItem('savedClasses') || '{}') }, { merge: true });
-        }
+    if (!user) return;
+    
+    const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+    
+    try {
+        // Lưu thêm thông tin cá nhân vào Firestore
+        await setDoc(doc(db, "users", user.uid), {
+            savedClasses: data,
+            
+            // THÊM CÁC DÒNG NÀY:
+            email: user.email,           // Lưu Email
+            displayName: user.displayName || "Chưa đặt tên", // Lưu Tên hiển thị
+            photoURL: user.photoURL,     // Lưu Avatar (nếu muốn hiển thị bên admin)
+            lastUpdated: new Date()      // Lưu thời gian cập nhật cuối
+        }, { merge: true });
+        
+        console.log("Đã đồng bộ dữ liệu kèm thông tin user!");
+    } catch (e) {
+        console.error("Lỗi lưu cloud:", e);
+    }
+}
 
         // --- APP LOGIC ---
         window.renderSavedLists = () => {
@@ -452,5 +470,6 @@
     </script>
 </body>
 </html>
+
 
 
