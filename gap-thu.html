@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Gắp Thú Business VIP - Final Fix</title>
+    <title>Gắp Thú Business VIP - Gravity Fix</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700;900&family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,13 +11,11 @@
             --gold: #d4af37;
             --machine-bg: #ffffff;
             
-            /* Cấu hình lớp (Layer) để tạo chiều sâu */
-            --z-ball-back: 5;    /* Bóng hàng sau cùng */
-            --z-claw-down: 10;   /* Càng khi đi xuống (kẹp giữa các bóng) */
-            --z-ball-mid: 15;    /* Bóng hàng giữa */
-            --z-ball-front: 20;  /* Bóng hàng đầu (che càng) */
-            --z-claw-up: 50;     /* Càng khi gắp lên (cao nhất) */
-            --z-glass: 60;
+            /* Cấu hình lớp (Layer) */
+            --z-ball-back: 5;    
+            --z-claw-down: 20;   /* Càng đi xuống giữa đám bóng */
+            --z-ball-front: 30;  /* Bóng hàng đầu che càng */
+            --z-claw-up: 50;     /* Càng gắp lên cao nhất */
         }
 
         body {
@@ -57,7 +55,6 @@
 
         .glass-area {
             flex: 1; position: relative; overflow: hidden;
-            /* Gradient đậm ở đáy tạo cảm giác hố sâu */
             background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.8) 70%, rgba(200,200,200,0.5) 100%);
         }
         
@@ -68,7 +65,7 @@
             position: absolute; top: 14px; left: 50%; width: 4px; height: 40px;
             background: var(--navy); transform: translateX(-50%);
             transition: height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95), left 1s ease-in-out;
-            z-index: var(--z-claw-down); /* Mặc định nằm sau bóng hàng tiền đạo */
+            z-index: var(--z-claw-down); 
         }
 
         .claw-body {
@@ -80,34 +77,37 @@
         }
         .claw-body.closed { transform: scale(0.85); }
         
-        /* Khi gắp lên thì nổi lên trên cùng */
         .arm-rope.lifting, .claw-body.lifting { z-index: var(--z-claw-up) !important; }
 
         .prize-chute {
             position: absolute; bottom: 0; left: 10px; width: 90px; height: 140px;
             background: #334155; border: 2px solid var(--gold); border-radius: 10px 10px 0 0;
-            z-index: 1; box-shadow: inset 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 100; box-shadow: inset 0 10px 30px rgba(0,0,0,0.6);
         }
 
-        /* KHU VỰC BÓNG (Đã chỉnh logic xếp chồng) */
+        /* KHU VỰC BÓNG (QUAN TRỌNG: Không để padding làm lệch tính toán) */
         .pit-area {
-            position: absolute; bottom: 0; width: 100%; height: 200px;
-            z-index: 0; padding: 0 20px; box-sizing: border-box;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 250px;
+            z-index: 0; pointer-events: none;
         }
         
         .ball {
-            position: absolute; width: 48px; height: 48px; border-radius: 50%;
+            position: absolute; width: 50px; height: 50px; border-radius: 50%;
             border: 1px solid rgba(0,0,0,0.1);
-            /* Bóng đổ tạo khối cầu thực hơn */
-            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.3), 2px 5px 10px rgba(0,0,0,0.2);
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 2px 5px 10px rgba(0,0,0,0.15);
             display: flex; align-items: center; justify-content: center;
-            font-size: 10px; color: rgba(255,255,255,0.5); font-weight: bold;
+            /* Bóng to hơn chút cho đầy đặn */
             transition: 0.5s;
         }
-        .ball.blue { background: radial-gradient(circle at 30% 30%, #60a5fa, #1d4ed8); }
-        .ball.red { background: radial-gradient(circle at 30% 30%, #f87171, #991b1b); }
-        .ball.gold { background: radial-gradient(circle at 30% 30%, #fcd34d, #b45309); }
+        .ball.blue { background: radial-gradient(circle at 30% 30%, #93c5fd, #2563eb); }
+        .ball.red { background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626); }
+        .ball.gold { background: radial-gradient(circle at 30% 30%, #fde047, #d97706); }
         
+        /* Bóng hàng sau tối hơn */
+        .ball.back-layer { filter: brightness(0.8); z-index: var(--z-ball-back); transform: scale(0.9); }
+        /* Bóng hàng trước sáng hơn */
+        .ball.front-layer { z-index: var(--z-ball-front); }
+
         .ball.caught { position: absolute; bottom: -22px; left: 0; z-index: var(--z-claw-up); transition: none; filter: brightness(1.2); }
 
         .control-panel {
@@ -123,7 +123,7 @@
         .start-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #0f172a; }
         .start-btn:disabled { background: #94a3b8; box-shadow: none; transform: translateY(4px); cursor: not-allowed; }
 
-        /* --- HIỆU ỨNG TRỨNG TÁCH ĐÔI & TỜ SỚ --- */
+        /* --- OVERLAY & TỜ SỚ HOÀNG GIA --- */
         .gacha-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.95); z-index: 9999;
@@ -141,7 +141,6 @@
             position: absolute; width: 320px; height: 160px;
             background: radial-gradient(circle at 50% 10%, #fff, var(--gold));
             border: 6px solid #fff; box-shadow: 0 0 80px rgba(212, 175, 55, 0.8);
-            /* Mở chậm hơn: 3s */
             transition: transform 3s cubic-bezier(0.19, 1, 0.22, 1), opacity 2.5s ease-in;
             z-index: 100;
         }
@@ -154,69 +153,77 @@
             background: radial-gradient(circle at 50% -20%, #fff, var(--gold));
         }
 
-        .gacha-capsule.open .half.top { transform: translateY(-200px) rotate(-10deg); opacity: 0; }
-        .gacha-capsule.open .half.bottom { transform: translateY(200px) rotate(10deg); opacity: 0; }
+        .gacha-capsule.open .half.top { transform: translateY(-220px) rotate(-15deg); opacity: 0; }
+        .gacha-capsule.open .half.bottom { transform: translateY(220px) rotate(15deg); opacity: 0; }
 
-        /* --- TỜ SỚ HOÀNG GIA (ROYAL SCROLL) --- */
+        /* TỜ GIẤY ĐẸP */
         .royal-scroll {
             position: absolute; top: 50%; left: 50%;
-            width: 0; height: 60px; /* Bắt đầu nhỏ */
+            width: 0; height: 60px; 
             transform: translate(-50%, -50%);
             
-            /* Màu giấy kiểu cũ sang trọng */
+            /* Nền giấy vân cổ */
             background-color: #fffbf0;
-            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4af37' fill-opacity='0.1'%3E%3Cpath d='M0 0h20L0 20z'/%3E%3C/g%3E%3C/svg%3E");
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0,0,0,0.02) 50px, rgba(0,0,0,0.02) 51px);
             
             /* Viền đôi sang trọng */
-            border: 4px double #d4af37;
-            border-radius: 8px;
+            border: 8px double #d4af37;
+            outline: 2px solid #854d0e; outline-offset: -10px;
+            border-radius: 4px;
             
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             overflow: hidden; opacity: 0;
             
-            /* Hiệu ứng mở giấy: Mở rộng ngang trước, rồi dọc sau */
-            transition: width 1s ease-out, height 1.5s ease-out 0.8s, opacity 0.5s;
+            transition: width 1.2s ease-out, height 1.5s ease-out 1s, opacity 0.5s;
             z-index: 50;
         }
         
+        /* Họa tiết góc giấy */
+        .royal-scroll::before, .royal-scroll::after {
+            content: "✦"; font-size: 30px; color: var(--gold); position: absolute;
+        }
+        .royal-scroll::before { top: 10px; left: 10px; }
+        .royal-scroll::after { bottom: 10px; right: 10px; }
+
         .gacha-capsule.open .royal-scroll {
-            width: 400px; height: 300px; /* Kích thước thật */
-            opacity: 1;
-            transition-delay: 0.5s; /* Đợi vỏ trứng nứt ra */
+            width: 450px; height: 320px; 
+            opacity: 1; transition-delay: 0.5s; 
         }
 
-        /* Tem niêm phong */
+        /* Tem niêm phong đỏ */
         .seal {
-            font-size: 50px; color: #a51c30; 
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3); margin-bottom: 10px;
-            opacity: 0; transform: scale(2);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 2.5s; /* Hiện ra cuối cùng */
+            width: 70px; height: 70px; background: #991b1b;
+            border-radius: 50%; border: 3px dashed #fca5a5;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 20px;
+            position: absolute; top: -35px; right: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transform: rotate(15deg) scale(0); opacity: 0;
+            transition: all 0.5s cubic-bezier(0.5, 1.5, 0.5, 1) 2.5s;
         }
-        .gacha-capsule.open .seal { opacity: 1; transform: scale(1); }
+        .gacha-capsule.open .seal { transform: rotate(15deg) scale(1); opacity: 1; }
 
-        .winner-label {
-            font-family: 'Inter', sans-serif; font-size: 13px; text-transform: uppercase; 
-            color: #64748b; letter-spacing: 4px; margin-bottom: 15px; font-weight: 700;
-            border-bottom: 1px solid #d4af37; padding-bottom: 5px;
+        .winner-title {
+            font-family: 'Inter', sans-serif; font-size: 14px; text-transform: uppercase; 
+            color: #854d0e; letter-spacing: 4px; margin-bottom: 20px; font-weight: 700;
         }
         .winner-name {
-            font-family: 'Playfair Display', serif; font-size: 45px; font-weight: 900;
+            font-family: 'Great Vibes', cursive; font-size: 65px; 
             color: var(--navy); text-align: center; line-height: 1.1; padding: 0 20px;
-            /* Gradient chữ */
-            background: linear-gradient(45deg, var(--navy), #3b82f6);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
         }
         
         .close-popup-btn {
-            margin-top: 25px; padding: 12px 40px; border: none; 
-            background: linear-gradient(135deg, var(--gold), #b89628);
-            color: white; font-weight: bold; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); transition: 0.3s; letter-spacing: 1px;
+            margin-top: 30px; padding: 12px 50px; border: none; 
+            background: var(--navy); color: white; 
+            font-weight: bold; border-radius: 4px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(30, 41, 59, 0.3); 
             opacity: 0; transform: translateY(20px);
-            transition: all 0.5s ease 2.8s; /* Nút hiện ra chậm nhất */
+            transition: all 0.5s ease 2.8s;
+            text-transform: uppercase; letter-spacing: 2px;
         }
-        .close-popup-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.5); }
+        .close-popup-btn:hover { background: #334155; transform: translateY(-2px); }
         .gacha-capsule.open .close-popup-btn { opacity: 1; transform: translateY(0); }
 
     </style>
@@ -246,8 +253,8 @@
             <div class="half bottom"></div>
             
             <div class="royal-scroll">
-                <div class="seal">♛</div>
-                <div class="winner-label">Người Chiến Thắng</div>
+                <div class="seal">VIP</div>
+                <div class="winner-title">Người Chiến Thắng Là</div>
                 <div class="winner-name" id="winnerName">...</div>
                 <button class="close-popup-btn" onclick="closePopup()">Tiếp Tục</button>
             </div>
@@ -265,49 +272,63 @@
             renderBalls(); 
         }
         
+        // --- THUẬT TOÁN XẾP BÓNG CÓ TRỌNG LỰC (STACKING) ---
         function renderBalls() {
             const pit = document.getElementById('pit'); 
             pit.innerHTML = '';
-            // Tăng lên 45 quả bóng để lấp đầy hố
-            const totalBalls = 45;
+            
+            // Chia chiều rộng hố thành các cột ảo (khoảng 10-12 cột)
+            const columns = 12;
+            const colWidth = 100 / columns; // % chiều rộng mỗi cột
+            const colHeights = new Array(columns).fill(0); // Theo dõi độ cao của từng cột
+            
+            // Số lượng bóng: 60 quả cho đầy
+            const totalBalls = 60;
             
             for(let i=0; i<totalBalls; i++) {
                 const orb = document.createElement('div'); 
                 const color = ballColors[Math.floor(Math.random()*ballColors.length)];
                 
-                // --- THUẬT TOÁN XẾP BÓNG TỰ NHIÊN (Trọng lực giả) ---
-                // Chia làm 3 lớp độ sâu (Z-index)
-                // Lớp 1: Đáy sau cùng (ít bóng, tối) -> z-index thấp
-                // Lớp 2: Giữa (nhiều bóng) -> z-index trung bình (càng gắp sẽ đi vào đây)
-                // Lớp 3: Tiền cảnh (ít bóng, sáng, che càng gắp) -> z-index cao
+                // 1. Chọn một cột ngẫu nhiên để thả bóng
+                const colIndex = Math.floor(Math.random() * columns);
                 
-                let zIndex, bottomBase, leftBase, scale;
-                const rand = Math.random();
+                // 2. Tính toán vị trí Left (trong phạm vi cột đó + chút random cho tự nhiên)
+                // Left cơ bản = colIndex * colWidth
+                // Random lệch = -2% đến +2% để không quá thẳng hàng
+                const randomOffset = (Math.random() * 4) - 2;
+                const leftPos = (colIndex * colWidth) + 2 + randomOffset; // +2 để không sát mép trái
+                
+                // 3. Tính toán vị trí Bottom (dựa trên độ cao hiện tại của cột)
+                // Mỗi bóng cao khoảng 40px, nhưng cho chồng lấn xíu (35px)
+                const bottomPos = colHeights[colIndex];
+                
+                // Cập nhật độ cao cột cho bóng tiếp theo
+                colHeights[colIndex] += 35; 
 
-                if (i < 15) { // Lớp Đáy (Hậu cảnh)
-                    zIndex = 5; 
-                    bottomBase = Math.random() * 60; // Nằm sát đáy
-                    scale = 0.9; // Nhỏ hơn xíu vì ở xa
-                    orb.style.filter = "brightness(0.8)";
-                } else if (i < 35) { // Lớp Giữa (Mục tiêu gắp)
-                    zIndex = 15;
-                    bottomBase = Math.random() * 100;
-                    scale = 1.0;
-                } else { // Lớp Tiền cảnh (Che càng)
-                    zIndex = 25; 
-                    bottomBase = Math.random() * 50; // Nằm thấp nhưng ở trước
-                    scale = 1.1; // To hơn vì ở gần
+                // 4. Xử lý Layer (Z-index) và Màu sắc (Bóng sau tối hơn)
+                // Bóng ở thấp thì z-index thấp (để bóng trên đè lên) -> SAI
+                // Bóng ở hàng sau (yếu tố chiều sâu giả) -> Random layer
+                
+                let zIndex = 15; // Mặc định ở giữa
+                let extraClass = '';
+                
+                // Tạo hiệu ứng 3D: Một số bóng "lùi về sau" và tối hơn
+                if (Math.random() < 0.4) {
+                    zIndex = 5; // Layer sau cùng
+                    extraClass = 'back-layer'; // Class làm tối màu
+                    orb.style.transform = `scale(0.9)`; // Nhỏ hơn chút
+                } else {
+                    zIndex = 25; // Layer trước
+                    extraClass = 'front-layer';
                 }
 
-                orb.className = `ball ${color}`;
+                orb.className = `ball ${color} ${extraClass}`;
+                orb.style.left = `${Math.min(90, Math.max(0, leftPos))}%`; // Clamp 0-90%
+                orb.style.bottom = `${bottomPos}px`;
                 orb.style.zIndex = zIndex;
                 
-                // Random vị trí ngang (tránh đè nhau quá nhiều)
-                leftBase = Math.random() * 90; 
-                
-                orb.style.left = `${leftBase}%`;
-                orb.style.bottom = `${bottomBase}px`;
-                orb.style.transform = `scale(${scale}) rotate(${Math.random()*360}deg)`;
+                // Xoay ngẫu nhiên
+                orb.style.transform += ` rotate(${Math.random()*360}deg)`;
                 
                 pit.appendChild(orb);
             }
@@ -321,12 +342,12 @@
             const claw = document.getElementById('claw');
             const winner = fullList[Math.floor(Math.random()*fullList.length)];
 
-            // 1. Di chuyển cần (Tránh hố bên trái 20%)
-            const randomX = Math.floor(Math.random() * 60) + 25; // 25% -> 85%
+            // 1. Di chuyển cần (Tránh hố bên trái - đi từ 30% đến 90%)
+            const randomX = Math.floor(Math.random() * 60) + 30; 
             arm.style.left = randomX + '%';
 
             setTimeout(() => {
-                // 2. Hạ xuống (Z-index = 10, thấp hơn lớp bóng tiền cảnh 25 -> tạo hiệu ứng chìm vào bóng)
+                // 2. Hạ xuống (Đi xuyên qua lớp bóng trước vì z-index thấp hơn bóng tiền cảnh)
                 arm.style.height = '430px'; 
                 
                 setTimeout(() => {
