@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Executive BO3 Arena</title>
+    <title>Oẳn Tù Xì BO3 </title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -25,14 +25,12 @@
         body {
             font-family: 'Manrope', sans-serif;
             background-color: var(--bg-color);
-            /* Họa tiết vân giấy sang trọng */
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             height: 100vh; margin: 0; overflow: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--text-main); user-select: none;
         }
 
-        /* Nút thoát góc trái */
         .back-btn {
             position: absolute; top: 30px; left: 30px;
             padding: 10px 24px; font-size: 14px;
@@ -59,13 +57,12 @@
             color: var(--gold); text-transform: uppercase; margin-top: 5px;
         }
 
-        /* BẢNG TỈ SỐ (SCOREBOARD) */
+        /* BẢNG TỈ SỐ */
         .score-board-wrapper {
             margin-top: 25px; position: relative;
             display: flex; align-items: center; justify-content: center;
-            width: 200px; /* Độ rộng khu vực điểm */
+            width: 200px; 
         }
-        /* Đường kẻ ngang nối các điểm */
         .score-line {
             position: absolute; top: 50%; left: 0; width: 100%; height: 2px;
             background: #e2e8f0; z-index: 0; transform: translateY(-50%);
@@ -82,52 +79,35 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        /* Trạng thái thắng */
         .dot.win-blue {
             background: var(--p1-color); border-color: var(--p1-color);
-            transform: scale(1.5);
-            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+            transform: scale(1.5); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
         }
         .dot.win-red {
             background: var(--p2-color); border-color: var(--p2-color);
-            transform: scale(1.5);
-            box-shadow: 0 0 0 4px rgba(153, 27, 27, 0.1);
+            transform: scale(1.5); box-shadow: 0 0 0 4px rgba(153, 27, 27, 0.1);
         }
 
-        /* --- SÀN ĐẤU (ARENA) --- */
+        /* --- ARENA --- */
         .arena-container {
             display: flex; justify-content: center; align-items: center; gap: 40px;
             width: 90%; max-width: 1000px;
         }
 
-        /* THẺ NGƯỜI CHƠI (PLAYER CARD) */
         .player-card {
-            background: var(--card-bg);
-            width: 320px;
-            padding: 30px 20px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-card);
-            border: var(--border-light);
-            display: flex; flex-direction: column; align-items: center;
-            transition: 0.3s; position: relative;
-            overflow: hidden;
+            background: var(--card-bg); width: 320px; padding: 30px 20px;
+            border-radius: 20px; box-shadow: var(--shadow-card);
+            border: var(--border-light); display: flex; flex-direction: column; align-items: center;
+            transition: 0.3s; position: relative; overflow: hidden;
         }
         
-        /* Đường line màu trên đầu card */
-        .player-card::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
-        }
+        .player-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
         .player-card.p1::before { background: var(--p1-color); }
         .player-card.p2::before { background: var(--p2-color); }
 
-        /* KHUNG TÊN (SLOT) */
         .name-slot-wrapper {
-            width: 100%; height: 80px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            overflow: hidden; position: relative;
-            margin-bottom: 20px;
+            width: 100%; height: 80px; background: #f8fafc; border-radius: 12px;
+            border: 1px solid #e2e8f0; overflow: hidden; position: relative; margin-bottom: 20px;
         }
         .name-strip { width: 100%; transform: translateY(0); }
         .name-item {
@@ -136,36 +116,24 @@
             color: var(--text-main); text-transform: capitalize;
         }
 
-        /* BUTTON CHỌN NGƯỜI */
         .select-btn {
-            background: transparent; color: var(--text-sub);
-            border: 1px solid #cbd5e1;
-            padding: 8px 24px; border-radius: 30px;
-            font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            cursor: pointer; transition: 0.2s;
+            background: transparent; color: var(--text-sub); border: 1px solid #cbd5e1;
+            padding: 8px 24px; border-radius: 30px; font-size: 13px; font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s;
         }
         .select-btn:hover:not(:disabled) { border-color: var(--text-main); color: var(--text-main); }
         .select-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* BÀN TAY 3D VÀNG */
         .hand-wrapper {
             height: 160px; display: flex; align-items: center; justify-content: center;
             font-size: 110px; margin-top: 20px; margin-bottom: 10px;
-            /* Hiệu ứng vàng 3D tinh tế hơn */
-            filter: 
-                drop-shadow(0px 4px 0px #b89628) 
-                drop-shadow(0px 8px 15px rgba(184, 150, 40, 0.4))
-                brightness(1.05);
+            filter: drop-shadow(0px 4px 0px #b89628) drop-shadow(0px 8px 15px rgba(184, 150, 40, 0.4)) brightness(1.05);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .hand-wrapper:hover { transform: translateY(-5px) scale(1.05); }
-        #hand2 { transform: scaleX(-1); } /* Lật tay P2 */
+        #hand2 { transform: scaleX(-1); }
 
-        /* KHU VỰC VS VÀ NÚT START (Ở GIỮA) */
-        .center-action {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 120px;
-        }
+        .center-action { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 120px; }
         .vs-text {
             font-family: 'Playfair Display', serif; font-size: 40px; font-style: italic; font-weight: 900;
             color: #cbd5e1; margin-bottom: 20px;
@@ -176,16 +144,13 @@
             width: 70px; height: 70px; border-radius: 50%;
             font-size: 12px; font-weight: 800; text-transform: uppercase;
             cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            display: none; transition: 0.3s;
-            animation: pulse 2s infinite;
+            display: none; transition: 0.3s; animation: pulse 2s infinite;
         }
         .start-btn:hover { transform: scale(1.1); background: var(--gold); }
         @keyframes pulse { 0% {box-shadow: 0 0 0 0 rgba(28, 43, 57, 0.2);} 70% {box-shadow: 0 0 0 10px rgba(28, 43, 57, 0);} 100% {box-shadow: 0 0 0 0 rgba(28, 43, 57, 0);} }
 
-        /* THANH TRẠNG THÁI */
         .status-bar {
-            position: absolute; bottom: 40px;
-            background: white; padding: 10px 30px; border-radius: 50px;
+            position: absolute; bottom: 40px; background: white; padding: 10px 30px; border-radius: 50px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
             color: var(--text-sub); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
         }
@@ -202,8 +167,7 @@
         .winner-modal {
             background: white; width: 450px; padding: 50px 30px;
             border-radius: 30px; text-align: center;
-            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.15);
-            border: 1px solid #f1f5f9;
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.15); border: 1px solid #f1f5f9;
         }
         .modal-icon { font-size: 60px; margin-bottom: 20px; display: block; filter: drop-shadow(0 5px 10px rgba(197, 160, 89, 0.3)); }
         .modal-label { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: 4px; text-transform: uppercase; }
@@ -218,7 +182,6 @@
         }
         .modal-btn:hover { background: var(--gold); transform: translateY(-2px); }
 
-        /* Shake Animation */
         .shaking { animation: shake 0.4s infinite cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 0% { transform: rotate(0deg) translateY(0); } 25% { transform: rotate(-10deg) translateY(-10px); } 50% { transform: rotate(0deg) translateY(0); } 75% { transform: rotate(10deg) translateY(-10px); } 100% { transform: rotate(0deg) translateY(0); } }
 
@@ -233,13 +196,13 @@
         <div class="winner-modal">
             <span class="modal-icon">🏆</span>
             <div class="modal-label">Nhà Vô Địch</div>
-            <div class="modal-name" id="winnerName">Nguyen Van A</div>
+            <div class="modal-name" id="winnerName">...</div>
             <button class="modal-btn" onclick="closePopup()">TIẾP TỤC</button>
         </div>
     </div>
 
     <div class="header-section">
-        <h1 class="main-title">Business Arena</h1>
+        <h1 class="main-title">Oẳn Tù Xì </h1>
         <div class="sub-title">Best of 3 Series</div>
         
         <div class="score-board-wrapper">
@@ -287,6 +250,7 @@
 
     <script>
         let fullList = [];
+        let remaining = []; // Danh sách người chưa trúng
         const ICONS = { rock: '✊', paper: '✋', scissors: '✌️' };
         let player1 = "", player2 = "";
         let score1 = 0, score2 = 0;
@@ -296,29 +260,59 @@
         function initData() {
             const f = localStorage.getItem('classStudents');
             fullList = f ? f.split('\n').filter(n => n.trim() !== '') : [];
-            if(fullList.length === 0) {
-                fullList = ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Hoàng Văn E", "Đỗ Thị F"];
+            
+            // Lấy danh sách còn lại từ localStorage (để không bị mất khi F5)
+            const r = localStorage.getItem('remainingStudents');
+            if (r) {
+                remaining = JSON.parse(r);
+            } else {
+                remaining = [...fullList];
+                localStorage.setItem('remainingStudents', JSON.stringify(remaining));
             }
         }
         initData();
 
         function spinPlayer(id) {
             if(isSpinning) return;
+            
+            // --- LOGIC KIỂM TRA SỐ LƯỢNG NGƯỜI CHƠI ---
+            // Cần ít nhất 2 người còn lại (nếu P1 chưa chọn) hoặc 1 người (nếu P1 đã chọn)
+            let needed = 1;
+            if ((id === 1 && !player2) || (id === 2 && !player1)) needed = 2; // Chưa ai được chọn -> cần ít nhất 2 người
+            
+            if (remaining.length < needed) {
+                if (confirm("Danh sách còn lại không đủ người chơi! Bạn có muốn Reset danh sách không?")) {
+                    remaining = [...fullList];
+                    localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+                    alert("Đã reset danh sách! Vui lòng chọn lại.");
+                }
+                return;
+            }
+            // ---------------------------------------------
+
             const btn = document.getElementById(`btn${id}`);
             const strip = document.getElementById(`strip${id}`);
             isSpinning = true;
             btn.disabled = true;
 
             let html = "";
+            // Tạo danh sách ảo từ fullList để đẹp mắt
             for(let i=0; i<40; i++) {
                 let name = fullList[Math.floor(Math.random() * fullList.length)];
                 html += `<div class="name-item">${name}</div>`;
             }
             
-            let finalName = fullList[Math.floor(Math.random() * fullList.length)];
-            // Tránh trùng lặp
-            if(id === 1 && finalName === player2) finalName = fullList[Math.floor(Math.random() * fullList.length)];
-            if(id === 2 && finalName === player1) finalName = fullList[Math.floor(Math.random() * fullList.length)];
+            // --- CHỌN NGƯỜI THẮNG TỪ DANH SÁCH "CÒN LẠI" (REMAINING) ---
+            let finalName = "";
+            let safetyLoop = 0;
+            do {
+                finalName = remaining[Math.floor(Math.random() * remaining.length)];
+                safetyLoop++;
+            } while (
+                // Đảm bảo không trùng với người kia
+                ((id === 1 && finalName === player2) || (id === 2 && finalName === player1)) 
+                && safetyLoop < 50
+            );
             
             // Màu sắc tên
             let color = id === 1 ? 'var(--p1-color)' : 'var(--p2-color)';
@@ -328,7 +322,7 @@
             if(id === 1) player1 = finalName; else player2 = finalName;
 
             strip.style.transition = 'none'; strip.style.transform = 'translateY(0)'; strip.offsetHeight; 
-            const totalHeight = 40 * 80; // 80 là height của name-item
+            const totalHeight = 40 * 80; 
 
             setTimeout(() => {
                 strip.style.transition = `transform 3000ms cubic-bezier(0.1, 0.7, 0.1, 1)`;
@@ -421,6 +415,14 @@
             const winnerColor = winnerId === 1 ? 'var(--p1-color)' : 'var(--p2-color)';
             updateStatus("Trận đấu kết thúc", winnerColor);
             
+            // --- XÓA NGƯỜI THẮNG KHỎI DANH SÁCH ---
+            const idx = remaining.indexOf(winnerName);
+            if (idx > -1) {
+                remaining.splice(idx, 1);
+                localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+            }
+            // ----------------------------------------
+
             fireConfetti('#c5a059');
             setTimeout(() => {
                 document.getElementById('winnerName').innerText = winnerName;
