@@ -212,60 +212,65 @@
         });
 
         async function loadAllUsers() {
-            try {
-                const querySnapshot = await getDocs(collection(db, "users"));
-                const tbody = document.getElementById('userTableBody');
-                const loading = document.getElementById('loading');
-                
-                tbody.innerHTML = '';
-                let userCount = 0;
-                let classCount = 0;
+    try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const tbody = document.getElementById('userTableBody');
+        const loading = document.getElementById('loading');
+        
+        tbody.innerHTML = '';
+        let userCount = 0;
+        let classCount = 0;
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const uid = doc.id;
-                    const classes = data.savedClasses || {};
-                    const numClasses = Object.keys(classes).length;
-                    
-                    userCount++;
-                    classCount += numClasses;
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const uid = doc.id;
+            const classes = data.savedClasses || {};
+            const numClasses = Object.keys(classes).length;
+            
+            // LẤY THÔNG TIN (Nếu chưa có thì hiện placeholder)
+            const email = data.email || "Chưa cập nhật (Data cũ)";
+            const name = data.displayName || "Không tên";
+            const avatar = data.photoURL || "https://via.placeholder.com/30";
+            
+            userCount++;
+            classCount += numClasses;
 
-                    // Vì trong index.html ta chưa lưu email vào Firestore,
-                    // nên ở đây ta chỉ có UID. (Trừ khi bạn nâng cấp code lưu thêm email).
-                    // Tạm thời hiển thị "User" nếu không có tên.
-                    
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><span class="uid">${uid}</span></td>
-                        <td>
-                            <b>User ${userCount}</b><br>
-                            <span style="color:#94a3b8; font-size:12px">Data ID: ${uid.substring(0,8)}...</span>
-                        </td>
-                        <td><span class="tag tag-blue">${numClasses} lớp</span></td>
-                        <td>
-                            <button class="action-btn btn-view">Xem</button>
-                            <button class="action-btn btn-delete">Xóa Data</button>
-                        </td>
-                    `;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <span class="uid" title="${uid}">${uid.substring(0,8)}...</span>
+                </td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${avatar}" style="width:30px; height:30px; border-radius:50%;">
+                        <div>
+                            <div style="font-weight:700; color:#0f172a;">${name}</div>
+                            <div style="font-size:12px; color:#64748b;">${email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="tag tag-blue">${numClasses} lớp</span></td>
+                <td>
+                    <button class="action-btn btn-view">Xem</button>
+                    <button class="action-btn btn-delete">Xóa</button>
+                </td>
+            `;
 
-                    // Gắn sự kiện nút Xem
-                    tr.querySelector('.btn-view').onclick = () => showDetail(classes);
-                    
-                    // Gắn sự kiện nút Xóa
-                    tr.querySelector('.btn-delete').onclick = () => deleteUserData(uid);
+            tr.querySelector('.btn-view').onclick = () => showDetail(classes);
+            tr.querySelector('.btn-delete').onclick = () => deleteUserData(uid);
 
-                    tbody.appendChild(tr);
-                });
+            tbody.appendChild(tr);
+        });
 
-                document.getElementById('totalUsers').innerText = userCount;
-                document.getElementById('totalClasses').innerText = classCount;
-                loading.style.display = 'none';
+        document.getElementById('totalUsers').innerText = userCount;
+        document.getElementById('totalClasses').innerText = classCount;
+        loading.style.display = 'none';
 
-            } catch (error) {
-                console.error("Lỗi:", error);
-                alert("Lỗi tải dữ liệu! Hãy kiểm tra Firestore Rules (Xem hướng dẫn).");
-            }
-        }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        alert("Lỗi tải dữ liệu! Hãy kiểm tra Firestore Rules.");
+    }
+}
 
         window.showDetail = (data) => {
             document.getElementById('modalContent').innerText = JSON.stringify(data, null, 2);
