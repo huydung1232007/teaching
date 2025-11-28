@@ -246,7 +246,7 @@
             setTimeout(()=>{
                 cardElements.forEach((c,i)=>c.style.left=CARD_POS[i]+"%");
                 setTimeout(()=>{ 
-                    shuffle(cardElements,5); 
+                    shuffle(cardElements, 30); 
                 },800);
             },100);
         }
@@ -261,7 +261,7 @@
             let i1=Math.floor(Math.random()*5),i2=Math.floor(Math.random()*5); while(i1===i2)i2=Math.floor(Math.random()*5);
             let p1=cards[i1].style.left, p2=cards[i2].style.left; cards[i1].style.left=p2; cards[i2].style.left=p1;
             cards[i1].style.zIndex=100; setTimeout(()=>cards[i1].style.zIndex=10,300);
-            setTimeout(()=>shuffle(cards,t-1),500);
+            setTimeout(()=>shuffle(cards,t-1),200);
         }
 
         function showPopup(n){ 
@@ -282,4 +282,5 @@
         function animate(){ if(p.length===0)return; ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach((pt,i)=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.2;pt.vx*=0.96;pt.vy*=0.96;ctx.fillStyle=pt.c;ctx.fillRect(pt.x,pt.y,pt.s,pt.s);if(pt.y>canvas.height)p.splice(i,1)}); requestAnimationFrame(animate); }
     </script>
 </body>
+
 </html>
