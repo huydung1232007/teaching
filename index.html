@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -10,11 +9,10 @@
     
     <style>
         :root {
-            /* Light Business Palette */
-            --bg-body: #f8fafc;       /* Trắng xám nhẹ */
-            --bg-sidebar: #ffffff;    /* Trắng tinh */
-            --primary: #0f172a;       /* Xanh than đậm (Navy) */
-            --accent: #2563eb;        /* Xanh dương Business */
+            --bg-body: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --primary: #0f172a;
+            --accent: #2563eb;
             --accent-hover: #1d4ed8;
             --text-main: #334155;
             --text-light: #64748b;
@@ -34,7 +32,6 @@
             display: flex;
         }
 
-        /* --- LOADING SCREEN --- */
         #page-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #ffffff; z-index: 99999;
@@ -48,7 +45,7 @@
         }
         @keyframes spin { to {transform: rotate(360deg);} }
 
-        /* --- SIDEBAR (Trắng) --- */
+        /* SIDEBAR */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--bg-sidebar);
@@ -73,25 +70,46 @@
 
         .sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px; }
 
-        /* Status Card */
         .status-card {
             background: var(--primary); color: white;
             border-radius: 12px; padding: 20px;
             box-shadow: var(--shadow); margin-bottom: 25px;
             position: relative; overflow: hidden;
         }
-        .status-card::after { /* Họa tiết trang trí */
+        .status-card::after {
             content: ""; position: absolute; right: -20px; top: -20px;
             width: 100px; height: 100px; background: rgba(255,255,255,0.05);
             border-radius: 50%;
         }
         .st-label { font-size: 11px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; font-weight: 600; }
         .st-name { font-size: 18px; font-weight: 700; margin: 5px 0; }
-        .st-count { font-size: 13px; opacity: 0.9; display: flex; justify-content: space-between; align-items: center; }
-        .btn-reset-mini { background: rgba(255,255,255,0.15); border: none; color: white; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.2s; }
+        
+        .st-actions {
+            display: flex; gap: 8px; margin-top: 10px;
+        }
+        .btn-reset-mini { 
+            background: rgba(255,255,255,0.15); border: none; color: white; 
+            padding: 6px 12px; border-radius: 6px; cursor: pointer; 
+            font-size: 11px; font-weight: 600; transition: 0.2s; flex: 1;
+        }
         .btn-reset-mini:hover { background: rgba(255,255,255,0.3); }
+        .btn-config { background: var(--accent); }
+        .btn-config:hover { background: var(--accent-hover); }
 
-        /* Class List */
+        /* MODAL CẤU HÌNH TỈ LỆ */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .modal {
+            background: white; width: 500px; max-height: 80vh; border-radius: 12px;
+            padding: 24px; display: flex; flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .rate-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f1f5f9; }
+        .rate-item:last-child { border-bottom: none; }
+        .rate-item input { width: 70px; text-align: center; margin: 0; padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold; color: var(--accent); }
+
         .list-header { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; display: flex; justify-content: space-between; }
         .class-item {
             display: flex; justify-content: space-between; align-items: center;
@@ -105,7 +123,6 @@
         .act-btn { cursor: pointer; font-size: 14px; padding: 4px; color: var(--text-light); }
         .act-btn:hover { color: var(--primary); }
 
-        /* Add Form */
         .add-section { margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px; }
         .form-toggle {
             display: flex; justify-content: space-between; align-items: center;
@@ -119,8 +136,7 @@
         input, textarea {
             width: 100%; background: white; border: 1px solid var(--border);
             color: var(--primary); padding: 10px; border-radius: 8px;
-            font-family: inherit; margin-bottom: 10px; font-size: 13px;
-            transition: 0.2s;
+            font-family: inherit; margin-bottom: 10px; font-size: 13px; transition: 0.2s;
         }
         input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
         textarea { height: 80px; resize: none; }
@@ -128,15 +144,10 @@
         .btn-save:hover { background: #334155; }
         .excel-trigger { font-size: 12px; color: var(--accent); cursor: pointer; float: right; margin-bottom: 5px; font-weight: 600; }
 
-        /* --- MAIN CONTENT --- */
         .main-content {
             flex: 1; padding: 40px; overflow-y: auto;
-            /* Nền caro mờ */
-            background-image: 
-                linear-gradient(#e2e8f0 1px, transparent 1px),
-                linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-color: var(--bg-body);
+            background-image: linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px);
+            background-size: 40px 40px; background-color: var(--bg-body);
         }
 
         .hero-text { margin-bottom: 40px; }
@@ -144,33 +155,24 @@
         .hero-text p { color: var(--text-light); }
 
         .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
-        
         .game-card {
             background: white; border: 1px solid var(--border);
             border-radius: 16px; padding: 30px; text-align: center;
-            text-decoration: none; color: var(--primary);
-            transition: all 0.3s ease;
-            display: flex; flex-direction: column; align-items: center;
-            box-shadow: var(--shadow);
+            text-decoration: none; color: var(--primary); transition: all 0.3s ease;
+            display: flex; flex-direction: column; align-items: center; box-shadow: var(--shadow);
         }
         .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        
         .g-icon { 
-            font-size: 45px; margin-bottom: 20px; 
-            background: #f1f5f9; width: 80px; height: 80px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            transition: 0.3s;
+            font-size: 45px; margin-bottom: 20px; background: #f1f5f9; width: 80px; height: 80px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s;
         }
         .game-card:hover .g-icon { background: #eff6ff; transform: scale(1.1); }
-        
         .g-title { font-weight: 700; font-size: 18px; margin-bottom: 5px; }
         .g-desc { font-size: 13px; color: var(--text-light); }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-
         @media (max-width: 900px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); } }
     </style>
 </head>
@@ -181,16 +183,39 @@
         <div>Loading System...</div>
     </div>
 
+    <div class="modal-overlay" id="rateModal">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                <h3 style="margin:0; color:var(--primary);">🎯 Cấu Hình Tỉ Lệ (Weight)</h3>
+                <span onclick="closeRateModal()" style="cursor:pointer; font-size:20px; color:#64748b;">✕</span>
+            </div>
+            
+            <div style="background:#eff6ff; padding:10px; border-radius:6px; font-size:12px; color:#1e40af; margin-bottom:15px;">
+                ℹ️ <strong>Mặc định là 1.</strong> Nhập số cao hơn để tăng tỉ lệ trúng.<br>
+                VD: A nhập 10, B nhập 1 -> A dễ trúng gấp 10 lần B. Nhập 0 để chặn.
+            </div>
+
+            <div id="rateList" style="flex:1; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; margin-bottom: 20px;"></div>
+
+            <div style="display:flex; gap:10px;">
+                <button onclick="saveRates()" style="flex:1; background:var(--primary); color:white; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer;">Lưu Cấu Hình</button>
+                <button onclick="resetRates()" style="width:100px; background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; border-radius:8px; font-weight:600; cursor:pointer;">Mặc định</button>
+            </div>
+        </div>
+    </div>
+
     <div class="sidebar">
-        <div class="brand"><span></span> Random <span style="font-weight:400; color:var(--text-light)">Student</span></div>
+        <div class="brand"><span>⚡</span> TEKTOOL <span style="font-weight:400; color:var(--text-light)">Business</span></div>
         <div class="user-info-bar" id="userInfo"></div>
         
         <div class="sidebar-scroll">
             <div class="status-card">
-                <div class="st-label">Lớp hiện tại</div>
+                <div class="st-label">Lớp đang chọn</div>
                 <div class="st-name" id="currentClassName">--</div>
-                <div class="st-count">
-                    <span id="studentCount">0 học sinh</span>
+                <div style="font-size:13px; margin-bottom: 10px;" id="studentCount">0 học sinh</div>
+                
+                <div class="st-actions">
+                    <button class="btn-reset-mini btn-config" onclick="openRateConfig()">⚙️ Tỉ lệ %</button>
                     <button class="btn-reset-mini" onclick="resetCurrentProgress()">↺ Reset</button>
                 </div>
             </div>
@@ -200,16 +225,16 @@
 
             <div class="add-section">
                 <div class="form-toggle" onclick="toggleForm()">
-                    <span>+ Thêm <span>▼</span>
+                    <span>+ Thêm lớp mới</span><span>▼</span>
                 </div>
                 <div class="form-body" id="formContent">
                     <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
                     <div>
-                        <label for="excelInput" class="excel-trigger">📂 Excel</label>
+                        <label for="excelInput" class="excel-trigger">📂 Nhập Excel</label>
                         <input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)">
                     </div>
-                    <textarea id="inputStudentList" placeholder=" Danh sách ..."></textarea>
-                    <button class="btn-save" onclick="saveNewList()">Lưu</button>
+                    <textarea id="inputStudentList" placeholder="Dán danh sách..."></textarea>
+                    <button class="btn-save" onclick="saveNewList()">Lưu Lớp Học</button>
                 </div>
             </div>
         </div>
@@ -234,8 +259,8 @@
             </a>
             <a href="cao-ve.html" class="game-card">
                 <div class="g-icon">🎫</div>
-                <div class="g-title">Vé Cào</div>
-                <div class="g-desc">Trải nghiệm xổ số</div>
+                <div class="g-title">Vé Cào VIP</div>
+                <div class="g-desc">Trải nghiệm xổ số cao cấp</div>
             </a>
             <a href="rut-que.html" class="game-card">
                 <div class="g-icon">⛩️</div>
@@ -252,25 +277,25 @@
                 <div class="g-title">Bong Bóng</div>
                 <div class="g-desc">Hiệu ứng nổ bóng vui nhộn</div>
             </a>
-<a href="ma-tran.html" class="game-card">
-    <div class="g-icon">💻</div>
-    <div class="g-title">Ma Trận</div>
-    <div class="g-desc">Giải mã tên bí ẩn</div>
-</a>
+            <a href="ma-tran.html" class="game-card">
+                <div class="g-icon">💻</div>
+                <div class="g-title">Ma Trận</div>
+                <div class="g-desc">Giải mã tên bí ẩn</div>
+            </a>
             <a href="may-quay.html" class="game-card">
-    <div class="g-icon">🎰</div>
-    <div class="g-title">Máy Quay</div>
-    <div class="g-desc">Jackpot may mắn</div>
-</a>
+                <div class="g-icon">🎰</div>
+                <div class="g-title">Máy Quay</div>
+                <div class="g-desc">Jackpot may mắn</div>
+            </a>
             <a href="keobuabao.html" class="game-card">
                 <div class="g-icon">🥊</div>
-                <div class="g-title">Oẳn Tù Xì</div>
-                <div class="g-desc">Tranh tài đối kháng kịch tính</div>
+                <div class="g-title">Đại Chiến BO3</div>
+                <div class="g-desc">Tranh tài đối kháng</div>
             </a>
             <a href="gap-thu.html" class="game-card">
                 <div class="g-icon">🕹️</div>
-                <div class="g-title">Gắp Thú </div>
-                <div class="g-desc"> Gắp những con người bạn thích </div>
+                <div class="g-title">Gắp Thú VIP</div>
+                <div class="g-desc">Điều khiển cần gắp chân thực</div>
             </a>
         </div>
     </div>
@@ -284,15 +309,15 @@
         // ⚠️ DÁN CONFIG FIREBASE VÀO ĐÂY ⚠️
         // ==========================================
         const firebaseConfig = {
-  apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
-  authDomain: "random-3faa8.firebaseapp.com",
-  projectId: "random-3faa8",
-  storageBucket: "random-3faa8.firebasestorage.app",
-  messagingSenderId: "1062124587042",
-  appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
-  measurementId: "G-Q76M508V96"
-};
-        // --- CƠ CHẾ CHỐNG TREO ---
+            apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
+            authDomain: "random-3faa8.firebaseapp.com",
+            projectId: "random-3faa8",
+            storageBucket: "random-3faa8.firebasestorage.app",
+            messagingSenderId: "1062124587042",
+            appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
+            measurementId: "G-Q76M508V96"
+        };
+
         const loaderTimeout = setTimeout(() => {
             const loader = document.getElementById('page-loader');
             if (loader && loader.style.display !== 'none') {
@@ -343,7 +368,6 @@
             `;
         }
 
-        // --- SYNC ---
         async function syncDataFromCloud() {
             try {
                 const docSnap = await getDoc(doc(db, "users", user.uid));
@@ -352,29 +376,19 @@
             } catch(e) { console.error(e); }
         }
         async function pushDataToCloud() {
-    if (!user) return;
-    
-    const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-    
-    try {
-        // Lưu thêm thông tin cá nhân vào Firestore
-        await setDoc(doc(db, "users", user.uid), {
-            savedClasses: data,
-            
-            // THÊM CÁC DÒNG NÀY:
-            email: user.email,           // Lưu Email
-            displayName: user.displayName || "Chưa đặt tên", // Lưu Tên hiển thị
-            photoURL: user.photoURL,     // Lưu Avatar (nếu muốn hiển thị bên admin)
-            lastUpdated: new Date()      // Lưu thời gian cập nhật cuối
-        }, { merge: true });
-        
-        console.log("Đã đồng bộ dữ liệu kèm thông tin user!");
-    } catch (e) {
-        console.error("Lỗi lưu cloud:", e);
-    }
-}
+            if (!user) return;
+            const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    savedClasses: data,
+                    email: user.email,
+                    displayName: user.displayName || "Chưa đặt tên",
+                    photoURL: user.photoURL,
+                    lastUpdated: new Date()
+                }, { merge: true });
+            } catch (e) { console.error("Lỗi lưu cloud:", e); }
+        }
 
-        // --- APP LOGIC ---
         window.renderSavedLists = () => {
             const data = JSON.parse(localStorage.getItem('savedClasses') || '{}');
             const container = document.getElementById('savedListContainer');
@@ -422,7 +436,16 @@
             delete data[name];
             localStorage.setItem('savedClasses', JSON.stringify(data));
             pushDataToCloud();
-            if(localStorage.getItem('currentClassName')===name) { localStorage.removeItem('currentClassName'); localStorage.removeItem('classStudents'); localStorage.removeItem('remainingStudents'); loadActiveStatus(); }
+            if(localStorage.getItem('currentClassName')===name) { 
+                localStorage.removeItem('currentClassName'); 
+                localStorage.removeItem('classStudents'); 
+                localStorage.removeItem('remainingStudents'); 
+                
+                // Xóa cả config tỉ lệ nếu có
+                localStorage.removeItem('customRates_' + name);
+                
+                loadActiveStatus(); 
+            }
             renderSavedLists();
         };
 
@@ -478,14 +501,59 @@
             };
             reader.readAsArrayBuffer(file);
         };
+
+        // --- LOGIC CẤU HÌNH TỈ LỆ ---
+        window.currentRates = {}; 
+
+        window.openRateConfig = () => {
+            const listStr = localStorage.getItem('classStudents');
+            if (!listStr) return alert("Vui lòng chọn lớp trước!");
+            
+            const list = listStr.split('\n').filter(n => n.trim() !== '');
+            const savedRates = localStorage.getItem('customRates_' + localStorage.getItem('currentClassName'));
+            window.currentRates = savedRates ? JSON.parse(savedRates) : {};
+
+            const container = document.getElementById('rateList');
+            container.innerHTML = '';
+
+            list.forEach(name => {
+                const cleanName = name.trim();
+                const weight = window.currentRates[cleanName] !== undefined ? window.currentRates[cleanName] : 1;
+                
+                const div = document.createElement('div');
+                div.className = 'rate-item';
+                div.innerHTML = `
+                    <span style="font-weight:500; font-size:13px;">${cleanName}</span>
+                    <input type="number" min="0" max="1000" value="${weight}" onchange="updateRate('${cleanName}', this.value)">
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('rateModal').style.display = 'flex';
+        };
+
+        window.updateRate = (name, value) => {
+            window.currentRates[name] = parseInt(value) || 0;
+        };
+
+        window.saveRates = () => {
+            const className = localStorage.getItem('currentClassName');
+            localStorage.setItem('customRates_' + className, JSON.stringify(window.currentRates));
+            alert("Đã lưu cấu hình tỉ lệ thành công!");
+            window.closeRateModal();
+        };
+
+        window.resetRates = () => {
+            if(!confirm("Đặt lại tất cả về mặc định (Công bằng)?")) return;
+            window.currentRates = {};
+            const className = localStorage.getItem('currentClassName');
+            localStorage.removeItem('customRates_' + className);
+            window.openRateConfig();
+        };
+
+        window.closeRateModal = () => {
+            document.getElementById('rateModal').style.display = 'none';
+        };
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
