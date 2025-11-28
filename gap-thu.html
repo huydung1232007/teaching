@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gắp Thú Business VIP - Final Perfect</title>
+    <title>Gắp Thú Business VIP - Flat Spread</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;900&family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -114,7 +114,7 @@
         /* HỐ ĐEN NHỎ HƠN */
         .prize-chute {
             position: absolute; bottom: 0; left: 10px; 
-            width: 70px; height: 100px; /* Nhỏ hơn */
+            width: 70px; height: 100px; 
             background: #334155; border: 2px solid var(--gold); border-radius: 10px 10px 0 0;
             z-index: 100; box-shadow: inset 0 10px 30px rgba(0,0,0,0.6);
         }
@@ -135,7 +135,8 @@
         .ball.red { background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626); }
         .ball.gold { background: radial-gradient(circle at 30% 30%, #fde047, #d97706); }
         
-        .ball.back-layer { filter: brightness(0.8); z-index: var(--z-ball-back); transform: scale(0.9); }
+        /* Hiệu ứng mờ cho bóng ở sau */
+        .ball.back-layer { filter: brightness(0.85); z-index: var(--z-ball-back); }
         .ball.front-layer { z-index: var(--z-ball-front); }
         .ball.caught { position: absolute; bottom: -20px; left: -3px; z-index: var(--z-claw-up); transition: none; filter: brightness(1.2); }
 
@@ -270,7 +271,7 @@
         function renderHistory() {
             const list = document.getElementById('winnerList');
             list.innerHTML = '';
-            // CHỈ HIỆN DANH SÁCH TÊN, KHÔNG HIỆN SỐ LƯỢNG CÒN LẠI
+            // CHỈ HIỆN TÊN
             winners.slice().reverse().forEach(name => { 
                 const li = document.createElement('li');
                 li.className = 'history-item';
@@ -279,33 +280,51 @@
             });
         }
 
-        // --- RENDER BÓNG (DÀN TRẢI NGANG + TRÁNH HỐ) ---
+        // --- THUẬT TOÁN XẾP BÓNG TRẢI ĐỀU NGANG (Flat Spread) ---
         function renderBalls() {
             const pit = document.getElementById('pit'); 
             pit.innerHTML = '';
-            const totalBalls = 25; 
+            
+            const totalBalls = 22; // Giữ số lượng vừa phải
             
             for(let i=0; i<totalBalls; i++) {
                 const orb = document.createElement('div'); 
                 const color = ballColors[Math.floor(Math.random()*ballColors.length)];
                 
-                // Tránh vùng hố (Hố rộng khoảng 15%, nên bóng bắt đầu từ 18%)
-                const minLeft = 18; 
+                // Tránh vùng hố (Hố bên trái khoảng 18%, nên bóng bắt đầu từ 20% -> 92%)
+                const minLeft = 20; 
                 const maxLeft = 92;
+                
+                // Random vị trí ngang trong vùng an toàn
                 const leftPos = Math.random() * (maxLeft - minLeft) + minLeft;
                 
-                // Xếp bóng thấp, chồng lên nhau ít thôi (tạo cảm giác đống đổ nát thấp)
-                const bottomPos = Math.random() * 80; 
+                // Random vị trí dọc rất thấp để tạo cảm giác "lớp đáy"
+                // 70% bóng nằm sát đáy (0-15px), 30% bóng nằm chồng nhẹ lên trên (15-35px)
+                let bottomPos;
+                let zIndex;
+                let scale;
+                let extraClass = '';
 
-                let zIndex = 15; let extraClass = '';
-                if (Math.random() < 0.4) { zIndex = 5; extraClass = 'back-layer'; } 
-                else { zIndex = 30; extraClass = 'front-layer'; }
+                if (Math.random() < 0.7) {
+                    // Lớp đáy (trước)
+                    bottomPos = Math.random() * 15; 
+                    zIndex = 30; // Nằm trước
+                    scale = 1;
+                    extraClass = 'front-layer';
+                } else {
+                    // Lớp sau (chồng lên hoặc lùi sau)
+                    bottomPos = 15 + Math.random() * 20; 
+                    zIndex = 5; // Nằm sau
+                    scale = 0.9; // Nhỏ hơn chút tạo chiều sâu
+                    extraClass = 'back-layer';
+                }
 
                 orb.className = `ball ${color} ${extraClass}`;
                 orb.style.left = `${leftPos}%`;
                 orb.style.bottom = `${bottomPos}px`;
                 orb.style.zIndex = zIndex;
-                orb.style.transform = `rotate(${Math.random()*360}deg)`; 
+                orb.style.transform = `scale(${scale}) rotate(${Math.random()*360}deg)`; 
+                
                 pit.appendChild(orb);
             }
         }
@@ -316,6 +335,7 @@
             if(isOperating) return;
             const zone = document.getElementById('joystickZone');
             if(direction === -1) zone.classList.add('tilt-left'); else zone.classList.add('tilt-right');
+            // Tắt transition left để di chuyển mượt theo tay
             document.getElementById('arm').style.transition = 'height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95)';
             if(moveInterval) clearInterval(moveInterval);
             moveInterval = setInterval(() => {
@@ -355,8 +375,8 @@
             const claw = document.getElementById('claw');
 
             setTimeout(() => {
-                // 1. Hạ
-                arm.style.height = '430px'; 
+                // 1. Hạ (Thấp hơn chút để chạm bóng sát đáy)
+                arm.style.height = '440px'; 
                 setTimeout(() => {
                     // 2. Đóng
                     claw.classList.add('closed');
@@ -368,9 +388,9 @@
                         arm.classList.add('lifting'); claw.classList.add('lifting');
                         arm.style.height = '40px';
                         setTimeout(() => {
-                            // 4. Về hố (Transition left bật lại để mượt)
+                            // 4. Về hố (Bật lại transition left để tự chạy về)
                             arm.style.transition = "height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95), left 1s ease-in-out";
-                            arm.style.left = '12%'; // Vị trí hố
+                            arm.style.left = '12%'; 
                             setTimeout(() => {
                                 // 5. Thả
                                 claw.classList.remove('closed');
@@ -409,6 +429,7 @@
             
             isOperating = false;
             clawPos = 50; arm.style.left = '50%';
+            // Render lại bóng để đổi vị trí cho vui
             renderBalls(); 
         }
     </script>
