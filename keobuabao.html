@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Oẳn Tù Xì BO3 </title>
+    <title>Trò chơi dân gian </title>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -196,13 +196,13 @@
         <div class="winner-modal">
             <span class="modal-icon">🏆</span>
             <div class="modal-label">Nhà Vô Địch</div>
-            <div class="modal-name" id="winnerName">...</div>
+            <div class="modal-name" id="winnerName">Nguyen Van A</div>
             <button class="modal-btn" onclick="closePopup()">TIẾP TỤC</button>
         </div>
     </div>
 
     <div class="header-section">
-        <h1 class="main-title">Oẳn Tù Xì </h1>
+        <h1 class="main-title">Oẳn Tù Tì </h1>
         <div class="sub-title">Best of 3 Series</div>
         
         <div class="score-board-wrapper">
@@ -261,7 +261,6 @@
             const f = localStorage.getItem('classStudents');
             fullList = f ? f.split('\n').filter(n => n.trim() !== '') : [];
             
-            // Lấy danh sách còn lại từ localStorage (để không bị mất khi F5)
             const r = localStorage.getItem('remainingStudents');
             if (r) {
                 remaining = JSON.parse(r);
@@ -275,10 +274,9 @@
         function spinPlayer(id) {
             if(isSpinning) return;
             
-            // --- LOGIC KIỂM TRA SỐ LƯỢNG NGƯỜI CHƠI ---
             // Cần ít nhất 2 người còn lại (nếu P1 chưa chọn) hoặc 1 người (nếu P1 đã chọn)
             let needed = 1;
-            if ((id === 1 && !player2) || (id === 2 && !player1)) needed = 2; // Chưa ai được chọn -> cần ít nhất 2 người
+            if ((id === 1 && !player2) || (id === 2 && !player1)) needed = 2; 
             
             if (remaining.length < needed) {
                 if (confirm("Danh sách còn lại không đủ người chơi! Bạn có muốn Reset danh sách không?")) {
@@ -288,7 +286,6 @@
                 }
                 return;
             }
-            // ---------------------------------------------
 
             const btn = document.getElementById(`btn${id}`);
             const strip = document.getElementById(`strip${id}`);
@@ -296,25 +293,22 @@
             btn.disabled = true;
 
             let html = "";
-            // Tạo danh sách ảo từ fullList để đẹp mắt
             for(let i=0; i<40; i++) {
                 let name = fullList[Math.floor(Math.random() * fullList.length)];
                 html += `<div class="name-item">${name}</div>`;
             }
             
-            // --- CHỌN NGƯỜI THẮNG TỪ DANH SÁCH "CÒN LẠI" (REMAINING) ---
+            // CHỌN NGƯỜI TỪ DANH SÁCH "REMAINING"
             let finalName = "";
             let safetyLoop = 0;
             do {
                 finalName = remaining[Math.floor(Math.random() * remaining.length)];
                 safetyLoop++;
             } while (
-                // Đảm bảo không trùng với người kia
                 ((id === 1 && finalName === player2) || (id === 2 && finalName === player1)) 
                 && safetyLoop < 50
             );
             
-            // Màu sắc tên
             let color = id === 1 ? 'var(--p1-color)' : 'var(--p2-color)';
             html += `<div class="name-item" style="color:${color}; font-weight:700;">${finalName}</div>`;
             strip.innerHTML = html;
@@ -364,7 +358,6 @@
             const h1 = document.getElementById('hand1');
             const h2 = document.getElementById('hand2');
 
-            // Reset
             h1.innerText = ICONS.rock; h1.style.transform = "rotate(0deg)";
             h2.innerText = ICONS.rock; h2.style.transform = "scaleX(-1) rotate(0deg)";
             h1.classList.add('shaking'); h2.classList.add('shaking');
@@ -415,13 +408,17 @@
             const winnerColor = winnerId === 1 ? 'var(--p1-color)' : 'var(--p2-color)';
             updateStatus("Trận đấu kết thúc", winnerColor);
             
-            // --- XÓA NGƯỜI THẮNG KHỎI DANH SÁCH ---
-            const idx = remaining.indexOf(winnerName);
-            if (idx > -1) {
-                remaining.splice(idx, 1);
-                localStorage.setItem('remainingStudents', JSON.stringify(remaining));
-            }
-            // ----------------------------------------
+            // --- LOGIC XÓA CẢ 2 NGƯỜI CHƠI KHỎI DANH SÁCH ---
+            // Dù thắng hay thua thì đã chơi rồi -> Xóa khỏi remaining
+            const idx1 = remaining.indexOf(player1);
+            if (idx1 > -1) remaining.splice(idx1, 1);
+
+            const idx2 = remaining.indexOf(player2);
+            if (idx2 > -1) remaining.splice(idx2, 1);
+
+            // Lưu lại danh sách mới
+            localStorage.setItem('remainingStudents', JSON.stringify(remaining));
+            // --------------------------------------------------
 
             fireConfetti('#c5a059');
             setTimeout(() => {
