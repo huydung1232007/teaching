@@ -5,10 +5,12 @@
     <title>Slot Machine Business</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; } /* Giữ lại fix lệch dòng */
+
         :root {
-            --primary: #1e293b; /* Navy */
-            --accent: #f1c40f;  /* Gold */
-            --bg: #f8fafc;      /* White Background */
+            --primary: #1e293b; 
+            --accent: #f1c40f;  
+            --bg: #f8fafc;      
             --reel-bg: #ffffff;
             --border: #e2e8f0;
         }
@@ -16,7 +18,6 @@
         body {
             margin: 0; height: 100vh; overflow: hidden;
             background-color: var(--bg);
-            /* Họa tiết nền sang trọng */
             background-image: 
                 linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
@@ -34,7 +35,7 @@
         }
         .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 
-        /* --- BẢNG LỊCH SỬ (Góc phải) --- */
+        /* --- BẢNG LỊCH SỬ --- */
         .history-box {
             position: absolute; top: 20px; right: 20px; width: 240px; max-height: 400px;
             background: white; border: 1px solid var(--border);
@@ -67,11 +68,10 @@
             text-align: center;
         }
 
-        /* Khung chứa 3 cuộn */
         .reels-wrapper {
             display: flex; gap: 15px;
             padding: 20px;
-            background: #1e293b; /* Nền tối cho khu vực cuộn để nổi bật chữ trắng/vàng */
+            background: #1e293b;
             border-radius: 15px;
             box-shadow: inset 0 10px 30px rgba(0,0,0,0.5);
             margin-bottom: 30px;
@@ -86,29 +86,20 @@
             border-radius: 8px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
         }
-        /* Bóng mờ tạo hiệu ứng cong 3D */
-        .reel::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 30px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
-            z-index: 5; pointer-events: none;
+        .reel::before, .reel::after {
+            content: ""; position: absolute; left: 0; width: 100%; height: 30px; z-index: 5; pointer-events: none;
         }
-        .reel::after {
-            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 30px;
-            background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
-            z-index: 5; pointer-events: none;
-        }
+        .reel::before { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent); }
+        .reel::after { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent); }
 
-        .strip {
-            display: flex; flex-direction: column;
-            transform: translateY(0);
-            /* Transition sẽ được thêm bằng JS */
-        }
+        .strip { display: flex; flex-direction: column; transform: translateY(0); }
 
         .item {
-            height: 200px; /* Bằng chiều cao reel */
+            height: 200px; 
             display: flex; align-items: center; justify-content: center;
             font-family: 'Playfair Display', serif;
-            font-size: 24px; font-weight: 700;
+            font-size: 28px; /* Tăng cỡ chữ lên 1 chút vì giờ chữ ngắn hơn */
+            font-weight: 700;
             color: var(--primary);
             border-bottom: 1px solid #eee;
             background: white;
@@ -117,11 +108,10 @@
         }
         
         .item.winner-item {
-            color: #d35400; /* Màu đỏ cam cho người thắng */
-            background: #fffbeb;
+            color: #d35400; background: #fffbeb;
+            border-bottom: 1px solid var(--accent); 
         }
 
-        /* Nút quay */
         .spin-btn {
             background: var(--primary); color: white;
             border: none; padding: 15px 60px;
@@ -133,13 +123,13 @@
         .spin-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(30, 41, 59, 0.4); background: #334155; }
         .spin-btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* Đường kẻ thắng cuộc */
         .payline {
             position: absolute; top: 50%; left: -20px; right: -20px;
-            height: 4px; background: rgba(241, 196, 15, 0.7);
+            height: 4px; background: rgba(241, 196, 15, 0.8);
             z-index: 10; pointer-events: none;
             box-shadow: 0 0 10px var(--accent);
-            display: none; /* Hiện khi quay xong */
+            display: none;
+            transform: translateY(-50%);
         }
 
         /* --- POPUP --- */
@@ -172,7 +162,6 @@
         <ul class="history-list" id="historyList"></ul>
     </div>
 
-    <!-- POPUP -->
     <div class="fixed-overlay" id="overlay" onclick="closePopup()"></div>
     <div class="winner-popup-container" id="popup">
         <div class="popup-card">
@@ -188,7 +177,6 @@
     <div class="slot-machine-container">
         <div class="reels-wrapper">
             <div class="payline" id="payline"></div>
-            <!-- 3 Màn hình (Reels) -->
             <div class="reel"><div class="strip" id="strip1"><div class="item">?</div></div></div>
             <div class="reel"><div class="strip" id="strip2"><div class="item">?</div></div></div>
             <div class="reel"><div class="strip" id="strip3"><div class="item">?</div></div></div>
@@ -225,6 +213,28 @@
             return w;
         }
 
+        // --- HÀM TÁCH TÊN (Logic mới) ---
+        function splitName(fullName) {
+            if(!fullName) return ["?", "?", "?"];
+            // Tách chuỗi bằng khoảng trắng
+            const parts = fullName.trim().split(/\s+/);
+            
+            // Trường hợp 1 từ (Huy) -> Huy | ? | ?
+            if(parts.length === 1) return [parts[0], "", ""];
+            
+            // Trường hợp 2 từ (Phạm Huy) -> Phạm | Huy | (Rỗng)
+            if(parts.length === 2) return [parts[0], parts[1], ""];
+            
+            // Trường hợp 3 từ trở lên (Nguyễn Văn A) -> Nguyễn | Văn | A
+            // (Trần Thị Thu Hà) -> Trần | Thị | Thu Hà
+            const part1 = parts[0];
+            const part2 = parts[1];
+            // Nối tất cả các từ còn lại cho phần 3
+            const part3 = parts.slice(2).join(" ");
+            
+            return [part1, part2, part3];
+        }
+
         // --- SLOT MACHINE LOGIC ---
         function spin() {
             const winner = getUnique(); if(!winner) return;
@@ -232,42 +242,52 @@
             btn.disabled = true;
             document.getElementById('payline').style.display = 'none';
 
-            // Cấu hình độ dài cuộn (Số lượng tên ảo trước khi dừng)
-            // Reel 1: 20 tên, Reel 2: 30 tên, Reel 3: 40 tên -> Tạo hiệu ứng dừng lệch nhau
-            spinReel(1, winner, 60, 6000); // 3s
-            spinReel(2, winner, 80, 7000); // 3.5s
-            spinReel(3, winner, 100, 8000); // 4s
+            // Tách tên người thắng thành 3 phần
+            const winnerParts = splitName(winner);
+
+            // Truyền phần tên tương ứng vào mỗi reel
+            // spinReel(ID, Text_Kết_Quả, Số_Lượng_Item, Thời_Gian, Index_Phần_Tên_Để_Random)
+            spinReel(1, winnerParts[0], 60, 6000, 0); 
+            spinReel(2, winnerParts[1], 80, 7000, 1); 
+            spinReel(3, winnerParts[2], 100, 8000, 2); 
 
             // Kết thúc
             setTimeout(() => {
-                document.getElementById('payline').style.display = 'block'; // Hiện vạch thắng
+                document.getElementById('payline').style.display = 'block'; 
                 showPopup(winner);
                 renderHistory();
                 btn.disabled = false;
-            }, 4200);
+            }, 8500);
         }
 
-        function spinReel(reelId, winnerName, itemsCount, duration) {
+        function spinReel(reelId, finalText, itemsCount, duration, partIndex) {
             const strip = document.getElementById(`strip${reelId}`);
             let html = '';
             
-            // Tạo danh sách tên ảo ngẫu nhiên
+            // Tạo danh sách tên ảo ngẫu nhiên (Cũng phải tách ra để hiển thị đúng cột)
             for(let i=0; i<itemsCount; i++) {
                 let randomName = fullList.length > 0 ? fullList[Math.floor(Math.random()*fullList.length)] : "Waiting...";
-                html += `<div class="item">${randomName}</div>`;
+                // Tách tên random ra và lấy đúng phần tương ứng với cột này
+                let parts = splitName(randomName);
+                let textToShow = parts[partIndex] || ""; // Nếu không có thì để rỗng
+                
+                // Nếu rỗng (ví dụ tên 2 chữ mà ở cột 3) thì lấy đại 1 icon cho đẹp
+                if(textToShow === "") textToShow = "★"; 
+
+                html += `<div class="item">${textToShow}</div>`;
             }
             // Tên người thắng nằm cuối cùng
-            html += `<div class="item winner-item">${winnerName}</div>`;
+            // Nếu phần tên này rỗng (ví dụ tên 2 chữ ở cột 3), ta để trống
+            html += `<div class="item winner-item">${finalText}</div>`;
             
             strip.innerHTML = html;
             
             // Reset vị trí
             strip.style.transition = 'none';
             strip.style.transform = 'translateY(0)';
-            strip.offsetHeight; // Force Reflow
+            strip.offsetHeight; 
 
             // Bắt đầu quay
-            // Chiều cao item = 200px
             const totalHeight = itemsCount * 200;
             
             setTimeout(() => {
@@ -288,5 +308,4 @@
         initData();
     </script>
 </body>
-
 </html>
