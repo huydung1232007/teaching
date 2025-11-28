@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Quản Lý</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --primary: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            display: flex; height: 100vh; overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px; background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            padding: 24px; box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+        }
+        .brand { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        .menu-item {
+            padding: 12px; border-radius: 8px; color: var(--text-sub);
+            cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 10px;
+            transition: 0.2s; margin-bottom: 5px; text-decoration: none;
+        }
+        .menu-item:hover, .menu-item.active { background: #eff6ff; color: var(--primary); }
+        .btn-logout { margin-top: auto; color: var(--danger); }
+        .btn-logout:hover { background: #fef2f2; color: var(--danger); }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; padding: 32px; overflow-y: auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .header h1 { font-size: 24px; font-weight: 700; margin: 0; }
+        .user-badge { background: #e0f2fe; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+        /* STATS CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: var(--bg-card); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 32px; font-weight: 800; color: var(--text-main); }
+        .stat-label { font-size: 14px; color: var(--text-sub); font-weight: 500; }
+
+        /* TABLE */
+        .table-container { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; color: var(--text-sub); font-weight: 600; }
+        td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+
+        .uid { font-family: monospace; color: var(--text-sub); font-size: 12px; }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .tag-blue { background: #eff6ff; color: var(--primary); }
+        
+        .action-btn {
+            border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s;
+        }
+        .btn-view { background: #f1f5f9; color: var(--text-main); margin-right: 5px; }
+        .btn-view:hover { background: #e2e8f0; }
+        .btn-delete { background: #fee2e2; color: var(--danger); }
+        .btn-delete:hover { background: #fecaca; }
+
+        /* LOADING & ERROR */
+        #loading { text-align: center; margin-top: 50px; color: var(--text-sub); }
+        .error-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: white; display: none; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 999;
+        }
+        
+        /* Modal Xem Chi Tiết */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; display: none;
+            align-items: center; justify-content: center;
+        }
+        .modal {
+            background: white; width: 500px; max-height: 80vh; 
+            border-radius: 12px; padding: 24px; overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .json-view {
+            background: #1e293b; color: #a5b4fc; padding: 15px; 
+            border-radius: 8px; font-family: monospace; font-size: 12px;
+            white-space: pre-wrap; overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Màn hình chặn nếu không phải Admin -->
+    <div class="error-screen" id="errorScreen">
+        <div style="font-size: 50px;">🔒</div>
+        <h2>Truy cập bị từ chối</h2>
+        <p>Bạn không có quyền Admin để xem trang này.</p>
+        <a href="index.html" style="color: var(--primary); text-decoration: none; margin-top: 20px; font-weight: bold;">Quay về Trang Chủ</a>
+    </div>
+
+    <!-- GIAO DIỆN CHÍNH -->
+    <div class="sidebar">
+        <div class="brand">🛡️ ADMIN CENTER</div>
+        <a href="index.html" class="menu-item">⬅ Về Trang Chủ</a>
+        <div class="menu-item active">👥 Quản Lý Users</div>
+        <button class="menu-item btn-logout" onclick="logout()">Đăng Xuất</button>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Danh Sách Tài Khoản</h1>
+            <div class="user-badge" id="adminEmail">Checking...</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val" id="totalUsers">0</div>
+                <div class="stat-label">Tổng người dùng</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="totalClasses">0</div>
+                <div class="stat-label">Tổng lớp học đã lưu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" style="color: #10b981;">Online</div>
+                <div class="stat-label">Trạng thái hệ thống</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Thông Tin (Email/Name)</th>
+                        <th>Số Lớp</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- Dữ liệu sẽ đổ vào đây -->
+                </tbody>
+            </table>
+            <div id="loading">Đang tải dữ liệu...</div>
+        </div>
+    </div>
+
+    <!-- Modal Chi Tiết -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <h3 style="margin-top: 0;">Dữ Liệu Chi Tiết</h3>
+            <div class="json-view" id="modalContent"></div>
+            <button onclick="document.getElementById('detailModal').style.display='none'" 
+                style="margin-top: 15px; width: 100%; padding: 10px; border: 1px solid #ccc; background: white; border-radius: 6px; cursor: pointer;">Đóng</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ⚠️ DÁN CONFIG FIREBASE GIỐNG TRANG CHỦ ⚠️
+        const firebaseConfig = {
+  apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
+  authDomain: "random-3faa8.firebaseapp.com",
+  projectId: "random-3faa8",
+  storageBucket: "random-3faa8.firebasestorage.app",
+  messagingSenderId: "1062124587042",
+  appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
+  measurementId: "G-Q76M508V96"
+};
+
+        // ==========================================
+        // ⚠️ CẤU HÌNH EMAIL ADMIN (Thay bằng email của bạn)
+        const ADMIN_EMAIL = "huydung1372007@gmail.com"; // Thay đúng email bạn dùng đăng nhập
+        // ==========================================
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch(e) { console.error(e); }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Kiểm tra quyền Admin
+                if (user.email !== ADMIN_EMAIL) {
+                    document.getElementById('errorScreen').style.display = 'flex';
+                    return;
+                }
+                
+                document.getElementById('adminEmail').innerText = user.email + " (Admin)";
+                loadAllUsers();
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        async function loadAllUsers() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                const tbody = document.getElementById('userTableBody');
+                const loading = document.getElementById('loading');
+                
+                tbody.innerHTML = '';
+                let userCount = 0;
+                let classCount = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const uid = doc.id;
+                    const classes = data.savedClasses || {};
+                    const numClasses = Object.keys(classes).length;
+                    
+                    userCount++;
+                    classCount += numClasses;
+
+                    // Vì trong index.html ta chưa lưu email vào Firestore,
+                    // nên ở đây ta chỉ có UID. (Trừ khi bạn nâng cấp code lưu thêm email).
+                    // Tạm thời hiển thị "User" nếu không có tên.
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span class="uid">${uid}</span></td>
+                        <td>
+                            <b>User ${userCount}</b><br>
+                            <span style="color:#94a3b8; font-size:12px">Data ID: ${uid.substring(0,8)}...</span>
+                        </td>
+                        <td><span class="tag tag-blue">${numClasses} lớp</span></td>
+                        <td>
+                            <button class="action-btn btn-view">Xem</button>
+                            <button class="action-btn btn-delete">Xóa Data</button>
+                        </td>
+                    `;
+
+                    // Gắn sự kiện nút Xem
+                    tr.querySelector('.btn-view').onclick = () => showDetail(classes);
+                    
+                    // Gắn sự kiện nút Xóa
+                    tr.querySelector('.btn-delete').onclick = () => deleteUserData(uid);
+
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('totalUsers').innerText = userCount;
+                document.getElementById('totalClasses').innerText = classCount;
+                loading.style.display = 'none';
+
+            } catch (error) {
+                console.error("Lỗi:", error);
+                alert("Lỗi tải dữ liệu! Hãy kiểm tra Firestore Rules (Xem hướng dẫn).");
+            }
+        }
+
+        window.showDetail = (data) => {
+            document.getElementById('modalContent').innerText = JSON.stringify(data, null, 2);
+            document.getElementById('detailModal').style.display = 'flex';
+        };
+
+        window.deleteUserData = async (uid) => {
+            if(confirm("CẢNH BÁO: Bạn có chắc chắn muốn xóa toàn bộ dữ liệu lớp học của User này không? Hành động này không thể hoàn tác.")) {
+                try {
+                    await deleteDoc(doc(db, "users", uid));
+                    alert("Đã xóa dữ liệu thành công!");
+                    loadAllUsers(); // Reload lại bảng
+                } catch (e) {
+                    alert("Lỗi xóa: " + e.message);
+                }
+            }
+        };
+
+        window.logout = () => {
+            signOut(auth).then(() => window.location.href = "login.html");
+        };
+    </script>
+</body>
+</html>
