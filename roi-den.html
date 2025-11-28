@@ -2,22 +2,19 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Rọi Đèn Business</title>
+    <title>Sân Khấu Doanh Nhân</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1e293b; /* Navy */
-            --accent: #f1c40f;  /* Gold */
-            --bg: #f8fafc;      /* White Background */
-            --card-bg: #ffffff;
-            --text-main: #334155;
-            --border: #e2e8f0;
+            --primary: #1e293b; 
+            --accent: #f1c40f; 
+            --bg: #f8fafc;
+            --curtain-red: #7f1d1d; /* Đỏ nhung */
         }
 
         body {
             margin: 0; height: 100vh; overflow: hidden;
             background-color: var(--bg);
-            /* Họa tiết chấm bi hiện đại */
             background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 24px 24px;
             font-family: 'Inter', sans-serif;
@@ -27,91 +24,135 @@
 
         .back-btn {
             position: absolute; top: 20px; left: 20px; padding: 10px 25px;
-            background: white; border: 1px solid var(--border);
+            background: white; border: 1px solid #e2e8f0;
             text-decoration: none; border-radius: 30px; font-weight: 600; color: var(--primary);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: 0.2s; z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 1000;
         }
-        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 
-        /* --- SÂN KHẤU CHỨA TÊN --- */
+        /* --- SÂN KHẤU & TÊN --- */
         .stage-container {
             width: 90%; height: 75%;
             display: flex; flex-wrap: wrap; justify-content: center; align-content: center;
             gap: 15px; position: relative; z-index: 10;
         }
 
-        /* Ô TÊN (BUSINESS CARD STYLE) */
         .name-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 15px 30px;
-            border-radius: 8px;
-            color: var(--text-main);
-            font-size: 16px; font-weight: 600;
-            text-align: center;
-            min-width: 140px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            background: white; border: 1px solid #e2e8f0;
+            padding: 15px 30px; border-radius: 8px;
+            color: #334155; font-size: 16px; font-weight: 600; text-align: center;
+            min-width: 140px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s; position: relative;
         }
-
-        /* Khi đèn quét trúng */
         .name-card.lit {
-            background: #fffbeb; /* Nền vàng rất nhạt */
-            border-color: var(--accent);
-            color: var(--primary);
-            transform: scale(1.15);
-            box-shadow: 0 10px 25px rgba(241, 196, 15, 0.4);
-            z-index: 20;
+            background: #fffbeb; border-color: var(--accent); color: var(--primary);
+            transform: scale(1.15); box-shadow: 0 10px 25px rgba(241, 196, 15, 0.4); z-index: 20;
         }
 
-        /* ĐÈN RỌI (SCANNER BEAM) */
+        /* --- ĐÈN RỌI --- */
         .spotlight-beam {
             position: fixed; top: 50%; left: 50%;
             width: 300px; height: 300px;
-            /* Hiệu ứng đèn vàng nhạt di chuyển */
-            background: radial-gradient(circle, rgba(241, 196, 15, 0.4) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(241, 196, 15, 0.6) 0%, transparent 70%);
             transform: translate(-50%, -50%);
             pointer-events: none; z-index: 5;
-            transition: all 0.1s linear;
-            display: none;
-            mix-blend-mode: multiply; /* Hòa trộn màu để trông tự nhiên trên nền trắng */
+            display: none; mix-blend-mode: multiply;
         }
 
-        /* CONTROL PANEL */
-        .control-panel {
-            position: absolute; bottom: 40px; z-index: 100;
-        }
+        .control-panel { position: absolute; bottom: 40px; z-index: 100; }
         .start-btn {
-            background: var(--primary);
-            color: white; border: none;
-            padding: 16px 50px; font-size: 16px; font-weight: 700; letter-spacing: 1px;
-            border-radius: 50px; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(30, 41, 59, 0.3);
-            transition: 0.3s; text-transform: uppercase;
+            background: var(--primary); color: white; border: none;
+            padding: 16px 50px; font-size: 16px; font-weight: 700; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(30, 41, 59, 0.3); transition: 0.3s;
         }
-        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(30, 41, 59, 0.4); background: #334155; }
+        .start-btn:hover { transform: translateY(-3px); background: #334155; }
 
-        /* --- POPUP CHÚC MỪNG (WHITE BUSINESS) --- */
-        .fixed-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); z-index: 50000; display: none; backdrop-filter: blur(4px); animation: fadeIn 0.3s; }
-        .fixed-overlay.active { display: block; }
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
-        
-        .winner-popup-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); width: 380px; z-index: 50001; transition: 0.4s; pointer-events: none; opacity: 0; }
-        .winner-popup-container.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
-        
-        .popup-card { 
-            width: 100%; padding: 40px 30px; border-radius: 16px; 
-            background: white; border: 1px solid var(--border); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        /* --- RÈM SÂN KHẤU (REALISTIC CURTAIN) --- */
+        .curtain-layer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 60000; pointer-events: none; display: flex;
         }
-        .popup-icon { font-size: 60px; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .popup-label { font-size: 11px; letter-spacing: 3px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
-        .popup-name { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--primary); margin-bottom: 30px; text-align: center; line-height: 1.2; font-weight: 700;}
-        .popup-close-btn { background: var(--primary); color: white; border: none; padding: 12px 40px; border-radius: 8px; cursor: pointer; font-weight: 600; transition:0.3s;}
-        .popup-close-btn:hover { background: #334155; transform: translateY(-2px); }
         
+        .curtain-panel {
+            width: 50%; height: 100%; position: relative;
+            transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1); /* Chuyển động mượt kiểu vật lý */
+            
+            /* TẠO HIỆU ỨNG VẢI NHUNG VÀ NẾP GẤP BẰNG GRADIENT */
+            background-color: var(--curtain-red);
+            background-image: repeating-linear-gradient(
+                90deg,
+                #500f0f,       /* Màu tối (khe nếp gấp) */
+                #7f1d1d 20px,  /* Màu chính */
+                #991b1b 40px,  /* Màu sáng (đỉnh nếp gấp) */
+                #7f1d1d 60px,  /* Quay lại màu chính */
+                #500f0f 80px   /* Quay lại màu tối */
+            );
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.7); /* Đổ bóng sâu vào trong */
+        }
+
+        .curtain-panel.left { 
+            transform: translateX(-100%); /* Mặc định ẩn bên trái */
+            border-right: 4px solid #f59e0b; /* Viền vàng tua rua */
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .curtain-panel.right { 
+            transform: translateX(100%); /* Mặc định ẩn bên phải */
+            border-left: 4px solid #f59e0b; 
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* Khi class .closed được thêm vào -> Rèm đóng lại */
+        .curtain-layer.closed .curtain-panel { transform: translateX(0); }
+
+        /* --- POPUP WINNER --- */
+        .winner-popup-container { 
+            position: fixed; 
+            top: 0; left: 0;
+            width: 100vw; height: 100vh; /* Chiếm toàn màn hình */
+            z-index: 60001;
+            
+            /* Dùng Flexbox để căn giữa tuyệt đối nội dung bên trong */
+            display: flex;
+            justify-content: center; /* Căn giữa ngang */
+            align-items: center;     /* Căn giữa dọc */
+            
+            opacity: 0; 
+            transition: opacity 0.5s; 
+            pointer-events: none;
+            /* Nếu muốn nền mờ tối phía sau popup, bỏ comment dòng dưới */
+            /* background: rgba(0,0,0,0.5); */
+        }
+        
+        /* Khi active thì hiện container lên */
+        .winner-popup-container.active { 
+            opacity: 1; 
+            pointer-events: auto; 
+        }
+        
+        /* Thẻ popup lo phần hiển thị và hiệu ứng phóng to */
+        .popup-card { 
+            width: 400px; /* Chiều rộng cố định */
+            padding: 40px; 
+            border-radius: 12px; 
+            background: #fff; 
+            border: 4px solid var(--accent); 
+            box-shadow: 0 0 60px rgba(241, 196, 15, 0.6); 
+            text-align: center; 
+            display: flex; flex-direction: column; align-items: center;
+
+            /* Hiệu ứng phóng to khi hiện */
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Khi container cha active, thẻ con phóng to về 1 */
+        .winner-popup-container.active .popup-card {
+            transform: scale(1);
+        }
+        
+        .popup-name { font-family: 'Playfair Display', serif; font-size: 45px; color: var(--curtain-red); margin: 20px 0; font-weight: 800; line-height: 1.1; }
+        .popup-close-btn { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
         #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; }
     </style>
 </head>
@@ -119,20 +160,21 @@
     <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
     <canvas id="confettiCanvas"></canvas>
 
-    <div class="fixed-overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="curtain-layer" id="curtainLayer">
+        <div class="curtain-panel left"></div>
+        <div class="curtain-panel right"></div>
+    </div>
+
     <div class="winner-popup-container" id="popup">
         <div class="popup-card">
-            <div class="popup-icon">🔦</div>
-            <div class="popup-label">NGƯỜI ĐƯỢC CHỌN</div>
-            <div class="popup-name" id="popupName">...</div>
-            <button class="popup-close-btn" onclick="closePopup()">Xác Nhận</button>
+            <div style="font-size: 50px;">👑</div>
+            <div style="color:#64748b; font-weight:bold; letter-spacing:2px; margin-top:10px;">NGƯỜI CHIẾN THẮNG LÀ</div>
+            <div class="popup-name" id="popupName">Nguyen Van A</div>
+            <button class="popup-close-btn" onclick="closePopup()">Đóng & Tiếp Tục</button>
         </div>
     </div>
 
-    <!-- Đèn rọi -->
     <div class="spotlight-beam" id="spotlight"></div>
-
-    <!-- Khu vực hiển thị tên -->
     <div class="stage-container" id="stage"></div>
 
     <div class="control-panel">
@@ -154,108 +196,100 @@
             return w;
         }
 
-        // Render tên dạng Card Trắng
         function renderNames() {
-            const stage = document.getElementById('stage');
-            stage.innerHTML = '';
-            // Lấy tối đa 40 người
+            const stage = document.getElementById('stage'); stage.innerHTML = '';
             let displayList = remaining.length > 40 ? remaining.sort(()=>0.5-Math.random()).slice(0,40) : remaining;
             if(displayList.length < 20 && fullList.length > 20) {
                 const extras = fullList.filter(n => !displayList.includes(n)).slice(0, 20 - displayList.length);
                 displayList = displayList.concat(extras);
             }
             displayList.sort(() => 0.5 - Math.random());
-
             displayList.forEach(name => {
-                const div = document.createElement('div');
-                div.className = 'name-card';
-                div.innerText = name;
-                stage.appendChild(div);
+                const div = document.createElement('div'); div.className = 'name-card'; div.innerText = name; stage.appendChild(div);
             });
         }
         renderNames();
 
-        let searchInterval;
-        let isSearching = false;
+        let searchInterval; let isSearching = false;
 
         function startSearch() {
             if(isSearching) return;
             const winner = getUnique(); if(!winner) return;
             
-            // Xử lý visual người thắng
+            // Gán winner vào 1 thẻ bất kỳ
             const cards = document.querySelectorAll('.name-card');
             let winnerCard = null;
             for(let card of cards) { if(card.innerText === winner) { winnerCard = card; break; } }
             if(!winnerCard && cards.length > 0) {
                 const randIndex = Math.floor(Math.random() * cards.length);
-                winnerCard = cards[randIndex];
-                winnerCard.innerText = winner; 
+                winnerCard = cards[randIndex]; winnerCard.innerText = winner; 
             }
 
             isSearching = true;
             document.querySelector('.start-btn').style.display = 'none';
-            const spotlight = document.getElementById('spotlight');
-            spotlight.style.display = 'block';
+            document.getElementById('spotlight').style.display = 'block';
             
-            let time = 0;
-            const duration = 3000; 
+            let time = 0; const duration = 6000; // Thời gian rọi đèn
 
-            // Logic di chuyển đèn
             searchInterval = setInterval(() => {
-                const x = Math.random() * 80 + 10; 
-                const y = Math.random() * 80 + 10;
-                spotlight.style.left = x + '%';
-                spotlight.style.top = y + '%';
-
-                // Random hiệu ứng quét qua
+                const x = Math.random() * 90 + 5; const y = Math.random() * 80 + 10;
+                document.getElementById('spotlight').style.left = x + '%';
+                document.getElementById('spotlight').style.top = y + '%';
                 cards.forEach(c => c.classList.remove('lit'));
-                if(cards.length > 0) {
-                    const randCard = cards[Math.floor(Math.random() * cards.length)];
-                    randCard.classList.add('lit');
-                }
-
-                time += 100;
-                if(time >= duration) stopSearch(winner, winnerCard);
-
-            }, 80);
+                if(cards.length > 0) cards[Math.floor(Math.random()*cards.length)].classList.add('lit');
+                time += 150; if(time >= duration) stopSearch(winner, winnerCard);
+            }, 150);
         }
 
         function stopSearch(winnerName, winnerCardElement) {
             clearInterval(searchInterval);
-            const spotlight = document.getElementById('spotlight');
-            
+            document.getElementById('spotlight').style.display = 'none';
             document.querySelectorAll('.name-card').forEach(c => c.classList.remove('lit'));
-            spotlight.style.display = 'none';
-
             if(winnerCardElement) {
-                winnerCardElement.classList.add('lit'); // Sáng vàng
+                winnerCardElement.classList.add('lit'); 
                 winnerCardElement.style.transform = 'scale(1.3)';
                 winnerCardElement.style.zIndex = '100';
             }
-
-            setTimeout(() => {
-                showPopup(winnerName);
-                isSearching = false;
-            }, 1000);
+            setTimeout(() => { triggerCurtainReveal(winnerName); }, 1000);
         }
 
-        function showPopup(n){
-            document.getElementById('popupName').innerText=n;
-            document.getElementById('overlay').classList.add('active');
-            document.getElementById('popup').classList.add('active');
-            fireConfetti();
-        }
+        // --- HÀM ĐÃ SỬA LẠI ---
+function triggerCurtainReveal(name) {
+    const curtain = document.getElementById('curtainLayer');
+    
+    // 1. Đóng rèm lại (Che kín màn hình)
+    curtain.classList.add('closed');
+
+    // 2. Trong lúc rèm đang đóng, setup sẵn tên cho popup (nhưng chưa hiện popup)
+    setTimeout(() => {
+        document.getElementById('popupName').innerText = name;
+        // LƯU Ý: Không thêm class 'active' cho popup ở đây nữa!
+    }, 1500); // Đợi 1.5s cho rèm đóng hẳn
+
+    // 3. Mở rèm ra (Vén màn bí mật) và SAU ĐÓ mới hiện popup
+    setTimeout(() => {
+        curtain.classList.remove('closed'); // Rèm bắt đầu mở
+        
+        // --- CHỈNH SỬA CHÍNH Ở ĐÂY ---
+        // Đợi thêm 1 chút (ví dụ: 0.5s) để rèm mở ra rồi mới hiện popup
+        setTimeout(() => {
+             document.getElementById('popup').classList.add('active'); // Hiện popup
+             fireConfetti(); // Bắn pháo giấy
+        }, 500); 
+
+    }, 2500); // Tổng thời gian từ khi bắt đầu đóng rèm đến khi bắt đầu mở rèm là 2.5s
+}
+
         function closePopup(){
-            document.getElementById('overlay').classList.remove('active');
             document.getElementById('popup').classList.remove('active');
             document.querySelector('.start-btn').style.display = 'block';
-            renderNames(); 
+            isSearching = false; renderNames(); 
         }
 
-        // Confetti
+        // Pháo giấy
         const canvas=document.getElementById('confettiCanvas'), ctx=canvas.getContext('2d'); let p=[];
         function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;} window.addEventListener('resize',resizeCanvas); resizeCanvas();
-        function fireConfetti(){ p=[]; for(let i=0;i<150;i++) p.push({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-0.5)*15,vy:(Math.random()-0.5)*15-5,c:'#f1c40f',s:Math.random()*10+5}); animate(); }
+        function fireConfetti(){ p=[]; for(let i=0;i<150;i++) p.push({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-0.5)*20,vy:(Math.random()-0.5)*20-5,c:'#f1c40f',s:Math.random()*10+5}); animate(); }
         function animate(){ if(p.length===0)return; ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach((pt,i)=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.2;pt.vx*=0.96;pt.vy*=0.96;ctx.fillStyle=pt.c;ctx.fillRect(pt.x,pt.y,pt.s,pt.s);if(pt.y>canvas.height)p.splice(i,1)}); requestAnimationFrame(animate); }
     </script>
 </body>
