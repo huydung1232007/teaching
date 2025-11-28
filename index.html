@@ -89,14 +89,14 @@
 
         /* --- STATUS CARD (UPDATED) --- */
         .status-card {
-            position: relative; /* Quan trọng để định vị nút icon */
+            position: relative;
             background: var(--accent); color: white;
             border-radius: 12px; padding: 20px;
             box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
             margin-bottom: 30px;
         }
         
-        /* Nút Cấu hình nhỏ (Gear Icon) */
+        /* Icon Cấu hình (Bánh răng) */
         .btn-config-icon {
             position: absolute; top: 15px; right: 15px;
             background: rgba(255, 255, 255, 0.2); border: none; color: white;
@@ -108,15 +108,15 @@
 
         .st-label { font-size: 10px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; font-weight: 600; }
         .st-name { font-size: 20px; font-weight: 700; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .st-info { font-size: 13px; opacity: 0.9; margin-bottom: 15px; }
+        .st-info { font-size: 13px; opacity: 0.9; margin-bottom: 10px; }
 
-        /* Nút Reset to */
-        .btn-reset-full {
-            width: 100%; background: rgba(255,255,255,0.2); border: none; color: white;
-            padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
-            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+        /* Nút Reset NHỎ (Updated) */
+        .btn-reset-small {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;
+            padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 11px; font-weight: 600;
+            transition: 0.2s; display: inline-flex; align-items: center; gap: 5px;
         }
-        .btn-reset-full:hover { background: rgba(255,255,255,0.3); }
+        .btn-reset-small:hover { background: rgba(255,255,255,0.3); border-color: white; }
 
         /* CLASS LIST */
         .list-header { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light); margin-bottom: 10px; display: flex; justify-content: space-between; }
@@ -137,7 +137,7 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px; background: #f8fafc; border: 1px solid var(--border);
             border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px;
-            color: var(--text-main); transition: 0.2s;
+            color: var(--text-primary); transition: 0.2s;
         }
         .add-toggle:hover { background: #f1f5f9; }
         
@@ -149,17 +149,20 @@
 
         input, textarea {
             width: 100%; padding: 8px; border: 1px solid var(--border);
-            border-radius: 6px; font-family: inherit; font-size: 12px; color: var(--text-main);
+            border-radius: 6px; font-family: inherit; font-size: 12px; color: var(--text-primary);
             background: #fff; margin-bottom: 8px; transition: 0.2s;
         }
         input:focus, textarea:focus { outline: none; border-color: var(--accent); }
         textarea { height: 80px; resize: none; }
         
-        .btn-group { display: flex; gap: 8px; }
-        .btn-save { flex: 2; background: var(--accent); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
-        .btn-config { flex: 1; background: #e2e8f0; color: var(--text-main); border: none; padding: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
-        .btn-config:hover { background: #cbd5e1; }
-        
+        /* Chỉ còn 1 nút Lưu */
+        .btn-save { 
+            width: 100%; background: var(--accent); color: white; border: none; padding: 10px; 
+            border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; 
+            margin-top: 5px;
+        }
+        .btn-save:hover { background: var(--accent-hover); }
+
         .excel-btn { font-size: 11px; color: var(--success); cursor: pointer; font-weight: 600; float: right; margin-bottom: 4px; }
 
         /* MAIN CONTENT */
@@ -180,7 +183,7 @@
         }
         .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
         .g-icon { font-size: 40px; margin-bottom: 15px; }
-        .g-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+        .g-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
         .g-desc { font-size: 12px; color: var(--text-light); }
 
         /* MODAL CẤU HÌNH */
@@ -220,7 +223,7 @@
             <div class="modal-footer">
                 <div style="margin-right:auto; font-size:11px; color:#94a3b8">*Mặc định 1 phiếu</div>
                 <button class="btn-cancel" onclick="closeConfig()">Hủy</button>
-                <button class="btn-confirm" onclick="saveConfigAndClose()">Lưu Cấu Hình</button>
+                <button class="btn-confirm" onclick="saveConfigAndClose()">Lưu Thay Đổi</button>
             </div>
         </div>
     </div>
@@ -251,11 +254,15 @@
             <div class="sidebar-scroll">
                 <!-- UPDATED STATUS CARD -->
                 <div class="status-card">
+                    <!-- Nút Cấu hình (Bánh răng) -->
                     <button class="btn-config-icon" onclick="openActiveConfig()" title="Cấu hình tỉ lệ">⚙️</button>
+                    
                     <div class="st-label">LỚP ĐANG HOẠT ĐỘNG</div>
                     <div class="st-name" id="currentClassName">Chưa chọn</div>
                     <div class="st-info" id="studentCount">0 học sinh</div>
-                    <button class="btn-reset-full" onclick="resetCurrentProgress()">↺ Reset Gọi Tên</button>
+                    
+                    <!-- Nút Reset nhỏ -->
+                    <button class="btn-reset-small" onclick="resetCurrentProgress()">↺ Reset Gọi Tên</button>
                 </div>
 
                 <div class="list-header"><span>Danh sách lớp</span><span id="totalClasses" style="background:#e2e8f0;padding:2px 6px;border-radius:4px;color:#0f172a">0</span></div>
@@ -265,14 +272,11 @@
                     <div class="add-toggle" onclick="toggleForm()"><span>+ Thêm lớp mới</span><span>▼</span></div>
                     <div class="form-body" id="formContent">
                         <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
-                        <div><label for="excelInput" class="excel-btn">📂 Excel</label><input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)"></div>
+                        <div><label for="excelInput" class="excel-btn">📂 Nhập Excel</label><input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)"></div>
                         <textarea id="inputStudentList" placeholder="Dán danh sách..."></textarea>
                         
-                        <!-- Nút Config ở form thêm mới -->
-                        <div class="btn-group">
-                            <button class="btn-config" onclick="openNewConfig()">⚙️ Tỉ Lệ</button>
-                            <button class="btn-save" onclick="saveNewList()">Lưu Lớp</button>
-                        </div>
+                        <!-- CHỈ CÒN NÚT LƯU -->
+                        <button class="btn-save" onclick="saveNewList()">Lưu Lớp</button>
                     </div>
                 </div>
             </div>
@@ -300,7 +304,7 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ⚠️ DÁN CONFIG FIREBASE CỦA BẠN VÀO ĐÂY ⚠️
+        // ⚠️ CONFIG FIREBASE CỦA BẠN ⚠️
         const firebaseConfig = {
             apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
             authDomain: "random-3faa8.firebaseapp.com",
@@ -352,10 +356,9 @@
             if(user) { const c=JSON.parse(localStorage.getItem('savedClasses')||'{}'); const w=JSON.parse(localStorage.getItem('savedWeights')||'{}'); await setDoc(doc(db,"users",user.uid),{savedClasses:c, savedWeights:w},{merge:true}); }
         }
 
-        // --- CẤU HÌNH TỈ LỆ ---
+        // --- CẤU HÌNH TỈ LỆ (ACTIVE CLASS ONLY) ---
         let tempWeights = {};
 
-        // Mở cấu hình cho Lớp Đang Chọn
         window.openActiveConfig = () => {
             const currentName = localStorage.getItem('currentClassName');
             const savedData = JSON.parse(localStorage.getItem('savedClasses') || '{}');
@@ -366,23 +369,6 @@
             const list = savedData[currentName].split('\n').filter(n => n.trim() !== '');
             tempWeights = savedWeights[currentName] || {};
             
-            fillConfigTable(list);
-            document.getElementById('configModal').setAttribute('data-mode', 'active');
-            document.getElementById('configModal').classList.add('active');
-        };
-
-        // Mở cấu hình cho Lớp Mới (trong Form)
-        window.openNewConfig = () => {
-            const raw = document.getElementById('inputStudentList').value.trim();
-            if(!raw) return alert("Vui lòng nhập tên học sinh trước!");
-            
-            const list = raw.split('\n').filter(n=>n.trim()!=='');
-            fillConfigTable(list);
-            document.getElementById('configModal').setAttribute('data-mode', 'new');
-            document.getElementById('configModal').classList.add('active');
-        };
-
-        function fillConfigTable(list) {
             const tbody = document.getElementById('configTableBody'); tbody.innerHTML = '';
             list.forEach(name => {
                 const n = name.trim();
@@ -391,14 +377,17 @@
                 tr.innerHTML = `<td>${n}</td><td style="text-align:center"><input type="number" min="0" max="100" class="weight-input" data-name="${n}" value="${val}"></td>`;
                 tbody.appendChild(tr);
             });
-        }
+            document.getElementById('configModal').classList.add('active');
+        };
 
         window.closeConfig = () => document.getElementById('configModal').classList.remove('active');
 
         window.saveConfigAndClose = () => {
             const inputs = document.querySelectorAll('.weight-input');
-            const mode = document.getElementById('configModal').getAttribute('data-mode');
-            
+            const currentName = localStorage.getItem('currentClassName');
+            const savedWeights = JSON.parse(localStorage.getItem('savedWeights') || '{}');
+            const savedData = JSON.parse(localStorage.getItem('savedClasses') || '{}');
+
             tempWeights = {}; 
             inputs.forEach(inp => {
                 const n = inp.getAttribute('data-name');
@@ -406,25 +395,17 @@
                 if(v >= 0) tempWeights[n] = v;
             });
 
-            // Nếu đang sửa lớp Active -> Lưu luôn
-            if (mode === 'active') {
-                const currentName = localStorage.getItem('currentClassName');
-                const savedWeights = JSON.parse(localStorage.getItem('savedWeights') || '{}');
-                const savedData = JSON.parse(localStorage.getItem('savedClasses') || '{}');
-                
-                savedWeights[currentName] = tempWeights;
-                localStorage.setItem('savedWeights', JSON.stringify(savedWeights));
-                pushData();
+            // Lưu trực tiếp vào Active Class
+            savedWeights[currentName] = tempWeights;
+            localStorage.setItem('savedWeights', JSON.stringify(savedWeights));
+            pushData();
 
-                // Cập nhật lại danh sách quay
-                const weightedList = generateWeightedList(savedData[currentName], tempWeights);
-                localStorage.setItem('remainingStudents', JSON.stringify(weightedList));
-                loadActiveStatus();
-                alert("Đã cập nhật tỉ lệ cho " + currentName);
-            } 
-            else {
-                alert("Đã ghi nhớ! Hãy bấm 'Lưu Lớp' để hoàn tất.");
-            }
+            // Cập nhật lại danh sách quay
+            const weightedList = generateWeightedList(savedData[currentName], tempWeights);
+            localStorage.setItem('remainingStudents', JSON.stringify(weightedList));
+            loadActiveStatus();
+            
+            alert("Đã cập nhật tỉ lệ cho " + currentName);
             closeConfig();
         };
 
@@ -455,12 +436,12 @@
         window.saveNewList = () => {
             const n=document.getElementById('inputClassName').value.trim(), l=document.getElementById('inputStudentList').value.trim();
             if(!n||!l) return alert("Thiếu thông tin!");
-            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}'), w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
+            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');
             if(d[n] && !confirm("Ghi đè lớp này?")) return;
-            d[n]=l; w[n]=tempWeights;
-            localStorage.setItem('savedClasses',JSON.stringify(d)); localStorage.setItem('savedWeights',JSON.stringify(w));
+            d[n]=l;
+            localStorage.setItem('savedClasses',JSON.stringify(d));
             pushData();
-            document.getElementById('inputClassName').value=''; document.getElementById('inputStudentList').value=''; tempWeights={};
+            document.getElementById('inputClassName').value=''; document.getElementById('inputStudentList').value='';
             renderSavedLists(); selectClass(n); window.toggleForm();
         };
 
@@ -475,7 +456,8 @@
         };
 
         window.deleteClass=(n)=>{
-            if(!confirm("Xóa lớp này?"))return; const d=JSON.parse(localStorage.getItem('savedClasses')||'{}'), w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
+            if(!confirm("Xóa lớp này?"))return; 
+            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}'), w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
             delete d[n]; delete w[n];
             localStorage.setItem('savedClasses',JSON.stringify(d)); localStorage.setItem('savedWeights',JSON.stringify(w)); pushData();
             if(localStorage.getItem('currentClassName')===n){localStorage.removeItem('currentClassName');localStorage.removeItem('classStudents');localStorage.removeItem('remainingStudents');}
@@ -483,10 +465,10 @@
         };
 
         window.editClass=(n)=>{
-            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}'), w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
+            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');
             if(d[n]){
                 document.getElementById('inputClassName').value=n; document.getElementById('inputStudentList').value=d[n];
-                tempWeights = w[n] || {}; window.toggleForm(true);
+                window.toggleForm(true);
             }
         };
 
@@ -508,7 +490,6 @@
         };
 
         window.toggleForm=(o)=>{const b=document.getElementById('formContent'); if(o)b.classList.add('open'); else b.classList.toggle('open');};
-        
         window.importExcel=(i)=>{
             const f=i.files[0]; if(!f)return; const r=new FileReader();
             r.onload=(e)=>{
