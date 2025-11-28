@@ -3,74 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng Nhập - TEKTOOL PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Đăng Nhập - Business Class</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb; /* Royal Blue */
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;      /* Light Gray Background */
+            --surface: #ffffff; /* Pure White */
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+        }
+
         body {
-            margin: 0; height: 100vh;
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            background-color: var(--bg);
+            height: 100vh; margin: 0;
             display: flex; align-items: center; justify-content: center;
-            color: white; overflow: hidden;
+            color: var(--text-main);
         }
-
-        /* Hiệu ứng nền */
-        .glow {
-            position: absolute; width: 600px; height: 600px;
-            background: #3b82f6; filter: blur(150px); opacity: 0.15;
-            border-radius: 50%; z-index: -1;
-        }
-
+        
+        /* Login Card - Shadow mềm mại */
         .login-card {
-            width: 400px; padding: 50px 40px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-radius: 24px; text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: floatUp 0.8s ease-out;
+            background: var(--surface);
+            padding: 48px; border-radius: 16px;
+            width: 400px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            text-align: center;
         }
 
-        @keyframes floatUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+        .logo { font-size: 48px; margin-bottom: 24px; display: inline-block; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+        p { color: var(--text-sub); font-size: 14px; margin-bottom: 32px; }
+        
+        /* Input Styles - Nền trắng, viền xám */
+        .input-group { margin-bottom: 16px; text-align: left; }
+        .input-field {
+            width: 100%; padding: 12px 16px; border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff; color: var(--text-main);
+            font-family: inherit; font-size: 14px;
+            transition: all 0.2s; box-sizing: border-box;
+        }
+        .input-field:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
 
-        .logo { font-size: 48px; margin-bottom: 20px; }
-        h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
-        p { color: #94a3b8; font-size: 14px; margin-bottom: 40px; line-height: 1.6; }
+        .hidden { display: none; }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%; padding: 12px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; font-weight: 600; font-size: 14px;
+            cursor: pointer; transition: 0.2s; margin-top: 8px;
+        }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        .toggle-link { margin-top: 24px; font-size: 13px; color: var(--text-sub); }
+        .toggle-link span { color: var(--primary); font-weight: 600; cursor: pointer; }
+        .toggle-link span:hover { text-decoration: underline; }
+
+        .divider { display: flex; align-items: center; color: var(--text-sub); font-size: 12px; margin: 24px 0; }
+        .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+        .divider span { padding: 0 12px; }
 
         .btn-google {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; padding: 14px;
-            background: white; color: #0f172a;
-            border: none; border-radius: 12px;
-            font-weight: 700; font-size: 16px;
-            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px; background: #fff; color: #334155;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-weight: 500; font-size: 14px; cursor: pointer; transition: 0.2s;
         }
-        .btn-google:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
-        .btn-google:active { transform: scale(0.98); }
+        .btn-google:hover { background: #f1f5f9; border-color: #cbd5e1; }
 
-        .footer { margin-top: 30px; font-size: 12px; color: #475569; }
+        /* ALERT POPUP (Light Mode) */
+        .alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); z-index: 100000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .alert-overlay.show { display: flex; }
+        .alert-box { background: #fff; width: 350px; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: scale(0.9); transition: 0.2s; }
+        .alert-overlay.show .alert-box { transform: scale(1); }
+        .alert-icon { font-size: 40px; margin-bottom: 16px; }
+        .alert-title { color: #0f172a; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .alert-msg { color: #64748b; font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+        .alert-btn { padding: 10px; width: 100%; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+        
+        .type-error .alert-icon { color: #ef4444; } .type-error .alert-btn { background: #fef2f2; color: #ef4444; } .type-error .alert-btn:hover { background: #fee2e2; }
+        .type-success .alert-icon { color: #10b981; } .type-success .alert-btn { background: #ecfdf5; color: #10b981; } .type-success .alert-btn:hover { background: #d1fae5; }
+        .type-info .alert-icon { color: #3b82f6; } .type-info .alert-btn { background: #eff6ff; color: #3b82f6; } .type-info .alert-btn:hover { background: #dbeafe; }
     </style>
 </head>
 <body>
 
-    <div class="glow"></div>
+    <div class="alert-overlay" id="customAlertOverlay">
+        <div class="alert-box" id="customAlertBox">
+            <div class="alert-icon" id="alertIcon"></div>
+            <div class="alert-title" id="alertTitle"></div>
+            <div class="alert-msg" id="alertMsg"></div>
+            <button class="alert-btn" onclick="closeCustomAlert()">Đóng</button>
+        </div>
+    </div>
 
     <div class="login-card">
-        <div class="logo">⚡</div>
-        <h1>TEKTOOL PRO</h1>
-        <p>Hệ thống quản lý lớp học & trò chơi ngẫu nhiên.<br>Đăng nhập để đồng bộ dữ liệu đám mây.</p>
-        
-        <button class="btn-google" id="btnLogin">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G">
+        <div class="logo">💠</div>
+        <h1 id="formTitle">Đăng Nhập</h1>
+        <p id="formDesc">Chào mừng bạn quay trở lại hệ thống</p>
+
+        <div class="input-group hidden" id="nameGroup">
+            <input type="text" id="fullname" class="input-field" placeholder="Họ và Tên">
+        </div>
+        <div class="input-group">
+            <input type="email" id="email" class="input-field" placeholder="Email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" class="input-field" placeholder="Mật khẩu">
+        </div>
+
+        <button class="btn-primary" id="mainBtn" onclick="handleAuth()">Đăng Nhập</button>
+
+        <div class="toggle-link" id="toggleText">
+            Chưa có tài khoản? <span onclick="toggleMode()">Đăng ký ngay</span>
+        </div>
+
+        <div class="divider"><span>HOẶC</span></div>
+
+        <button class="btn-google" onclick="googleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
             Tiếp tục với Google
         </button>
-
-        <div class="footer">© 2024 TekTool Class Manager</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // ⚠️ DÁN CONFIG FIREBASE CỦA BẠN VÀO ĐÂY ⚠️
         const firebaseConfig = {
@@ -81,34 +146,55 @@
   messagingSenderId: "1062124587042",
   appId: "1:1062124587042:web:d514e0f4bf4cfe39bf627b",
   measurementId: "G-Q76M508V96"
-       };
+};
 
-        let app, auth;
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-        } catch(e) {
-            console.error("Chưa config Firebase");
-            alert("Lỗi: Chưa cấu hình Firebase trong code!");
-        }
+        let auth;
+        let isRegisterMode = false;
+        try { const app = initializeApp(firebaseConfig); auth = getAuth(app); } catch(e) {}
 
-        // Nếu đã đăng nhập -> Chuyển ngay sang trang chủ
-        if(auth) {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    window.location.href = "index.html";
-                }
-            });
-        }
+        if(auth) onAuthStateChanged(auth, (user) => { if (user) window.location.href = "index.html"; });
 
-        document.getElementById('btnLogin').onclick = () => {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider)
-                .then(() => {
-                    window.location.href = "index.html";
-                })
-                .catch((error) => alert(error.message));
+        window.toggleMode = () => {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('formTitle').innerText = isRegisterMode ? "Tạo Tài Khoản" : "Đăng Nhập";
+            document.getElementById('formDesc').innerText = isRegisterMode ? "Nhập thông tin để bắt đầu" : "Chào mừng bạn quay trở lại";
+            document.getElementById('nameGroup').classList.toggle('hidden', !isRegisterMode);
+            document.getElementById('mainBtn').innerText = isRegisterMode ? "Đăng Ký" : "Đăng Nhập";
+            document.getElementById('toggleText').innerHTML = isRegisterMode ? 'Đã có tài khoản? <span onclick="toggleMode()">Đăng nhập</span>' : 'Chưa có tài khoản? <span onclick="toggleMode()">Đăng ký ngay</span>';
         };
+
+        window.handleAuth = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            if(!email || !pass) return showNotify("Vui lòng nhập đủ thông tin", "error");
+
+            if (isRegisterMode) {
+                const name = document.getElementById('fullname').value;
+                if(!name) return showNotify("Vui lòng nhập họ tên", "error");
+                showNotify("Đang tạo tài khoản...", "info");
+                createUserWithEmailAndPassword(auth, email, pass).then((cred) => {
+                    updateProfile(cred.user, { displayName: name }).then(() => showNotify("Thành công!", "success"));
+                }).catch(e => showNotify(e.message, "error"));
+            } else {
+                showNotify("Đang đăng nhập...", "info");
+                signInWithEmailAndPassword(auth, email, pass).then(() => showNotify("Thành công!", "success")).catch(e => showNotify("Sai tài khoản hoặc mật khẩu", "error"));
+            }
+        };
+
+        window.googleLogin = () => {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch(e => showNotify(e.message, "error"));
+        };
+
+        window.showNotify = (msg, type) => {
+            const box = document.getElementById('customAlertBox');
+            box.className = 'alert-box type-' + type;
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('alertIcon').innerText = type==='success'?'✅':(type==='error'?'❌':'ℹ️');
+            document.getElementById('alertTitle').innerText = type==='success'?'Thành Công':(type==='error'?'Lỗi':'Thông Báo');
+            document.getElementById('customAlertOverlay').classList.add('show');
+        };
+        window.closeCustomAlert = () => document.getElementById('customAlertOverlay').classList.remove('show');
     </script>
 </body>
 </html>
