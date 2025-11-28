@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gắp Thú Joystick VIP - No Duplicate</title>
+    <title>Gắp Thú Business VIP - Final Perfect</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;900&family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,7 +11,12 @@
             --navy: #1e293b;
             --gold: #d4af37;
             --machine-bg: #ffffff;
-            --z-ball-back: 5; --z-claw-down: 20; --z-ball-front: 30; --z-claw-up: 50;
+            
+            /* Layer Config */
+            --z-ball-back: 5;    
+            --z-claw-down: 20;   
+            --z-ball-front: 30;  
+            --z-claw-up: 50;     
         }
 
         body {
@@ -21,7 +26,8 @@
             background-size: 30px 30px;
             overflow: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; margin: 0; user-select: none;
+            height: 100vh; margin: 0;
+            user-select: none;
         }
         
         .back-btn {
@@ -31,7 +37,7 @@
             font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); z-index: 100;
         }
 
-        /* --- BẢNG LỊCH SỬ (MỚI) --- */
+        /* --- BẢNG LỊCH SỬ --- */
         .history-box {
             position: absolute; top: 20px; right: 20px;
             width: 260px; height: 400px;
@@ -57,20 +63,15 @@
             animation: fadeIn 0.5s ease;
         }
         .history-item::before { content: "★"; color: var(--gold); font-size: 10px; }
-        .history-count { font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; }
-        
-        /* Nút reset nhỏ */
         .btn-reset-data {
             background: transparent; border: 1px solid var(--gold); color: var(--gold);
-            font-size: 10px; padding: 2px 8px; border-radius: 4px; cursor: pointer;
+            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
         .btn-reset-data:hover { background: var(--gold); color: var(--navy); }
 
-        @keyframes fadeIn { from{opacity:0; transform:translateX(10px);} to{opacity:1; transform:translateX(0);} }
-
-        /* ... GIỮ NGUYÊN CSS CŨ CỦA MÁY ... */
         h1 { font-family: 'Playfair Display'; color: var(--navy); font-size: 45px; margin-bottom: 20px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
+        /* --- MÁY GẮP --- */
         .machine-wrapper {
             position: relative; width: 500px; height: 600px;
             background: var(--machine-bg);
@@ -78,48 +79,72 @@
             box-shadow: 0 30px 60px -10px rgba(0,0,0,0.2);
             display: flex; flex-direction: column; overflow: hidden;
         }
+
         .machine-roof {
-            height: 60px; background: var(--navy); display: flex; align-items: center; justify-content: center;
-            color: var(--gold); font-weight: 900; letter-spacing: 4px; font-size: 20px; border-bottom: 4px solid var(--gold);
+            height: 60px; background: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold); font-weight: 900; letter-spacing: 4px; font-size: 20px;
+            border-bottom: 4px solid var(--gold);
         }
+
         .glass-area {
             flex: 1; position: relative; overflow: hidden;
             background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.8) 70%, rgba(200,200,200,0.5) 100%);
         }
+        
         .rail { position: absolute; top: 10px; left: 20px; right: 20px; height: 8px; background: #94a3b8; border-radius: 4px; z-index: 2; }
+        
         .arm-rope {
             position: absolute; top: 14px; left: 50%; width: 4px; height: 40px;
             background: var(--navy); transform: translateX(-50%);
-            transition: height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95); z-index: var(--z-claw-down); 
+            transition: height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            z-index: var(--z-claw-down); 
         }
+
         .claw-body {
             position: absolute; bottom: -45px; left: -22px; width: 48px; height: 48px;
             background-image: url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L12 6M12 6C12 6 5 7 3 13C1 19 4 21 4 21M12 6C12 6 19 7 21 13C23 19 20 21 20 21' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='5' r='2' fill='%231e293b'/%3E%3C/svg%3E");
             background-size: cover; transition: transform 0.3s;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); z-index: var(--z-claw-down);
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+            z-index: var(--z-claw-down);
         }
         .claw-body.closed { transform: scale(0.85); }
         .arm-rope.lifting, .claw-body.lifting { z-index: var(--z-claw-up) !important; }
+
+        /* HỐ ĐEN NHỎ HƠN */
         .prize-chute {
-            position: absolute; bottom: 0; left: 10px; width: 90px; height: 140px;
+            position: absolute; bottom: 0; left: 10px; 
+            width: 70px; height: 100px; /* Nhỏ hơn */
             background: #334155; border: 2px solid var(--gold); border-radius: 10px 10px 0 0;
             z-index: 100; box-shadow: inset 0 10px 30px rgba(0,0,0,0.6);
         }
-        .pit-area { position: absolute; bottom: 0; left: 0; width: 100%; height: 250px; z-index: 0; pointer-events: none; }
+
+        .pit-area {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 200px;
+            z-index: 0; pointer-events: none;
+        }
+        
         .ball {
             position: absolute; width: 45px; height: 45px; border-radius: 50%;
             border: 1px solid rgba(0,0,0,0.1);
             box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 2px 5px 10px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center; transition: 0.5s;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.5s;
         }
         .ball.blue { background: radial-gradient(circle at 30% 30%, #93c5fd, #2563eb); }
         .ball.red { background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626); }
         .ball.gold { background: radial-gradient(circle at 30% 30%, #fde047, #d97706); }
+        
         .ball.back-layer { filter: brightness(0.8); z-index: var(--z-ball-back); transform: scale(0.9); }
         .ball.front-layer { z-index: var(--z-ball-front); }
         .ball.caught { position: absolute; bottom: -20px; left: -3px; z-index: var(--z-claw-up); transition: none; filter: brightness(1.2); }
 
-        .control-panel { height: 140px; background: #e2e8f0; border-top: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 40px; }
+        /* --- BẢNG ĐIỀU KHIỂN --- */
+        .control-panel {
+            height: 140px; background: #e2e8f0; border-top: 1px solid #cbd5e1;
+            display: flex; align-items: center; justify-content: center;
+            gap: 40px;
+        }
         .joystick-zone { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
         .joystick-base { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(145deg, #94a3b8, #cbd5e1); border: 2px solid #64748b; box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative; z-index: 1; }
         .joystick-stick { width: 16px; height: 50px; background: linear-gradient(90deg, #cbd5e1, #64748b); position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2; pointer-events: none; }
@@ -218,16 +243,13 @@
         let isOperating = false;
 
         function initData(){ 
-            // Load danh sách gốc
             const f = localStorage.getItem('classStudents'); 
             fullList = f ? f.split('\n').filter(n=>n.trim()!==''):[]; 
             
-            // Load danh sách còn lại
             const r = localStorage.getItem('remainingStudents');
             if(r) remaining = JSON.parse(r);
-            else remaining = [...fullList]; // Nếu chưa có thì lấy full
+            else remaining = [...fullList];
 
-            // Load danh sách đã thắng
             const w = localStorage.getItem('winnerHistory');
             if(w) winners = JSON.parse(w);
 
@@ -236,29 +258,20 @@
         }
         
         function resetData() {
-            if(!confirm("Bạn có chắc muốn Reset lại danh sách không?")) return;
+            if(!confirm("Reset lại danh sách?")) return;
             localStorage.removeItem('remainingStudents');
             localStorage.removeItem('winnerHistory');
             remaining = [...fullList];
             winners = [];
             renderHistory();
-            alert("Đã làm mới danh sách!");
+            alert("Đã reset!");
         }
 
         function renderHistory() {
             const list = document.getElementById('winnerList');
             list.innerHTML = '';
-            
-            // Hiển thị số lượng còn lại
-            const countDiv = document.createElement('div');
-            countDiv.style.padding = "5px 10px";
-            countDiv.style.fontSize = "11px";
-            countDiv.style.color = "#64748b";
-            countDiv.innerText = `Còn lại: ${remaining.length} / ${fullList.length}`;
-            list.appendChild(countDiv);
-
-            // Hiển thị người đã thắng
-            winners.slice().reverse().forEach(name => { // Đảo ngược để người mới nhất lên đầu
+            // CHỈ HIỆN DANH SÁCH TÊN, KHÔNG HIỆN SỐ LƯỢNG CÒN LẠI
+            winners.slice().reverse().forEach(name => { 
                 const li = document.createElement('li');
                 li.className = 'history-item';
                 li.innerText = name;
@@ -266,21 +279,23 @@
             });
         }
 
-        // --- RENDER BÓNG (GIỮ NGUYÊN) ---
+        // --- RENDER BÓNG (DÀN TRẢI NGANG + TRÁNH HỐ) ---
         function renderBalls() {
             const pit = document.getElementById('pit'); 
             pit.innerHTML = '';
-            const totalBalls = 25; const columns = 8; const colWidth = 100 / columns;
-            const colHeights = new Array(columns).fill(0); 
+            const totalBalls = 25; 
             
             for(let i=0; i<totalBalls; i++) {
                 const orb = document.createElement('div'); 
                 const color = ballColors[Math.floor(Math.random()*ballColors.length)];
-                const colIndex = Math.floor(Math.random() * columns);
-                const randomOffset = (Math.random() * 4) - 2; 
-                const leftPos = (colIndex * colWidth) + 2 + randomOffset; 
-                const bottomPos = colHeights[colIndex];
-                colHeights[colIndex] += 40; 
+                
+                // Tránh vùng hố (Hố rộng khoảng 15%, nên bóng bắt đầu từ 18%)
+                const minLeft = 18; 
+                const maxLeft = 92;
+                const leftPos = Math.random() * (maxLeft - minLeft) + minLeft;
+                
+                // Xếp bóng thấp, chồng lên nhau ít thôi (tạo cảm giác đống đổ nát thấp)
+                const bottomPos = Math.random() * 80; 
 
                 let zIndex = 15; let extraClass = '';
                 if (Math.random() < 0.4) { zIndex = 5; extraClass = 'back-layer'; } 
@@ -315,15 +330,11 @@
             if(moveInterval) { clearInterval(moveInterval); moveInterval = null; }
         }
 
-        // --- LOGIC GẮP (CÓ CHECK TRÙNG LẶP) ---
+        // --- LOGIC GẮP ---
         function dropClaw() {
             if(fullList.length === 0) return alert("Chưa có danh sách lớp!");
-            
-            // CHECK LOGIC KHÔNG TRÙNG
             if(remaining.length === 0) {
-                if(confirm("Đã gắp hết danh sách! Bạn có muốn Reset lại không?")) {
-                    resetData();
-                }
+                if(confirm("Đã hết danh sách! Reset?")) resetData();
                 return;
             }
 
@@ -331,16 +342,14 @@
             isOperating = true;
             document.getElementById('btnGrab').disabled = true;
 
-            // CHỌN NGƯỜI THẮNG TỪ DANH SÁCH CÒN LẠI (REMAINING)
             const winnerIdx = Math.floor(Math.random() * remaining.length);
             const winner = remaining[winnerIdx];
 
-            // Cập nhật dữ liệu ngay (để tránh lỗi nếu reload giữa chừng)
             remaining.splice(winnerIdx, 1);
             winners.push(winner);
             localStorage.setItem('remainingStudents', JSON.stringify(remaining));
             localStorage.setItem('winnerHistory', JSON.stringify(winners));
-            renderHistory(); // Cập nhật bảng bên phải
+            renderHistory();
 
             const arm = document.getElementById('arm');
             const claw = document.getElementById('claw');
@@ -359,9 +368,9 @@
                         arm.classList.add('lifting'); claw.classList.add('lifting');
                         arm.style.height = '40px';
                         setTimeout(() => {
-                            // 4. Về hố
+                            // 4. Về hố (Transition left bật lại để mượt)
                             arm.style.transition = "height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95), left 1s ease-in-out";
-                            arm.style.left = '12%';
+                            arm.style.left = '12%'; // Vị trí hố
                             setTimeout(() => {
                                 // 5. Thả
                                 claw.classList.remove('closed');
@@ -371,6 +380,7 @@
                                     triggerGachaReveal(winner);
                                     claw.innerHTML = ''; 
                                     arm.classList.remove('lifting'); claw.classList.remove('lifting');
+                                    // Reset transition
                                     setTimeout(() => { arm.style.transition = "height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95)"; }, 1000);
                                 }, 600);
                             }, 1200);
@@ -399,8 +409,7 @@
             
             isOperating = false;
             clawPos = 50; arm.style.left = '50%';
-            // Không cần renderBalls lại cũng được, hoặc render lại để đổi màu bóng cho vui
-            // renderBalls(); 
+            renderBalls(); 
         }
     </script>
 </body>
