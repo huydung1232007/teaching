@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trung Tâm Điều 1</title>
+    <title>Quản Lý Lớp Học - Business</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SheetJS để đọc Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
     <style>
         :root {
-            --bg-body: #f8fafc;
-            --sidebar-bg: #ffffff;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --accent: #2563eb;
+            /* Business Palette */
+            --bg-body: #f1f5f9;       /* Xám rất nhạt */
+            --bg-sidebar: #ffffff;    /* Trắng */
+            --primary: #0f172a;       /* Xanh than đậm */
+            --accent: #2563eb;        /* Xanh dương Business */
             --accent-hover: #1d4ed8;
-            --success: #10b981;
-            --danger: #ef4444;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --border: #e2e8f0;
             --sidebar-width: 300px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,192 +28,171 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body);
-            color: var(--text-primary);
-            height: 100vh; overflow: hidden; display: flex;
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
         }
 
-        /* --- SIDEBAR --- */
+        /* --- 1. LOGIN SCREEN (Màn hình đăng nhập) --- */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .login-card {
+            background: white; padding: 40px; border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; width: 380px;
+        }
+        .login-logo { font-size: 40px; margin-bottom: 10px; }
+        .login-title { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .login-desc { color: var(--text-light); font-size: 13px; margin-bottom: 30px; }
+        
+        .btn-google {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 12px; background: #fff; border: 1px solid var(--border);
+            border-radius: 8px; font-weight: 600; color: var(--text-main); cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+        .spinner {
+            width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 1s linear infinite; margin-top: 20px; display: none;
+        }
+        @keyframes spin { to {transform: rotate(360deg);} }
+
+        /* --- 2. MAIN APP INTERFACE --- */
+        #app-interface {
+            display: flex; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+        }
+        #app-interface.visible { opacity: 1; pointer-events: auto; }
+
+        /* SIDEBAR */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: var(--sidebar-bg);
+            background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column; flex-shrink: 0;
             box-shadow: 4px 0 24px rgba(0,0,0,0.02);
-            z-index: 10;
         }
 
         .brand {
-            padding: 24px; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;
+            padding: 20px; font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
             color: var(--accent); border-bottom: 1px solid var(--border);
             display: flex; align-items: center; gap: 8px;
         }
-        .brand span { font-size: 24px; }
 
         .user-info {
-            padding: 16px 24px; display: flex; align-items: center; gap: 12px;
+            padding: 15px 20px; display: flex; align-items: center; gap: 12px;
             border-bottom: 1px solid var(--border); background: #f8fafc;
         }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #cbd5e1; }
-        .user-name { font-weight: 600; font-size: 14px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;}
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #cbd5e1; object-fit: cover;}
+        .user-name { font-weight: 600; font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
         .btn-logout { 
-            font-size: 12px; color: var(--danger); background: none; border: none; 
-            cursor: pointer; margin-left: auto; font-weight: 500; 
+            font-size: 11px; color: var(--danger); background: none; border: 1px solid var(--border);
+            padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: auto; font-weight: 600; 
         }
-        .btn-logout:hover { text-decoration: underline; }
+        .btn-logout:hover { background: #fee2e2; border-color: #fca5a5; }
 
-        .sidebar-content { flex: 1; overflow-y: auto; padding: 24px; }
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px; }
 
         /* Status Card */
         .status-card {
-            background: var(--accent); color: white;
-            border-radius: 12px; padding: 20px;
-            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
-            margin-bottom: 32px;
+            background: var(--primary); color: white;
+            border-radius: 12px; padding: 15px;
+            box-shadow: var(--shadow); margin-bottom: 25px;
         }
-        .st-label { font-size: 11px; text-transform: uppercase; opacity: 0.8; letter-spacing: 0.5px; font-weight: 600; }
-        .st-name { font-size: 18px; font-weight: 700; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .st-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-        .btn-reset { 
-            background: rgba(255,255,255,0.2); border: none; color: white; 
-            padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;
-            transition: 0.2s;
+        .st-label { font-size: 10px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; font-weight: 600; }
+        .st-name { font-size: 16px; font-weight: 700; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .st-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .btn-reset-mini { 
+            background: rgba(255,255,255,0.15); border: none; color: white; 
+            padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600;
         }
-        .btn-reset:hover { background: rgba(255,255,255,0.3); }
+        .btn-reset-mini:hover { background: rgba(255,255,255,0.3); }
 
-        /* List Classes */
-        .list-title { 
-            font-size: 12px; font-weight: 700; color: var(--text-secondary); 
-            text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;
-        }
+        /* Class List */
+        .list-header { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-light); margin-bottom: 10px; display: flex; justify-content: space-between; }
         .class-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s;
-            margin-bottom: 4px; border: 1px solid transparent; color: var(--text-secondary);
+            margin-bottom: 4px; border: 1px solid transparent; color: var(--text-main); font-size: 13px;
         }
-        .class-item:hover { background: #f1f5f9; color: var(--text-primary); }
+        .class-item:hover { background: #f1f5f9; border-color: var(--border); }
         .class-item.active { background: #eff6ff; color: var(--accent); border-color: #dbeafe; font-weight: 600; }
         
-        .action-icon { padding: 4px; border-radius: 4px; transition: 0.2s; opacity: 0.6; }
+        .action-icon { padding: 4px; border-radius: 4px; transition: 0.2s; opacity: 0.5; font-size: 14px; }
         .action-icon:hover { background: #fff; opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         /* Add Form */
-        .add-section { border-top: 1px solid var(--border); padding-top: 20px; margin-top: auto; }
+        .add-section { border-top: 1px solid var(--border); padding-top: 15px; margin-top: auto; }
         .add-toggle {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; background: #f8fafc; border: 1px solid var(--border);
-            border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;
+            padding: 10px; background: #f8fafc; border: 1px solid var(--border);
+            border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px;
             color: var(--text-primary); transition: 0.2s;
         }
-        .add-toggle:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .add-toggle:hover { background: #f1f5f9; }
         
         .form-body {
             max-height: 0; overflow: hidden; transition: all 0.3s ease;
             background: #fff; border-radius: 0 0 8px 8px; border: 1px solid var(--border); border-top: none;
         }
-        .form-body.open { max-height: 600px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .form-body.open { max-height: 500px; padding: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         input, textarea {
-            width: 100%; padding: 10px; border: 1px solid var(--border);
-            border-radius: 6px; font-family: inherit; font-size: 13px; color: var(--text-primary);
-            background: #fff; margin-bottom: 10px; transition: 0.2s;
+            width: 100%; padding: 8px; border: 1px solid var(--border);
+            border-radius: 6px; font-family: inherit; font-size: 12px; color: var(--text-primary);
+            background: #fff; margin-bottom: 8px; transition: 0.2s;
         }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        textarea { height: 100px; resize: none; }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        textarea { height: 80px; resize: none; }
         
-        .btn-group { display: flex; gap: 8px; margin-top: 5px; }
         .btn-save { 
-            flex: 2; background: var(--text-primary); color: white; 
-            padding: 10px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
+            width: 100%; background: var(--primary); color: white; 
+            padding: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 12px;
         }
-        .btn-save:hover { background: #000; }
-        .btn-config {
-            flex: 1; background: #e2e8f0; color: var(--text-primary);
-            padding: 10px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;
-        }
-        .btn-config:hover { background: #cbd5e1; }
-
-        .excel-btn { font-size: 12px; color: var(--success); cursor: pointer; font-weight: 600; float: right; margin-bottom: 4px; }
+        .btn-save:hover { background: #334155; }
+        .excel-btn { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; float: right; margin-bottom: 4px; }
 
         /* --- MAIN CONTENT --- */
         .main-content {
-            flex: 1; padding: 48px; overflow-y: auto;
+            flex: 1; padding: 40px; overflow-y: auto;
             background-color: var(--bg-body);
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 30px 30px;
         }
         
-        .header h1 { font-size: 32px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -1px; }
-        .header p { color: var(--text-secondary); font-size: 16px; margin-bottom: 40px; }
+        .header h1 { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 5px; letter-spacing: -0.5px; }
+        .header p { color: var(--text-light); font-size: 14px; margin-bottom: 30px; }
 
-        .game-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px;
-        }
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
 
         .game-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 16px; padding: 32px 24px;
+            border-radius: 12px; padding: 25px;
             text-align: center; text-decoration: none;
             transition: all 0.3s ease;
             display: flex; flex-direction: column; align-items: center;
+            box-shadow: var(--shadow);
         }
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.08);
-            border-color: var(--accent);
-        }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
         
-        .g-icon { font-size: 48px; margin-bottom: 16px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-        .g-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-        .g-desc { font-size: 13px; color: var(--text-secondary); }
+        .g-icon { font-size: 40px; margin-bottom: 15px; }
+        .g-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+        .g-desc { font-size: 12px; color: var(--text-light); }
 
-        /* --- MODAL CẤU HÌNH TỈ LỆ --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 2000;
-            display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-overlay.active { display: flex; }
+        /* Helpers */
+        .hidden { display: none !important; }
         
-        .config-modal {
-            width: 500px; max-height: 80vh;
-            background: white; border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            display: flex; flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .modal-header {
-            padding: 20px 24px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            background: #f8fafc;
-        }
-        .modal-title { font-weight: 700; font-size: 16px; color: var(--text-primary); }
-        
-        .modal-body { padding: 0; overflow-y: auto; flex: 1; }
-        
-        .config-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        .config-table th { 
-            text-align: left; padding: 12px 24px; background: #f1f5f9; 
-            color: var(--text-secondary); font-weight: 600; position: sticky; top: 0;
-        }
-        .config-table td { padding: 10px 24px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
-        
-        .weight-input {
-            width: 60px; padding: 6px; text-align: center; margin: 0;
-            border: 1px solid var(--border); border-radius: 4px;
-        }
-        .weight-input:focus { border-color: var(--accent); }
-
-        .modal-footer {
-            padding: 16px 24px; border-top: 1px solid var(--border);
-            display: flex; justify-content: flex-end; gap: 10px; background: white;
-        }
-        
-        .btn-cancel { padding: 8px 16px; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--text-secondary); }
-        .btn-confirm { padding: 8px 16px; border: none; background: var(--text-primary); border-radius: 6px; cursor: pointer; font-weight: 600; color: white; }
-
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
 
@@ -220,115 +201,83 @@
 </head>
 <body>
 
-    <!-- MODAL CẤU HÌNH TỈ LỆ -->
-    <div class="modal-overlay" id="configModal">
-        <div class="config-modal">
-            <div class="modal-header">
-                <div class="modal-title">⚙️ Cấu Hình Tỉ Lệ (Số Phiếu)</div>
-                <button onclick="closeConfig()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#64748b">&times;</button>
-            </div>
-            <div class="modal-body">
-                <table class="config-table">
-                    <thead>
-                        <tr>
-                            <th>Học Sinh</th>
-                            <th style="width: 100px; text-align: center;">Số Phiếu</th>
-                        </tr>
-                    </thead>
-                    <tbody id="configTableBody"></tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <div style="margin-right:auto; font-size:12px; color:#64748b">
-                    *Mặc định 1 phiếu. Nhập 0 để bỏ qua.
-                </div>
-                <button class="btn-cancel" onclick="closeConfig()">Hủy</button>
-                <button class="btn-confirm" onclick="saveConfigAndClose()">Xác nhận</button>
-            </div>
+    <!-- 1. MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="login-logo">🎓</div>
+            <div class="login-title">Class Manager</div>
+            <div class="login-desc">Hệ thống quản lý lớp học & trò chơi ngẫu nhiên</div>
+            
+            <button class="btn-google" onclick="loginGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+                <span>Tiếp tục với Google</span>
+            </button>
+            <div class="spinner" id="loginSpinner"></div>
         </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="brand"><span>💠</span> Class Manager</div>
-        <div class="user-info" id="userInfo">Đang tải...</div>
+    <!-- 2. GIAO DIỆN CHÍNH (Ẩn mặc định) -->
+    <div id="app-interface">
         
-        <div class="sidebar-scroll">
-            <div class="status-card">
-                <div class="st-label">Active Class</div>
-                <div class="st-name" id="currentClassName">Chưa chọn lớp</div>
-                <div class="st-actions">
-                    <span id="studentCount" style="font-size:13px; opacity:0.9">0 học sinh</span>
-                    <button class="btn-reset" onclick="resetCurrentProgress()">Reset</button>
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="brand"><span>💠</span> Class Manager</div>
+            
+            <!-- User Info (Được điền bởi JS) -->
+            <div class="user-info" id="userInfo"></div>
+            
+            <div class="sidebar-scroll">
+                <div class="status-card">
+                    <div class="st-label">Lớp đang chọn</div>
+                    <div class="st-name" id="currentClassName">Chưa chọn</div>
+                    <div class="st-actions">
+                        <span id="studentCount" style="font-size:12px; opacity:0.9">0 học sinh</span>
+                        <button class="btn-reset-mini" onclick="resetCurrentProgress()">↺ Reset</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="list-title">Danh sách lớp học</div>
-            <div id="savedListContainer"></div>
+                <div class="list-header"><span>Danh sách lớp</span><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; color:var(--primary)" id="totalClasses">0</span></div>
+                <div id="savedListContainer"></div>
 
-            <div class="add-section">
-                <div class="add-toggle" onclick="toggleForm()">
-                    <span>+ Thêm lớp mới</span><span>▼</span>
-                </div>
-                <div class="form-body" id="formContent">
-                    <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
-                    <div style="overflow:hidden"><label for="excelInput" class="excel-btn">📂 Nhập Excel</label><input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)"></div>
-                    <textarea id="inputStudentList" placeholder="Dán danh sách học sinh vào đây..."></textarea>
-                    
-                    <div class="btn-group">
-                        <button class="btn-config" onclick="openConfig()" title="Chỉnh tỉ lệ">⚙️ Tỉ Lệ</button>
-                        <button class="btn-save" onclick="saveNewList()">Lưu Lớp</button>
+                <div class="add-section">
+                    <div class="add-toggle" onclick="toggleForm()">
+                        <span>+ Thêm lớp mới</span><span>▼</span>
+                    </div>
+                    <div class="form-body" id="formContent">
+                        <input type="text" id="inputClassName" placeholder="Tên lớp (VD: 12A1)">
+                        <div style="overflow:hidden"><label for="excelInput" class="excel-trigger">📂 Nhập Excel</label><input type="file" id="excelInput" hidden accept=".xlsx, .xls" onchange="importExcel(this)"></div>
+                        <textarea id="inputStudentList" placeholder="Dán danh sách học sinh vào đây..."></textarea>
+                        <button class="btn-save" onclick="saveNewList()">Lưu Lớp Học</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- MAIN -->
-    <div class="main-content">
-        <div class="header">
-            <h1>Trung Tâm Điều Khiển</h1>
-            <p>Chọn công cụ để bắt đầu phiên làm việc.</p>
-        </div>
+        <!-- MAIN -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Trung Tâm Điều Khiển</h1>
+                <p>Chọn công cụ để bắt đầu phiên làm việc.</p>
+            </div>
 
-        <div class="game-grid">
-            <a href="lat-bai.html" class="game-card">
-                <div class="g-icon">🃏</div>
-                <div class="g-title">Lật Bài</div>
-                <div class="g-desc">Tìm người may mắn ngẫu nhiên</div>
-            </a>
-            <a href="cao-ve.html" class="game-card">
-                <div class="g-icon">🎫</div>
-                <div class="g-title">Vé Cào VIP</div>
-                <div class="g-desc">Mô phỏng vé số cào trúng thưởng</div>
-            </a>
-            <a href="rut-que.html" class="game-card">
-                <div class="g-icon">⛩️</div>
-                <div class="g-title">Xin Xăm</div>
-                <div class="g-desc">Rút quẻ ống tre cổ điển</div>
-            </a>
-            <a href="vong-quay.html" class="game-card">
-                <div class="g-icon">🎡</div>
-                <div class="g-title">Vòng Quay</div>
-                <div class="g-desc">Quay số công bằng, trực quan</div>
-            </a>
-            <a href="bong-bong.html" class="game-card">
-                <div class="g-icon">🎈</div>
-                <div class="g-title">Bong Bóng</div>
-                <div class="g-desc">Hiệu ứng nổ bóng bay giải trí</div>
-            </a>
+            <div class="game-grid">
+                <a href="lat-bai.html" class="game-card"><div class="g-icon">🃏</div><div class="g-title">Lật Bài</div><div class="g-desc">Tìm người may mắn bí ẩn</div></a>
+                <a href="cao-ve.html" class="game-card"><div class="g-icon">🎫</div><div class="g-title">Vé Cào VIP</div><div class="g-desc">Mô phỏng xổ số cào</div></a>
+                <a href="rut-que.html" class="game-card"><div class="g-icon">⛩️</div><div class="g-title">Xin Xăm</div><div class="g-desc">Rút quẻ ống tre cổ điển</div></a>
+                <a href="vong-quay.html" class="game-card"><div class="g-icon">🎡</div><div class="g-title">Vòng Quay</div><div class="g-desc">Quay số trúng thưởng</div></a>
+                <a href="bong-bong.html" class="game-card"><div class="g-icon">🎈</div><div class="g-title">Bong Bóng</div><div class="g-desc">Hiệu ứng nổ bóng</div></a>
+                <a href="keobuabao.html" class="game-card"><div class="g-icon">🥊</div><div class="g-title">Kéo Búa Bao</div><div class="g-desc">Đấu đối kháng BO3</div></a>
+            </div>
         </div>
     </div>
 
     <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ============================================
-        // ⚠️ GIỮ NGUYÊN CONFIG CỦA BẠN ⚠️
-        // ============================================
+        // ⚠️ DÁN CONFIG FIREBASE Ở ĐÂY ⚠️
         const firebaseConfig = {
             apiKey: "AIzaSyB4srC1-upuI0WoksYZLIMSbAp06G8KL0g",
             authDomain: "random-3faa8.firebaseapp.com",
@@ -342,14 +291,41 @@
         let app, auth, db, user = null;
         try { app=initializeApp(firebaseConfig); auth=getAuth(app); db=getFirestore(app); } catch(e){}
 
+        const loginScreen = document.getElementById('login-screen');
+        const appInterface = document.getElementById('app-interface');
+        const loginSpinner = document.getElementById('loginSpinner');
+
         if(auth) {
             onAuthStateChanged(auth, async (u) => {
-                if (u) { user=u; updateUserInfo(u); await syncData(); } 
-                else window.location.href = "login.html";
+                if (u) { 
+                    user=u; 
+                    updateUserInfo(u); 
+                    await syncData(); 
+                    
+                    // Chuyển màn hình
+                    loginScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loginScreen.classList.add('hidden');
+                        appInterface.classList.add('visible');
+                    }, 500);
+                } else {
+                    loginScreen.classList.remove('hidden');
+                    loginScreen.style.opacity = '1';
+                    appInterface.classList.remove('visible');
+                }
             });
-        } else { renderSavedLists(); loadActiveStatus(); } 
+        }
 
-        window.logoutGoogle = () => signOut(auth).then(()=>window.location.href="login.html");
+        window.loginGoogle = () => {
+            loginSpinner.style.display = 'block';
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch((error) => {
+                alert(error.message);
+                loginSpinner.style.display = 'none';
+            });
+        };
+
+        window.logoutGoogle = () => signOut(auth).then(()=>location.reload());
         
         function updateUserInfo(u) { 
             document.getElementById('userInfo').innerHTML = `
@@ -357,95 +333,51 @@
                 <div style="flex:1; overflow:hidden">
                     <div class="user-name">${u.displayName || u.email}</div>
                 </div>
-                <button class="btn-logout" onclick="logoutGoogle()">Thoát</button>
+                <button class="btn-logout" onclick="logoutGoogle()">Đăng xuất</button>
             `; 
         }
 
         async function syncData() { 
-            try {
+            try{
                 const d=await getDoc(doc(db,"users",user.uid)); 
-                if(d.exists()) {
-                    const cloudData = d.data();
-                    localStorage.setItem('savedClasses', JSON.stringify(cloudData.savedClasses || {}));
-                    localStorage.setItem('savedWeights', JSON.stringify(cloudData.savedWeights || {}));
-                }
+                if(d.exists()) localStorage.setItem('savedClasses',JSON.stringify(d.data().savedClasses)); 
                 renderSavedLists(); loadActiveStatus();
-            } catch(e){} 
+            }catch(e){console.error(e);} 
         }
         
         async function pushData() { 
             if(user) {
-                const classes = JSON.parse(localStorage.getItem('savedClasses')||'{}');
-                const weights = JSON.parse(localStorage.getItem('savedWeights')||'{}');
-                await setDoc(doc(db,"users",user.uid), { savedClasses: classes, savedWeights: weights }, {merge:true});
+                const data = JSON.parse(localStorage.getItem('savedClasses')||'{}');
+                await setDoc(doc(db,"users",user.uid),{
+                    savedClasses: data,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    lastUpdated: new Date()
+                },{merge:true}); 
             }
         }
 
-        // --- CẤU HÌNH TỈ LỆ ---
-        let tempWeights = {}; // Biến tạm
-
-        window.openConfig = () => {
-            const raw = document.getElementById('inputStudentList').value.trim();
-            if(!raw) return alert("Vui lòng nhập danh sách tên trước!");
-            
-            const list = raw.split('\n').filter(n=>n.trim()!=='');
-            const tableBody = document.getElementById('configTableBody');
-            tableBody.innerHTML = '';
-            
-            list.forEach(name => {
-                const safeName = name.trim();
-                const val = tempWeights[safeName] || 1; 
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${safeName}</td>
-                    <td style="text-align:center;">
-                        <input type="number" min="0" max="100" class="weight-input" 
-                               data-name="${safeName}" value="${val}">
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-
-            document.getElementById('configModal').classList.add('active');
-        };
-
-        window.closeConfig = () => {
-            document.getElementById('configModal').classList.remove('active');
-        };
-
-        window.saveConfigAndClose = () => {
-            const inputs = document.querySelectorAll('.weight-input');
-            tempWeights = {}; 
-            inputs.forEach(inp => {
-                const name = inp.getAttribute('data-name');
-                const val = parseInt(inp.value);
-                if(val >= 0) tempWeights[name] = val; // Chấp nhận cả 0
-            });
-            closeConfig();
-        };
-
-        function generateWeightedList(listStr, weightsObj) {
-            const arr = listStr.split('\n').filter(n=>n.trim()!=='');
-            let weightedArr = [];
-            arr.forEach(name => {
-                const n = name.trim();
-                const weight = (weightsObj && weightsObj[n] !== undefined) ? weightsObj[n] : 1; 
-                for(let i=0; i<weight; i++) weightedArr.push(n);
-            });
-            return weightedArr.sort(() => 0.5 - Math.random());
-        }
-
-        // --- LOGIC GIAO DIỆN ---
+        // Logic UI (Đã sửa lỗi click khung class)
         window.renderSavedLists = () => {
             const data=JSON.parse(localStorage.getItem('savedClasses')||'{}'), c=document.getElementById('savedListContainer'), cur=localStorage.getItem('currentClassName');
             c.innerHTML=''; 
-            if(Object.keys(data).length===0) return c.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:13px;margin-top:20px">Danh sách trống</div>';
+            const keys = Object.keys(data);
+            document.getElementById('totalClasses').innerText = keys.length;
+
+            if(keys.length===0) return c.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:13px;margin-top:20px">Danh sách trống</div>';
+            
             for(const [n,l] of Object.entries(data)) {
                 const div=document.createElement('div'); div.className=`class-item ${n===cur?'active':''}`;
-                // Fix lỗi click vùng trống
-                div.onclick=(e)=>{ if(!e.target.closest('.action-icon')) selectClass(n); };
-                div.innerHTML=`<span style="font-weight:500">${n}</span><div><span class="action-icon" onclick="editClass('${n}')">✎</span><span class="action-icon" onclick="deleteClass('${n}')" style="color:#ef4444">✕</span></div>`;
+                // Fix lỗi click: Bấm vào div sẽ chọn lớp, trừ khi bấm vào nút xóa/sửa
+                div.onclick=(e)=>{if(!e.target.closest('.action-icon')) selectClass(n)};
+                
+                div.innerHTML=`
+                    <span class="c-name">${n}</span>
+                    <div style="display:flex; gap:8px">
+                        <span class="action-icon" onclick="editClass('${n}')">✎</span>
+                        <span class="action-icon" onclick="deleteClass('${n}')" style="color:#ef4444">✕</span>
+                    </div>`;
                 c.appendChild(div);
             }
         };
@@ -453,85 +385,33 @@
         window.saveNewList = () => {
             const n=document.getElementById('inputClassName').value.trim(), l=document.getElementById('inputStudentList').value.trim();
             if(!n||!l) return alert("Thiếu thông tin!");
-            
             const data=JSON.parse(localStorage.getItem('savedClasses')||'{}');
-            const weights=JSON.parse(localStorage.getItem('savedWeights')||'{}');
-
-            if(data[n] && !confirm(`Lớp "${n}" đã có. Ghi đè?`)) return;
-
-            data[n]=l;
-            weights[n] = tempWeights; // Lưu cấu hình
-
-            localStorage.setItem('savedClasses',JSON.stringify(data));
-            localStorage.setItem('savedWeights',JSON.stringify(weights));
-            pushData();
-
+            if(data[n] && !confirm("Ghi đè lớp này?")) return;
+            data[n]=l; localStorage.setItem('savedClasses',JSON.stringify(data)); pushData();
             document.getElementById('inputClassName').value=''; document.getElementById('inputStudentList').value='';
-            tempWeights = {}; // Reset temp
-            
             renderSavedLists(); selectClass(n); window.toggleForm();
         };
 
         window.selectClass=(n)=>{
             const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');
-            const w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
-            
-            if(d[n]){
-                localStorage.setItem('classStudents',d[n]);
-                localStorage.setItem('currentClassName',n);
-                
-                // Tạo danh sách dựa trên trọng số
-                const weightedList = generateWeightedList(d[n], w[n]);
-                localStorage.setItem('remainingStudents',JSON.stringify(weightedList));
-                
-                loadActiveStatus(); renderSavedLists();
-            }
+            if(d[n]){localStorage.setItem('classStudents',d[n]);localStorage.setItem('currentClassName',n);localStorage.setItem('remainingStudents',JSON.stringify(d[n].split('\n').filter(x=>x.trim())));loadActiveStatus();renderSavedLists();}
         };
 
         window.deleteClass=(n)=>{
-            if(!confirm("Xóa?"))return; 
-            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');
-            const w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
-            delete d[n]; delete w[n];
-            localStorage.setItem('savedClasses',JSON.stringify(d));
-            localStorage.setItem('savedWeights',JSON.stringify(w));
-            pushData();
-            if(localStorage.getItem('currentClassName')===n){localStorage.removeItem('currentClassName');localStorage.removeItem('classStudents'); localStorage.removeItem('remainingStudents');} 
-            renderSavedLists(); loadActiveStatus();
+            if(!confirm("Xóa lớp này?"))return; const d=JSON.parse(localStorage.getItem('savedClasses')||'{}'); delete d[n]; localStorage.setItem('savedClasses',JSON.stringify(d)); pushData();
+            if(localStorage.getItem('currentClassName')===n){localStorage.removeItem('currentClassName');localStorage.removeItem('classStudents');} renderSavedLists(); loadActiveStatus();
         };
 
-        window.editClass=(n)=>{
-            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');
-            const w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
-            if(d[n]){
-                document.getElementById('inputClassName').value=n;
-                document.getElementById('inputStudentList').value=d[n];
-                tempWeights = w[n] || {}; // Load weights cũ
-                window.toggleForm(true);
-            }
-        };
-
+        window.editClass=(n)=>{const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');if(d[n]){document.getElementById('inputClassName').value=n;document.getElementById('inputStudentList').value=d[n];window.toggleForm(true);}};
+        
         window.loadActiveStatus=()=>{
-            const n=localStorage.getItem('currentClassName'), list=localStorage.getItem('remainingStudents');
-            if(n&&list){
-                const arr = JSON.parse(list);
-                document.getElementById('currentClassName').innerText=n;
-                document.getElementById('studentCount').innerText=`${arr.length} phiếu trong thùng`;
-            }
+            const n=localStorage.getItem('currentClassName'), l=localStorage.getItem('classStudents');
+            if(n&&l){document.getElementById('currentClassName').innerText=n;document.getElementById('studentCount').innerText=`${l.split('\n').filter(x=>x.trim()).length} học sinh`;}
             else{document.getElementById('currentClassName').innerText="Chưa chọn";document.getElementById('studentCount').innerText="--";}
         };
 
         window.resetCurrentProgress=()=>{
-            const n=localStorage.getItem('currentClassName'); if(!n)return; 
-            const d=JSON.parse(localStorage.getItem('savedClasses')||'{}');
-            const w=JSON.parse(localStorage.getItem('savedWeights')||'{}');
-            
-            if(confirm("Reset danh sách gọi?")){
-                const weightedList = generateWeightedList(d[n], w[n]);
-                localStorage.setItem('remainingStudents',JSON.stringify(weightedList));
-                loadActiveStatus();
-                alert("Đã reset!");
-            }
+            const l=localStorage.getItem('classStudents'); if(!l)return; if(confirm("Reset gọi tên?")){localStorage.setItem('remainingStudents',JSON.stringify(l.split('\n').filter(x=>x.trim())));alert("Đã reset!");}
         };
 
         window.toggleForm=(o)=>{const b=document.getElementById('formContent'); if(o)b.classList.add('open'); else b.classList.toggle('open');};
@@ -552,4 +432,3 @@
     </script>
 </body>
 </html>
-
