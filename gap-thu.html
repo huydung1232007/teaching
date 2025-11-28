@@ -3,95 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gắp Thú Business VIP - 30 Balls</title>
+    <title>Gắp Thú Realistic Physics VIP 1</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700;900&family=Great+Vibes&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f8fafc;
-            --navy: #1e293b;
-            --gold: #d4af37;
-            --machine-bg: #ffffff;
-            
-            /* Layer Config */
-            --z-ball-back: 5;    
-            --z-claw-down: 20;   
-            --z-ball-front: 30;  
-            --z-claw-up: 50;     
+            --bg: #f8fafc; --navy: #1e293b; --gold: #d4af37; --machine-bg: #ffffff;
+            --z-ball-back: 5; --z-claw-down: 20; --z-ball-front: 30; --z-claw-up: 50;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 30px 30px;
-            overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; margin: 0;
-            user-select: none;
-        }
-        
-        .back-btn {
-            position: absolute; top: 20px; left: 20px;
-            padding: 10px 25px; background: white; border: 2px solid var(--gold);
-            border-radius: 30px; text-decoration: none; color: var(--gold);
-            font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); z-index: 100;
-        }
-
-        /* --- BẢNG LỊCH SỬ --- */
-        .history-box {
-            position: absolute; top: 20px; right: 20px;
-            width: 260px; height: 400px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid var(--navy); border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; z-index: 100;
-            overflow: hidden; backdrop-filter: blur(5px);
-        }
-        .history-header {
-            background: var(--navy); color: var(--gold);
-            padding: 15px; text-align: center; font-family: 'Playfair Display', serif;
-            font-weight: 700; letter-spacing: 1px; font-size: 14px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .history-list {
-            flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0;
-        }
-        .history-item {
-            padding: 10px; border-bottom: 1px dashed #cbd5e1;
-            font-size: 13px; font-weight: 600; color: var(--navy);
-            display: flex; align-items: center; gap: 10px;
-            animation: fadeIn 0.5s ease;
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 30px 30px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; user-select: none; }
+        .back-btn { position: absolute; top: 20px; left: 20px; padding: 10px 25px; background: white; border: 2px solid var(--gold); border-radius: 30px; text-decoration: none; color: var(--gold); font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.05); z-index: 100; }
+        .history-box { position: absolute; top: 20px; right: 20px; width: 260px; height: 400px; background: rgba(255, 255, 255, 0.95); border: 2px solid var(--navy); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; z-index: 100; overflow: hidden; backdrop-filter: blur(5px); }
+        .history-header { background: var(--navy); color: var(--gold); padding: 15px; text-align: center; font-family: 'Playfair Display', serif; font-weight: 700; letter-spacing: 1px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .history-list { flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0; }
+        .history-item { padding: 10px; border-bottom: 1px dashed #cbd5e1; font-size: 13px; font-weight: 600; color: var(--navy); display: flex; align-items: center; gap: 10px; animation: fadeIn 0.5s ease; }
         .history-item::before { content: "★"; color: var(--gold); font-size: 10px; }
-        .btn-reset-data {
-            background: transparent; border: 1px solid var(--gold); color: var(--gold);
-            font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold;
-        }
+        .btn-reset-data { background: transparent; border: 1px solid var(--gold); color: var(--gold); font-size: 10px; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-reset-data:hover { background: var(--gold); color: var(--navy); }
-
         h1 { font-family: 'Playfair Display'; color: var(--navy); font-size: 45px; margin-bottom: 20px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-        /* --- MÁY GẮP --- */
-        .machine-wrapper {
-            position: relative; width: 500px; height: 600px;
-            background: var(--machine-bg);
-            border: 4px solid var(--navy); border-radius: 30px 30px 10px 10px;
-            box-shadow: 0 30px 60px -10px rgba(0,0,0,0.2);
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-
-        .machine-roof {
-            height: 60px; background: var(--navy);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold); font-weight: 900; letter-spacing: 4px; font-size: 20px;
-            border-bottom: 4px solid var(--gold);
-        }
-
-        .glass-area {
-            flex: 1; position: relative; overflow: hidden;
-            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.8) 70%, rgba(200,200,200,0.5) 100%);
-        }
-        
+        .machine-wrapper { position: relative; width: 500px; height: 600px; background: var(--machine-bg); border: 4px solid var(--navy); border-radius: 30px 30px 10px 10px; box-shadow: 0 30px 60px -10px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
+        .machine-roof { height: 60px; background: var(--navy); display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 900; letter-spacing: 4px; font-size: 20px; border-bottom: 4px solid var(--gold); }
+        .glass-area { flex: 1; position: relative; overflow: hidden; background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.8) 70%, rgba(200,200,200,0.5) 100%); }
         .rail { position: absolute; top: 10px; left: 20px; right: 20px; height: 8px; background: #94a3b8; border-radius: 4px; z-index: 2; }
         
         .arm-rope {
@@ -99,52 +30,34 @@
             background: var(--navy); transform: translateX(-50%);
             transition: height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95);
             z-index: var(--z-claw-down); 
+            transform-origin: top center; /* Để lắc lư từ trên đỉnh */
         }
 
-        .claw-body {
-            position: absolute; bottom: -45px; left: -22px; width: 48px; height: 48px;
-            background-image: url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L12 6M12 6C12 6 5 7 3 13C1 19 4 21 4 21M12 6C12 6 19 7 21 13C23 19 20 21 20 21' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='5' r='2' fill='%231e293b'/%3E%3C/svg%3E");
-            background-size: cover; transition: transform 0.3s;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-            z-index: var(--z-claw-down);
+        /* --- HIỆU ỨNG RUNG LẮC KHI GẮP --- */
+        @keyframes wobble {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-50%) rotate(3deg); }
+            50% { transform: translateX(-50%) rotate(-3deg); }
+            75% { transform: translateX(-50%) rotate(2deg); }
         }
+        .arm-rope.wobbling {
+            animation: wobble 0.8s ease-in-out infinite;
+        }
+
+        .claw-body { position: absolute; bottom: -45px; left: -22px; width: 48px; height: 48px; background-image: url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L12 6M12 6C12 6 5 7 3 13C1 19 4 21 4 21M12 6C12 6 19 7 21 13C23 19 20 21 20 21' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='5' r='2' fill='%231e293b'/%3E%3C/svg%3E"); background-size: cover; transition: transform 0.3s; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); z-index: var(--z-claw-down); }
         .claw-body.closed { transform: scale(0.85); }
         .arm-rope.lifting, .claw-body.lifting { z-index: var(--z-claw-up) !important; }
-
-        /* HỐ ĐEN NHỎ */
-        .prize-chute {
-            position: absolute; bottom: 0; left: 10px; 
-            width: 70px; height: 100px; 
-            background: #334155; border: 2px solid var(--gold); border-radius: 10px 10px 0 0;
-            z-index: 100; box-shadow: inset 0 10px 30px rgba(0,0,0,0.6);
-        }
-
-        .pit-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 200px;
-            z-index: 0; pointer-events: none;
-        }
-        
-        .ball {
-            position: absolute; width: 45px; height: 45px; border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 2px 5px 10px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.5s;
-        }
+        .prize-chute { position: absolute; bottom: 0; left: 10px; width: 70px; height: 100px; background: #334155; border: 2px solid var(--gold); border-radius: 10px 10px 0 0; z-index: 100; box-shadow: inset 0 10px 30px rgba(0,0,0,0.6); }
+        .pit-area { position: absolute; bottom: 0; left: 0; width: 100%; height: 200px; z-index: 0; pointer-events: none; }
+        .ball { position: absolute; width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 2px 5px 10px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; transition: opacity 0.3s; }
         .ball.blue { background: radial-gradient(circle at 30% 30%, #93c5fd, #2563eb); }
         .ball.red { background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626); }
         .ball.gold { background: radial-gradient(circle at 30% 30%, #fde047, #d97706); }
-        
         .ball.back-layer { filter: brightness(0.85); z-index: var(--z-ball-back); }
         .ball.front-layer { z-index: var(--z-ball-front); }
         .ball.caught { position: absolute; bottom: -20px; left: -3px; z-index: var(--z-claw-up); transition: none; filter: brightness(1.2); }
 
-        /* --- BẢNG ĐIỀU KHIỂN --- */
-        .control-panel {
-            height: 140px; background: #e2e8f0; border-top: 1px solid #cbd5e1;
-            display: flex; align-items: center; justify-content: center;
-            gap: 40px;
-        }
+        .control-panel { height: 140px; background: #e2e8f0; border-top: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 40px; }
         .joystick-zone { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
         .joystick-base { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(145deg, #94a3b8, #cbd5e1); border: 2px solid #64748b; box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative; z-index: 1; }
         .joystick-stick { width: 16px; height: 50px; background: linear-gradient(90deg, #cbd5e1, #64748b); position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; transform: translateX(-50%) rotate(0deg); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2; pointer-events: none; }
@@ -179,49 +92,31 @@
 <body>
     <a href="index.html" class="back-btn">⬅ Trang Chủ</a>
     <h1>Interactive Claw</h1>
-    
     <div class="history-box">
-        <div class="history-header">
-            <span>DANH SÁCH ĐÃ GẮP</span>
-            <button class="btn-reset-data" onclick="resetData()">RESET</button>
-        </div>
-        <ul class="history-list" id="winnerList">
-            </ul>
+        <div class="history-header"><span>DANH SÁCH ĐÃ GẮP</span><button class="btn-reset-data" onclick="resetData()">RESET</button></div>
+        <ul class="history-list" id="winnerList"></ul>
     </div>
-
     <div class="machine-wrapper">
         <div class="machine-roof">VIP JACKPOT</div>
         <div class="glass-area">
             <div class="rail"></div>
-            <div class="arm-rope" id="arm">
-                <div class="claw-body" id="claw"></div>
-            </div>
+            <div class="arm-rope" id="arm"><div class="claw-body" id="claw"></div></div>
             <div class="prize-chute"></div>
             <div class="pit-area" id="pit"></div>
         </div>
-        
         <div class="control-panel">
             <div class="joystick-zone" id="joystickZone">
                 <div class="joystick-base"></div>
                 <div class="joystick-stick"><div class="joystick-knob"></div></div>
-                <div class="joy-trigger left" 
-                     onmousedown="startMove(-1)" onmouseup="stopMove()" onmouseleave="stopMove()"
-                     ontouchstart="startMove(-1)" ontouchend="stopMove()"></div>
-                <div class="joy-trigger right" 
-                     onmousedown="startMove(1)" onmouseup="stopMove()" onmouseleave="stopMove()"
-                     ontouchstart="startMove(1)" ontouchend="stopMove()"></div>
+                <div class="joy-trigger left" onmousedown="startMove(-1)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove(-1)" ontouchend="stopMove()"></div>
+                <div class="joy-trigger right" onmousedown="startMove(1)" onmouseup="stopMove()" onmouseleave="stopMove()" ontouchstart="startMove(1)" ontouchend="stopMove()"></div>
             </div>
-
-            <div class="grab-btn-wrapper">
-                <button class="grab-btn" id="btnGrab" onclick="dropClaw()">GẮP</button>
-            </div>
+            <div class="grab-btn-wrapper"><button class="grab-btn" id="btnGrab" onclick="dropClaw()">GẮP</button></div>
         </div>
     </div>
-
     <div class="gacha-overlay" id="overlay">
         <div class="gacha-capsule" id="capsule">
-            <div class="half top"></div>
-            <div class="half bottom"></div>
+            <div class="half top"></div><div class="half bottom"></div>
             <div class="royal-scroll">
                 <div class="seal">VIP</div>
                 <div class="winner-title">Người Chiến Thắng Là</div>
@@ -232,7 +127,11 @@
     </div>
 
     <script>
-        // --- LOGIC DỮ LIỆU ---
+        // --- CẤU HÌNH VẬT LÝ CHÍNH XÁC ---
+        const FLOOR_DEPTH = 460; // Độ sâu tối đa chạm sàn
+        const GRAB_TOLERANCE = 6; // Giảm xuống còn 6% (chỉ gắp bóng nằm gần tâm càng)
+        const CLAW_OFFSET = 35;   // Khoảng cách từ tâm bóng lên tâm càng
+
         let fullList = [];
         let remaining = [];
         let winners = [];
@@ -245,14 +144,10 @@
         function initData(){ 
             const f = localStorage.getItem('classStudents'); 
             fullList = f ? f.split('\n').filter(n=>n.trim()!==''):[]; 
-            
             const r = localStorage.getItem('remainingStudents');
-            if(r) remaining = JSON.parse(r);
-            else remaining = [...fullList];
-
+            remaining = r ? JSON.parse(r) : [...fullList];
             const w = localStorage.getItem('winnerHistory');
-            if(w) winners = JSON.parse(w);
-
+            winners = w ? JSON.parse(w) : [];
             renderBalls(); 
             renderHistory();
         }
@@ -270,7 +165,6 @@
         function renderHistory() {
             const list = document.getElementById('winnerList');
             list.innerHTML = '';
-            // CHỈ HIỆN TÊN (Đã xóa dòng "còn lại...")
             winners.slice().reverse().forEach(name => { 
                 const li = document.createElement('li');
                 li.className = 'history-item';
@@ -279,36 +173,27 @@
             });
         }
 
-        // --- RENDER BÓNG (30 QUẢ - DÀN ĐỀU NGANG) ---
         function renderBalls() {
             const pit = document.getElementById('pit'); 
             pit.innerHTML = '';
-            const totalBalls = 30; // Tăng lên 30 quả
+            const totalBalls = 30; 
             
             for(let i=0; i<totalBalls; i++) {
                 const orb = document.createElement('div'); 
-                const color = ballColors[Math.floor(Math.random()*ballColors.length)];
-                
-                // Tránh vùng hố đen (Hố rộng ~15%, bắt đầu bóng từ 18% -> 92%)
-                const minLeft = 18; 
-                const maxLeft = 92;
+                const colorIndex = i % ballColors.length;
+                const color = ballColors[colorIndex];
+                orb.dataset.colorIndex = colorIndex;
+
+                const minLeft = 15; const maxLeft = 95;
                 const leftPos = Math.random() * (maxLeft - minLeft) + minLeft;
                 
-                // --- CHỈNH SỬA QUAN TRỌNG: ĐỘ CAO THẤP (Low Profile) ---
-                // Hầu hết bóng nằm sát đáy (0-20px)
-                // Một số ít chồng lên (20-45px)
-                let bottomPos;
-                let zIndex;
-                let extraClass = '';
-
-                if (Math.random() < 0.7) { // 70% bóng ở lớp dưới cùng
-                    bottomPos = Math.random() * 20; 
-                    zIndex = 30; // Lớp tiền cảnh sáng
-                    extraClass = 'front-layer';
-                } else { // 30% bóng ở lớp trên/sau
-                    bottomPos = 20 + Math.random() * 25; // Max 45px
-                    zIndex = 5; // Lớp hậu cảnh tối
-                    extraClass = 'back-layer';
+                let bottomPos, zIndex, extraClass='';
+                if (Math.random() < 0.7) { 
+                    bottomPos = Math.random() * 15; 
+                    zIndex = 30; extraClass = 'front-layer'; 
+                } else { 
+                    bottomPos = 15 + Math.random() * 25; 
+                    zIndex = 5; extraClass = 'back-layer'; 
                 }
 
                 orb.className = `ball ${color} ${extraClass}`;
@@ -321,82 +206,180 @@
         }
         initData();
 
-        // --- JOYSTICK LOGIC ---
+        // --- JOYSTICK ---
         function startMove(direction) {
             if(isOperating) return;
             const zone = document.getElementById('joystickZone');
-            if(direction === -1) zone.classList.add('tilt-left'); else zone.classList.add('tilt-right');
+            direction === -1 ? zone.classList.add('tilt-left') : zone.classList.add('tilt-right');
+            
+            // Tắt transition để di chuyển mượt theo thời gian thực
             document.getElementById('arm').style.transition = 'height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95)';
+            
             if(moveInterval) clearInterval(moveInterval);
             moveInterval = setInterval(() => {
                 clawPos += direction * 0.8; 
-                if(clawPos < 10) clawPos = 10; if(clawPos > 90) clawPos = 90;
+                if(clawPos < 5) clawPos = 5; if(clawPos > 95) clawPos = 95;
                 document.getElementById('arm').style.left = clawPos + '%';
             }, 10);
         }
         function stopMove() {
             const zone = document.getElementById('joystickZone');
-            zone.classList.remove('tilt-left'); zone.classList.remove('tilt-right');
+            zone.classList.remove('tilt-left', 'tilt-right');
             if(moveInterval) { clearInterval(moveInterval); moveInterval = null; }
+        }
+
+        // --- TÌM BÓNG CHÍNH XÁC ---
+        function findTargetBall(currentClawX) {
+            const balls = Array.from(document.querySelectorAll('.pit-area .ball:not(.caught)'));
+            let target = null;
+            let minDiff = 1000;
+
+            // Lọc bóng trong phạm vi hẹp (GRAB_TOLERANCE = 6%)
+            const candidates = balls.filter(ball => {
+                if(ball.style.opacity === '0') return false;
+                const ballLeft = parseFloat(ball.style.left);
+                // Tính khoảng cách tuyệt đối
+                const diff = Math.abs(ballLeft - currentClawX);
+                return diff <= GRAB_TOLERANCE;
+            });
+
+            // Sắp xếp: Ưu tiên bóng gần tâm càng nhất -> Sau đó đến bóng cao nhất
+            candidates.sort((a, b) => {
+                const diffA = Math.abs(parseFloat(a.style.left) - currentClawX);
+                const diffB = Math.abs(parseFloat(b.style.left) - currentClawX);
+                // Nếu khoảng cách ngang chênh lệch ít (<2%), ưu tiên quả nằm trên
+                if (Math.abs(diffA - diffB) < 2) {
+                    return parseFloat(b.style.bottom) - parseFloat(a.style.bottom);
+                }
+                return diffA - diffB; // Ưu tiên quả gần tâm nhất
+            });
+
+            if (candidates.length > 0) {
+                target = candidates[0];
+            }
+            return target;
         }
 
         // --- LOGIC GẮP ---
         function dropClaw() {
             if(fullList.length === 0) return alert("Chưa có danh sách lớp!");
-            if(remaining.length === 0) {
-                if(confirm("Đã hết danh sách! Reset?")) resetData();
-                return;
-            }
-
-            if(isOperating) return;
+            if(remaining.length === 0) { if(confirm("Đã hết danh sách! Reset?")) resetData(); return; }
+            if(isOperating) return; 
+            
             isOperating = true;
             document.getElementById('btnGrab').disabled = true;
 
-            const winnerIdx = Math.floor(Math.random() * remaining.length);
-            const winner = remaining[winnerIdx];
-
-            remaining.splice(winnerIdx, 1);
-            winners.push(winner);
-            localStorage.setItem('remainingStudents', JSON.stringify(remaining));
-            localStorage.setItem('winnerHistory', JSON.stringify(winners));
-            renderHistory();
-
             const arm = document.getElementById('arm');
             const claw = document.getElementById('claw');
+            
+            // 1. TÍNH TOÁN
+            const targetBall = findTargetBall(clawPos);
+            let dropHeight = FLOOR_DEPTH; 
+            let finalTarget = null; // Bóng thực sự sẽ gắp
+
+            if (targetBall) {
+                const ballBottom = parseFloat(targetBall.style.bottom);
+                dropHeight = FLOOR_DEPTH - ballBottom - CLAW_OFFSET;
+                finalTarget = targetBall;
+            } else {
+                // Nếu không trúng, hạ xuống đáy
+                dropHeight = FLOOR_DEPTH;
+            }
+
+            // 2. HẠ CẦN
+            arm.style.height = `${dropHeight}px`;
 
             setTimeout(() => {
-                // 1. Hạ (Thấp hơn chút nữa để chạm đáy)
-                arm.style.height = '450px'; 
-                setTimeout(() => {
-                    // 2. Đóng
-                    claw.classList.add('closed');
-                    const caughtOrb = document.createElement('div');
-                    caughtOrb.className = 'ball gold caught';
+                // 3. ĐÓNG CÀNG
+                claw.classList.add('closed');
+                let caughtOrb = null;
+                let isSuccess = false;
+
+                // Chỉ gắp nếu có target hợp lệ VÀ càng đã hạ xuống đúng độ cao
+                if (finalTarget) {
+                    finalTarget.style.opacity = '0'; // Ẩn bóng thật
+                    const colorIndex = finalTarget.dataset.colorIndex;
+                    const color = ballColors[colorIndex] || 'gold';
+                    
+                    caughtOrb = document.createElement('div');
+                    caughtOrb.className = `ball ${color} caught`;
                     claw.appendChild(caughtOrb);
-                    setTimeout(() => {
-                        // 3. Kéo
-                        arm.classList.add('lifting'); claw.classList.add('lifting');
-                        arm.style.height = '40px';
+                    isSuccess = true;
+                }
+
+                setTimeout(() => {
+                    // 4. KÉO LÊN
+                    arm.classList.add('lifting'); claw.classList.add('lifting');
+                    if(isSuccess) arm.classList.add('wobbling'); 
+                    arm.style.height = '40px';
+                    
+                    // --- TỈ LỆ RƠI (30%) ---
+                    let willDrop = isSuccess && Math.random() < 0.3;
+
+                    if (willDrop) {
                         setTimeout(() => {
-                            // 4. Về hố
-                            arm.style.transition = "height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95), left 1s ease-in-out";
-                            arm.style.left = '12%'; 
+                            claw.classList.remove('closed'); // Rơi
+                            if(caughtOrb) caughtOrb.style.top = '500px'; 
+                            arm.classList.remove('wobbling');
+                            
                             setTimeout(() => {
-                                // 5. Thả
+                                if(caughtOrb) caughtOrb.remove();
+                                if(finalTarget) finalTarget.style.opacity = '1'; // Trả bóng lại chỗ cũ
+                                resetGameState();
+                            }, 600);
+                        }, 800);
+                    } 
+                    else if (isSuccess) {
+                        // Gắp thành công -> Về hố
+                        setTimeout(() => {
+                            arm.classList.remove('wobbling');
+                            arm.style.transition = "height 1s cubic-bezier(0.45,0.05,0.55,0.95), left 1s ease-in-out";
+                            arm.style.left = '12%'; 
+                            
+                            setTimeout(() => {
+                                // Thả vào hố
                                 claw.classList.remove('closed');
-                                caughtOrb.style.transition = 'top 0.5s ease-in';
-                                caughtOrb.style.top = '500px'; 
+                                if(caughtOrb) {
+                                    caughtOrb.style.transition = 'top 0.5s ease-in';
+                                    caughtOrb.style.top = '500px';
+                                }
+                                
+                                // Xử lý kết quả
+                                const winnerIdx = Math.floor(Math.random()*remaining.length);
+                                const winner = remaining[winnerIdx];
+                                remaining.splice(winnerIdx,1); winners.push(winner);
+                                localStorage.setItem('remainingStudents',JSON.stringify(remaining));
+                                localStorage.setItem('winnerHistory',JSON.stringify(winners));
+                                renderHistory();
+
                                 setTimeout(() => {
                                     triggerGachaReveal(winner);
-                                    claw.innerHTML = ''; 
-                                    arm.classList.remove('lifting'); claw.classList.remove('lifting');
-                                    setTimeout(() => { arm.style.transition = "height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95)"; }, 1000);
+                                    if(caughtOrb) caughtOrb.remove();
+                                    if(finalTarget) finalTarget.remove(); // Xóa hẳn bóng thật
                                 }, 600);
                             }, 1200);
                         }, 1500);
-                    }, 600);
-                }, 1200);
-            }, 100);
+                    } 
+                    else {
+                        // Gắp trượt hoàn toàn
+                        setTimeout(() => { resetGameState(); }, 1500);
+                    }
+                }, 600);
+            }, 1200);
+        }
+
+        function resetGameState() {
+            const arm = document.getElementById('arm');
+            const claw = document.getElementById('claw');
+            claw.classList.remove('closed');
+            arm.classList.remove('lifting', 'wobbling');
+            claw.classList.remove('lifting');
+            
+            setTimeout(() => {
+                arm.style.transition = "height 1s cubic-bezier(0.45, 0.05, 0.55, 0.95)";
+                isOperating = false;
+                document.getElementById('btnGrab').disabled = false;
+            }, 500);
         }
 
         function triggerGachaReveal(name) {
@@ -409,16 +392,20 @@
         }
 
         function closePopup() {
-            const overlay = document.getElementById('overlay');
+            const overlay = document.getElementById('overlay'); 
             const capsule = document.getElementById('capsule');
-            const arm = document.getElementById('arm');
-            overlay.style.display = 'none';
+            overlay.style.display = 'none'; 
             capsule.classList.remove('open');
-            document.getElementById('btnGrab').disabled = false;
             
-            isOperating = false;
-            clawPos = 50; arm.style.left = '50%';
-            renderBalls(); 
+            // Reset vị trí cần
+            clawPos = 50; 
+            const arm = document.getElementById('arm');
+            arm.style.transition = "left 1s ease-in-out"; 
+            arm.style.left = '50%';
+            
+            setTimeout(() => {
+                resetGameState();
+            }, 1000);
         }
     </script>
 </body>
